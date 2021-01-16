@@ -3442,6 +3442,135 @@ typedef enum DMA_CH_MODE
 #define DCDC_REG3 DCDC_BASE._0x000c
 
 /**
+ * @brief: TEMPMON Memory Map/Register, 19.4, p.1224
+ *
+ **/
+#define TEMPMON_BASE MAP_32BIT_REGISTER(0x400d8180)
+#define TEMPMON_TEMPSENSE0 TEMPMON_BASE._0x0000
+#define TEMPMON_TEMPSENSE0_SET TEMPMON_BASE._0x0004
+#define TEMPMON_TEMPSENSE0_CLR TEMPMON_BASE._0x0008
+#define TEMPMON_TEMPSENSE0_TOG TEMPMON_BASE._0x000c
+#define TEMPMON_TEMPSENSE1 TEMPMON_BASE._0x0010
+#define TEMPMON_TEMPSENSE1_SET TEMPMON_BASE._0x0014
+#define TEMPMON_TEMPSENSE1_CLR TEMPMON_BASE._0x0018
+#define TEMPMON_TEMPSENSE1_TOG TEMPMON_BASE._0x001c
+#define TEMPMON_TEMPSENSE2 TEMPMON_BASE._0x0020
+#define TEMPMON_TEMPSENSE2_SET TEMPMON_BASE._0x0024
+#define TEMPMON_TEMPSENSE2_CLR TEMPMON_BASE._0x0028
+#define TEMPMON_TEMPSENSE2_TOG TEMPMON_BASE._0x002c
+
+/**
+ * @brief: SVNS Memory Map/Register, 20.6.1, p.1224
+ *
+ **/
+#define SVNS_BASE MAP_32BIT_REGISTER(0x400d4000)
+#define SVNS_HP_LR SVNS_BASE._0x0000 // Lock Register
+#define SVNS_HP_COMR SVNS_BASE._0x0004 // Command Register
+#define SVNS_HP_CR SVNS_BASE._0x0008 // Control Register
+#define SVNS_HP_ST SVNS_BASE._0x0014 // Status Register
+#define SVNS_HP_RTCMR SVNS_BASE._0x0024 // Realtime Counter MSB Register
+#define SVNS_HP_RTCLR SVNS_BASE._0x0028 // Realtime Counter LSB Register
+#define SVNS_HP_TAMR SVNS_BASE._0x002c // Time Alarm MSB Register
+#define SVNS_HP_TALR SVNS_BASE._0x0030 // Time Alarm LSB Register
+
+#define SVNS_LP_LR SVNS_BASE._0x0034 // Lock Register
+#define SVNS_LP_CR SVNS_BASE._0x0038 // Control Register
+#define SVNS_LP_SR SVNS_BASE._0x004c // Status Register
+#define SVNS_LP_SMCMR SVNS_BASE._0x005c // Secure Monotonic Counter MSB Register
+#define SVNS_LP_SMCLR SVNS_BASE._0x0060 // Secure Monotonic Counter LSB Register
+#define SVNS_LP_GPR0_LEGACY SVNS_BASE._0x0068 // GeneralPurposeRegister0 Legacy
+
+#define SVNS_LP_GPR0_ALIAS SVNS_BASE._0x0090 // General Purpose Register0 alias
+#define SVNS_LP_GPR1_ALIAS SVNS_BASE._0x0094 // General Purpose Register1 alias
+#define SVNS_LP_GPR2_ALIAS SVNS_BASE._0x0098 // General Purpose Register2 alias
+#define SVNS_LP_GPR3_ALIAS SVNS_BASE._0x009c // General Purpose Register3 alias
+
+#define SVNS_LP_GPR0 SVNS_BASE._0x0100 // General Purpose Register0
+#define SVNS_LP_GPR1 SVNS_BASE._0x0104 // General Purpose Register1
+#define SVNS_LP_GPR2 SVNS_BASE._0x0108 // General Purpose Register2
+#define SVNS_LP_GPR4 SVNS_BASE._0x010c // General Purpose Register3
+
+#define SVNS_HP_VIDR1 SVNS_BASE._0x0bf8 // Version ID Register
+#define SVNS_HP_VIDR2 SVNS_BASE._0x0bfc // Version ID Register
+
+/**
+ * @brief: SRC Memory Map/Register, 21.8, p.1224
+ *
+ **/
+#define SRC_BASE MAP_32BIT_REGISTER(0x400f8000)
+#define SRC_CR SRC_BASE._0x0000 // Control Register
+#define SRC_BMR1 SRC_BASE._0x0004 // Boot Mode Register 1
+#define SRC_RSR SRC_BASE._0x0008 // Reset Status Register
+#define SRC_BMR2 SRC_BASE._0x001c // Boot Mode Register 2
+#define SRC_GPR01 SRC_BASE._0x0020 // General Purpose Register 1
+#define SRC_GPR02 SRC_BASE._0x0024 // General Purpose Register 2
+#define SRC_GPR03 SRC_BASE._0x0028 // General Purpose Register 3
+#define SRC_GPR04 SRC_BASE._0x002c // General Purpose Register 4
+#define SRC_GPR05 SRC_BASE._0x0030 // General Purpose Register 5
+#define SRC_GPR06 SRC_BASE._0x0034 // General Purpose Register 6
+#define SRC_GPR07 SRC_BASE._0x0038 // General Purpose Register 7
+#define SRC_GPR08 SRC_BASE._0x003c // General Purpose Register 8
+#define SRC_GPR09 SRC_BASE._0x0040 // General Purpose Register 9
+#define SRC_GPR10 SRC_BASE._0x0044 // General Purpose Register 10
+
+/**
+ * @brief: OTP Memory Map/Register, 23.6, p.1331
+ *
+ **/
+#define OTP_BASE00 MAP_32BIT_REGISTER(0x401f4000)
+#define OTP_CRSR SRC_BASE00._0x0000 // OTP Controller Control & Status
+#define OTP_CRSR_SET SRC_BASE00._0x0004 // OTP Contr. Control & Status,SET
+#define OTP_CRSR_CLR SRC_BASE00._0x0008 // OTP Contr. Control & Status,CLR
+#define OTP_CRSR_TOG SRC_BASE00._0x000c // OTP Contr. Control & Status,TOG
+#define OTP_TIMING SRC_BASE00._0x0010 // OTP Controller Timing Register
+#define OTP_WDATA SRC_BASE00._0x0020 // OTP Controller Write Data Register
+#define OTP_W_READCTRL SRC_BASE00._0x0030 // OTP Controller W/ Data Register
+#define OTP_R_DR SRC_BASE00._0x0040 // OTP Controller R/ Data Register
+#define OTP_SCS SRC_BASE00._0x0060 // Software Controllable Signal
+#define OTP_SCS_SET SRC_BASE00._0x0064 // Software Controllable Signal Set
+#define OTP_SCS_CLR SRC_BASE00._0x0068 // SoftwareControllableSignal Clear
+#define OTP_SCS_TOG SRC_BASE00._0x006c // SoftwareControllableSignal Toggle
+#define OTP_VERSION SRC_BASE00._0x0090 // OTP Controller Version Register
+#define OTP_TIMING2 SRC_BASE00._0x0100 // OTP Controller Timing Register 2
+
+#define OTP_BASE MAP_32BIT_REGISTER(0x401f4400)
+#define OTP_GPR05 SRC_BASE01._0x0000 // Value of OTP Bank0 Word0 (LOCK)
+#define OTP_GPR06 SRC_BASE01._0x0010 // Value of OTP Bank0 Word1 (CFG0)
+#define OTP_GPR07 SRC_BASE01._0x0020 // Value of OTP Bank0 Word2 (CFG1)
+#define OTP_GPR08 SRC_BASE01._0x0030 // Value of OTP Bank0 Word3 (CFG2)
+#define OTP_GPR09 SRC_BASE01._0x0040 // Value of OTP Bank0 Word4 (CFG3)
+#define OTP_GPR10 SRC_BASE01._0x0050 // Value of OTP Bank0 Word5 (CFG4)
+#define OTP_GPR01 SRC_BASE01._0x0060 // Value of OTP Bank0 Word6 (CFG5)
+#define OTP_GPR02 SRC_BASE01._0x0070 // Value of OTP Bank0 Word7 (CFG6)
+#define OTP_GPR03 SRC_BASE01._0x00f0 // Value of OTP Bank1 Word7 (Analog info)
+
+#define OTP_BASE00 MAP_32BIT_REGISTER(0x401f4600)
+#define OTP_SJC_RESP0 SRC_BASE02._0x0000 // Value of OTP Bank4 Word0
+#define OTP_SJC_RESP1 SRC_BASE02._0x0010 // Value of OTP Bank4 Word1
+#define OTP_MAC0 SRC_BASE02._0x0020 // Value of OTP Bank4 Word2
+#define OTP_MAC1 SRC_BASE02._0x0030 // Value of OTP Bank4 Word3
+#define OTP_MAC2 SRC_BASE02._0x0040 // Value of OTP Bank4 Word4
+#define OTP_GP1 SRC_BASE02._0x0060 // Value of OTP Bank4 Word6
+#define OTP_GP2 SRC_BASE02._0x0070 // Value of OTP Bank4 Word7
+#define OTP_B5W0_SW SRC_BASE02._0x0080 // Value of OTP Bank5 Word0
+#define OTP_B5W5_MISC SRC_BASE02._0x00d0 // Value of OTP Bank5 Word5
+#define OTP_B5W6_MISC SRC_BASE02._0x00e0 // Value of OTP Bank5 Word6
+#define OTP_B7W0 SRC_BASE02._0x0280 // Value of OTP Bank7 Word0
+#define OTP_B7W1 SRC_BASE02._0x0290 // Value of OTP Bank7 Word1
+#define OTP_B7W2 SRC_BASE02._0x02a0 // Value of OTP Bank7 Word2
+#define OTP_B7W3 SRC_BASE02._0x02b0 // Value of OTP Bank7 Word3
+
+/**
+ * @brief: SEMC Memory Map/Register, 25.4.1.1, p.1385
+ *
+ **/
+#define SEMC_BASE00 MAP_32BIT_REGISTER(0x402f0000)
+#define SEMC_MCR SEMC_BASE00._0x0000 // Module Control Register
+#define SEMC_IOCR SEMC_BASE00._0x0004 // IO MUX Control Register
+#define SEMC_BMCR0 SEMC_BASE00._0x0008 // Bus Master Control Register 0
+#define SEMC_BMCR1 SEMC_BASE00._0x000c // Bus Master Control Register 1
+
+/**
  * @brief Analog MUX Channel Mappings
  *
  * NOTE - Vin1 and Vin2 are all connected to VDDA, on this device.
