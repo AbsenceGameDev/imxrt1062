@@ -3569,8 +3569,391 @@ typedef enum DMA_CH_MODE
 #define SEMC_IOCR SEMC_BASE00._0x0004 // IO MUX Control Register
 #define SEMC_BMCR0 SEMC_BASE00._0x0008 // Bus Master Control Register 0
 #define SEMC_BMCR1 SEMC_BASE00._0x000c // Bus Master Control Register 1
+#define SEMC_BR0 SEMC_BASE00._0x0010 // Base Register for SDRAMCS0
+#define SEMC_BR1 SEMC_BASE00._0x0014 // Base Register for SDRAMCS1
+#define SEMC_BR2 SEMC_BASE00._0x0018 // Base Register for SDRAMCS2
+#define SEMC_BR3 SEMC_BASE00._0x001c // Base Register for SDRAMCS3
+#define SEMC_BR4 SEMC_BASE00._0x0020 // Base Register for NAND Device
+#define SEMC_BR5 SEMC_BASE00._0x0024 // Base Register for NOR Device
+#define SEMC_BR6 SEMC_BASE00._0x0028 // Base Register for PSRAM
+#define SEMC_BR7 SEMC_BASE00._0x002c // Base Register for DBI-B
+#define SEMC_BR8 SEMC_BASE00._0x0030 // Base Register for NAND Device
+#define SEMC_DLLCR SEMC_BASE00._0x0034 // DLL Control Register (DLLCR)
+#define SEMC_BR8 SEMC_BASE00._0x0038 // Interrupt Enable Register (INTEN)
+#define SEMC_BR8 SEMC_BASE00._0x003c // Interrupt Enable Register (INTR)
+#define SEMC_SDRAMCR0 SEMC_BASE00._0x0040 // SDRAM control register 0
+#define SEMC_SDRAMCR1 SEMC_BASE00._0x0044 // SDRAM control register 1
+#define SEMC_SDRAMCR2 SEMC_BASE00._0x0048 // SDRAM control register 2
+#define SEMC_SDRAMCR3 SEMC_BASE00._0x004c // SDRAM control register 3
+#define SEMC_NANDCR0 SEMC_BASE00._0x0050 // NAND control register 0
+#define SEMC_NANDCR1 SEMC_BASE00._0x0054 // NAND control register 1
+#define SEMC_NANDCR2 SEMC_BASE00._0x0058 // NAND control register 2
+#define SEMC_NANDCR3 SEMC_BASE00._0x005c // NAND control register 3
+#define SEMC_NORCR0 SEMC_BASE00._0x0060 // NOR control register 0
+#define SEMC_NORCR1 SEMC_BASE00._0x0064 // NOR control register 1
+#define SEMC_NORCR2 SEMC_BASE00._0x0068 // NOR control register 2
+#define SEMC_NORCR3 SEMC_BASE00._0x006c // NOR control register 3
+#define SEMC_SRAMCR0 SEMC_BASE00._0x0070 // SRAM control register 0
+#define SEMC_SRAMCR1 SEMC_BASE00._0x0074 // SRAM control register 1
+#define SEMC_SRAMCR2 SEMC_BASE00._0x0078 // SRAM control register 2
+#define SEMC_SRAMCR3 SEMC_BASE00._0x007c // SRAM control register 3
+#define SEMC_DBICR0 SEMC_BASE00._0x0080 // DBI-B control register 0
+#define SEMC_DBICR1 SEMC_BASE00._0x0084 // DBI-B control register 1
+#define SEMC_IPCR0 SEMC_BASE00._0x0090 // IP Command control register 0 (IPCR0)
+#define SEMC_IPCR1 SEMC_BASE00._0x0094 // IP Command control register 1 (IPCR1)
+#define SEMC_IPCR2 SEMC_BASE00._0x0098 // IP Command control register 2 (IPCR2)
+#define SEMC_IPCMD SEMC_BASE00._0x009c // IP Command register _ _ (IPCMD)
+#define SEMC_IPTXDAT SEMC_BASE00._0x00a0 // TX DATA register (IPCOMD)
+#define SEMC_IPRXDAT SEMC_BASE00._0x00b0 // RX DATA register (IPCOMD)
+#define SEMC_STS00 SEMC_BASE00._0x00c0 // Status register 0 (STS00)
+#define SEMC_STS01 SEMC_BASE00._0x00c4 // Status register 0 (STS01)
+#define SEMC_STS02 SEMC_BASE00._0x00c8 // Status register 0 (STS02)
+#define SEMC_STS03 SEMC_BASE00._0x00cc // Status register 0 (STS03)
+#define SEMC_STS04 SEMC_BASE00._0x00d0 // Status register 0 (STS04)
+#define SEMC_STS05 SEMC_BASE00._0x00d4 // Status register 0 (STS05)
+#define SEMC_STS06 SEMC_BASE00._0x00d8 // Status register 0 (STS06)
+#define SEMC_STS07 SEMC_BASE00._0x00dc // Status register 0 (STS07)
+#define SEMC_STS08 SEMC_BASE00._0x00e0 // Status register 0 (STS08)
+#define SEMC_STS09 SEMC_BASE00._0x00e4 // Status register 0 (STS09)
+#define SEMC_STS10 SEMC_BASE00._0x00e8 // Status register 0 (STS10)
+#define SEMC_STS11 SEMC_BASE00._0x00ec // Status register 0 (STS11)
+#define SEMC_STS12 SEMC_BASE00._0x00f0 // Status register 0 (STS12)
+#define SEMC_STS13 SEMC_BASE00._0x00f4 // Status register 0 (STS13)
+#define SEMC_STS14 SEMC_BASE00._0x00f8 // Status register 0 (STS14)
+#define SEMC_STS15 SEMC_BASE00._0x00fc // Status register 0 (STS15)
 
 /**
+ * @brief: uSDHC Memory Map/Register, 26.9.1, p.1553
+ * This section includes the module memory map
+ * and detailed descriptions of all registers.
+ * See the table on p.1553 for the register memory map for the uSDHC.
+ * All these registers only support 32-bit accesses.
+ * Base address:
+ * 402C_0000h uSDHC1,
+ * 402C_4000h for uSDHC2
+ **/
+#define uSDHC1_BASE MAP_32BIT_REGISTER(0x402c0000) // uSDHC1
+#define uSDHC2_BASE MAP_32BIT_REGISTER(0x402c4000) // uSDHC2
+
+#define uSDHC1_DS_ADDR uSDHC1_BASE._0x0000 // DMA Systems Address
+#define uSDHC2_DS_ADDR uSDHC2_BASE._0x0000 //
+#define uSDHC1_BLK_ATTR uSDHC1_BASE._0x0004 // Block Attributes
+#define uSDHC2_BLK_ATTR uSDHC2_BASE._0x0004 //
+#define uSDHC1_CMD_ARG uSDHC1_BASE._0x0008 // Command Argument
+#define uSDHC2_CMD_ARG uSDHC2_BASE._0x0008 //
+#define uSDHC1_CMD_TX_TYPE uSDHC1_BASE._0x000c // Command Transfer Type
+#define uSDHC2_CMD_TX_TYPE uSDHC2_BASE._0x000c //
+#define uSDHC1_CMD_RSP0 uSDHC1_BASE._0x0010 // Command Response 0
+#define uSDHC2_CMD_RSP0 uSDHC2_BASE._0x0010 //
+#define uSDHC1_CMD_RSP1 uSDHC1_BASE._0x0014 // Command Response 1
+#define uSDHC2_CMD_RSP1 uSDHC2_BASE._0x0014 //
+#define uSDHC1_CMD_RSP2 uSDHC1_BASE._0x0018 // Command Response 2
+#define uSDHC2_CMD_RSP2 uSDHC2_BASE._0x0018 //
+#define uSDHC1_CMD_RSP3 uSDHC1_BASE._0x001c // Command Response 3
+#define uSDHC2_CMD_RSP3 uSDHC2_BASE._0x001c //
+#define uSDHC1_DATABUF_ACCSS_PORT uSDHC1_BASE._0x0020 // Data Buf. Access Port
+#define uSDHC2_DATABUF_ACCSS_PORT uSDHC2_BASE._0x0020 //
+#define uSDHC1_PRES_STATE uSDHC1_BASE._0x0024 // Present State
+#define uSDHC2_PRES_STATE uSDHC2_BASE._0x0024 //
+#define uSDHC1_PRTCL_CTRL uSDHC1_BASE._0x0028 // Protocol Control
+#define uSDHC2_PRTCL_CTRL uSDHC2_BASE._0x0028 //
+#define uSDHC1_SYS_CTRL uSDHC1_BASE._0x002c // System Control
+#define uSDHC2_SYS_CTRL uSDHC2_BASE._0x002c //
+#define uSDHC1_INT_STATUS uSDHC1_BASE._0x0030 // Interrupt Status
+#define uSDHC2_INT_STATUS uSDHC2_BASE._0x0030 //
+#define uSDHC1_INT_STATUS_EN uSDHC1_BASE._0x0034 // Interrupt Status Enable
+#define uSDHC2_INT_STATUS_EN uSDHC2_BASE._0x0034 //
+#define uSDHC1_INT_SIGNAL_EN uSDHC1_BASE._0x0038 // Interrupt Signal Enable
+#define uSDHC2_INT_SIGNAL_EN uSDHC2_BASE._0x0038 //
+#define uSDHC1_AUTOCMD12_ERRSTAT uSDHC1_BASE._0x003c // Auto CMD12 ERRSTAT
+#define uSDHC2_AUTOCMD12_ERRSTAT uSDHC2_BASE._0x003c //
+#define uSDHC1_HOST_CTRL_CAP uSDHC1_BASE._0x0040 // Host Ctrller Capabilities
+#define uSDHC2_HOST_CTRL_CAP uSDHC2_BASE._0x0040 //
+#define uSDHC1_WATMK_LVL uSDHC1_BASE._0x0044 // Watermark Level
+#define uSDHC2_WATMK_LVL uSDHC2_BASE._0x0044 //
+#define uSDHC1_MIX_CTRL uSDHC1_BASE._0x0048 // Mixer Control
+#define uSDHC2_MIX_CTRL uSDHC2_BASE._0x0048 //
+#define uSDHC1_FORCE_EVENT uSDHC1_BASE._0x0050 // Force Event
+#define uSDHC2_FORCE_EVENT uSDHC2_BASE._0x0050 //
+#define uSDHC1_ADMA_ERRSTAT uSDHC1_BASE._0x0054 // ADMA Err Stat Register
+#define uSDHC2_ADMA_ERRSTAT uSDHC2_BASE._0x0054 //
+#define uSDHC1_ADMA_SYS_ADDR uSDHC1_BASE._0x0058 // ADMA Systems Address
+#define uSDHC2_ADMA_SYS_ADDR uSDHC2_BASE._0x0058 //
+#define uSDHC1_DLL_CTRL uSDHC1_BASE._0x0060 // Delay Line Control
+#define uSDHC2_DLL_CTRL uSDHC2_BASE._0x0060 //
+#define uSDHC1_DLL_STAT uSDHC1_BASE._0x0064 // Delay Line Status, READONLY
+#define uSDHC2_DLL_STAT uSDHC2_BASE._0x0064 //
+#define uSDHC1_TUNE_CTRL_STAT uSDHC1_BASE._0x0068 // CLK Tuning ctrl & stat
+#define uSDHC2_TUNE_CTRL_STAT uSDHC2_BASE._0x0068 //
+#define uSDHC1_VEND_SPEC uSDHC1_BASE._0x00c0 //  Vendor Specific 2 Register
+#define uSDHC2_VEND_SPEC uSDHC2_BASE._0x00c0 //
+#define uSDHC1_MMC_BOOT uSDHC1_BASE._0x00c4 // MMC Boot Register
+#define uSDHC2_MMC_BOOT uSDHC2_BASE._0x00c4 //
+#define uSDHC1_VEND_SPEC2 uSDHC1_BASE._0x00c8 // Vendor Specific 2 Register
+#define uSDHC2_VEND_SPEC2 uSDHC2_BASE._0x00c8 //
+#define uSDHC1_TUNING_CTRL uSDHC1_BASE._0x00cc // DMA Systems Address
+#define uSDHC2_TUNING_CTRL uSDHC2_BASE._0x00cc //
+
+/**
+ * @brief: FLEXSPI Memory Map/Register, 27.7, p.1695
+ * All registers can be accessed with 8-bit, 16-bit, and 32-bit width
+ * operations. Neverchange the setting value of reserved fields in control
+ * registers. Changing the value ofreserved fields may impact the normal
+ * functioning of the controller.
+ *
+ * NOTE: For usage that FlexSPI is capable of accessing sensitivememory
+ * contents, protection should be done to FlexSPIcontroller using resource
+ * isolation (e.g. XRDC2, XRDC, RDC) or any kind of equivalent partition control
+ * via SCFW, to makesure only trusted software be allowed to access the FlexSPI
+ * controller register interface
+ *
+ * FlexSPI base address: 402A_8000h
+ * FlexSPI2 base address: 402A_4000h
+ **/
+// 32bit access to FlexSPI + FlexSPI2
+#define FLEXSPI_32BASE0x0 MAP_32BIT_REGISTER(0x402a8000) // FLEXSPI 32bit
+#define FLEXSPI2_32BASE0x0 MAP_32BIT_REGISTER(0x402a4000) // FLEXSPI2 32bit
+
+// 16 bit access to FlexSPI + FlexSPI2
+#define FLEXSPI_16BASE0x0 MAP_16BIT_REGISTER(0x402a8000) // FLEXSPI 16bit
+#define FLEXSPI2_16BASE0x0 MAP_16BIT_REGISTER(0x402a4000) // FLEXSPI2 16bit
+
+// 8bit access to FlexSPI
+#define FLEXSPI_8BASE0x0 MAP_8BIT_REGISTER(0x402a8000) // FLEXSPI 8bit 0x0
+#define FLEXSPI_8BASE0x60 MAP_8BIT_REGISTER(0x402a8060) // FLEXSPI 8bit 0x60
+#define FLEXSPI_8BASE0xa0 MAP_8BIT_REGISTER(0x402a80a0) // FLEXSPI 8bit 0xa0
+#define FLEXSPI_8BASE0xe0 MAP_8BIT_REGISTER(0x402a80e0) // FLEXSPI 8bit 0xe0
+#define FLEXSPI_8BASE0x120 MAP_8BIT_REGISTER(0x402a8120) // FLEXSPI 8bit 0x120
+#define FLEXSPI_8BASE0x160 MAP_8BIT_REGISTER(0x402a8160) // FLEXSPI 8bit 0x160
+#define FLEXSPI_8BASE0x1a0 MAP_8BIT_REGISTER(0x402a81a0) // FLEXSPI 8bit 0x1a0
+#define FLEXSPI_8BASE0x1e0 MAP_8BIT_REGISTER(0x402a81e0) // FLEXSPI 8bit 0x1e0
+#define FLEXSPI_8BASE0x220 MAP_8BIT_REGISTER(0x402a8220) // FLEXSPI 8bit 0x220
+#define FLEXSPI_8BASE0x260 MAP_8BIT_REGISTER(0x402a8260) // FLEXSPI 8bit 0x260
+#define FLEXSPI_8BASE0x2a0 MAP_8BIT_REGISTER(0x402a82a0) // FLEXSPI 8bit 0x2a0
+#define FLEXSPI_8BASE0x2e0 MAP_8BIT_REGISTER(0x402a82e0) // FLEXSPI 8bit 0x2e0
+#define FLEXSPI_8BASE0x320 MAP_8BIT_REGISTER(0x402a8320) // FLEXSPI 8bit 0x320
+
+// 8bit access to FlexSPI2
+#define FLEXSPI2_8BASE0x0 MAP_8BIT_REGISTER(0x402a4000) // FLEXSPI2 8bit 0x0
+#define FLEXSPI2_8BASE0x60 MAP_8BIT_REGISTER(0x402a4060) // FLEXSPI2 8bit 0x60
+#define FLEXSPI2_8BASE0xa0 MAP_8BIT_REGISTER(0x402a40a0) // FLEXSPI2 8bit 0xa0
+#define FLEXSPI2_8BASE0xe0 MAP_8BIT_REGISTER(0x402a40e0) // FLEXSPI2 8bit 0xe0
+#define FLEXSPI2_8BASE0x120 MAP_8BIT_REGISTER(0x402a4120) // FLEXSPI2 8bit 0x120
+#define FLEXSPI2_8BASE0x160 MAP_8BIT_REGISTER(0x402a4160) // FLEXSPI2 8bit 0x160
+#define FLEXSPI2_8BASE0x1a0 MAP_8BIT_REGISTER(0x402a41a0) // FLEXSPI2 8bit 0x1a0
+#define FLEXSPI2_8BASE0x1e0 MAP_8BIT_REGISTER(0x402a41e0) // FLEXSPI2 8bit 0x1e0
+#define FLEXSPI2_8BASE0x220 MAP_8BIT_REGISTER(0x402a4220) // FLEXSPI2 8bit 0x220
+#define FLEXSPI2_8BASE0x260 MAP_8BIT_REGISTER(0x402a4260) // FLEXSPI2 8bit 0x260
+#define FLEXSPI2_8BASE0x2a0 MAP_8BIT_REGISTER(0x402a42a0) // FLEXSPI2 8bit 0x2a0
+#define FLEXSPI2_8BASE0x2e0 MAP_8BIT_REGISTER(0x402a42e0) // FLEXSPI2 8bit 0x2e0
+#define FLEXSPI2_8BASE0x320 MAP_8BIT_REGISTER(0x402a4320) // FLEXSPI2 8bit 0x320
+
+// 8BIT Register pointers to FLEXSPI
+#define FLEXSPI_MCR0 FLEXSPI_8BASE0x0._0x000 // Module Control Register 0
+#define FLEXSPI_MCR1 FLEXSPI_8BASE0x0._0x004 // Module Control Register 1
+#define FLEXSPI_MCR2 FLEXSPI_8BASE0x0._0x008 // Module Control Register 2
+#define FLEXSPI_AHBCR FLEXSPI_8BASE0x0._0x00c // Module Control Register 2
+#define FLEXSPI_INTEN FLEXSPI_8BASE0x0._0x010 // Module Control Register 2
+#define FLEXSPI_INTR FLEXSPI_8BASE0x0._0x014 // Module Control Register 2
+#define FLEXSPI_LUTKEY FLEXSPI_8BASE0x0._0x018 // Module Control Register 2
+#define FLEXSPI_LUTCR FLEXSPI_8BASE0x0._0x01c // Module Control Register 2
+#define FLEXSPI_AHB_RXBUF0 FLEXSPI_8BASE0x0._0x020 // Module Control Register 2
+#define FLEXSPI_AHB_RXBUF1 FLEXSPI_8BASE0x0._0x024 // Module Control Register 2
+#define FLEXSPI_AHB_RXBUF2 FLEXSPI_8BASE0x0._0x028 // Module Control Register 2
+#define FLEXSPI_AHB_RXBUF3 FLEXSPI_8BASE0x0._0x02c // Module Control Register 2
+
+#define FLEXSPI_FLSH_CR0 FLEXSPI_8BASE0x60._0x000 // Module Control Register 2
+#define FLEXSPI_FLSH_CR0 FLEXSPI_8BASE0x60._0x004 // Module Control Register 2
+#define FLEXSPI_FLSH_CR0 FLEXSPI_8BASE0x60._0x008 // Module Control Register 2
+#define FLEXSPI_FLSH_CR0 FLEXSPI_8BASE0x60._0x00c // Module Control Register 2
+#define FLEXSPI_FLSH_CR1 FLEXSPI_8BASE0x60._0x010 // Module Control Register 2
+#define FLEXSPI_FLSH_CR1 FLEXSPI_8BASE0x60._0x014 // Module Control Register 2
+#define FLEXSPI_FLSH_CR1 FLEXSPI_8BASE0x60._0x018 // Module Control Register 2
+#define FLEXSPI_FLSH_CR1 FLEXSPI_8BASE0x60._0x01c // Module Control Register 2
+#define FLEXSPI_FLSH_CR2 FLEXSPI_8BASE0x60._0x020 // Module Control Register 2
+#define FLEXSPI_FLSH_CR2 FLEXSPI_8BASE0x60._0x024 // Module Control Register 2
+#define FLEXSPI_FLSH_CR2 FLEXSPI_8BASE0x60._0x028 // Module Control Register 2
+#define FLEXSPI_FLSH_CR2 FLEXSPI_8BASE0x60._0x02c // Module Control Register 2
+#define FLEXSPI_FLSH_CR3 FLEXSPI_8BASE0x60._0x034 // Module Control Register 2
+
+#define FLEXSPI_IPCR0 FLEXSPI_8BASE0xa0._0x000 // Module Control Register 2
+#define FLEXSPI_IPCR1 FLEXSPI_8BASE0xa0._0x010 // Module Control Register 2
+#define FLEXSPI_IPCMD FLEXSPI_8BASE0xa0._0x018 // Module Control Register 2
+#define FLEXSPI_DLLACR FLEXSPI_8BASE0xa0._0x01c // Module Control Register 2
+#define FLEXSPI_DLLBCR FLEXSPI_8BASE0xa0._0x010 // Module Control Register 2
+#define FLEXSPI_STAT0 FLEXSPI_8BASE0xa0._0x024 // Module Control Register 2
+
+#define FLEXSPI_STAT1 FLEXSPI_8BASE0xe0._0x000 // Module Control Register 2
+#define FLEXSPI_STAT2 FLEXSPI_8BASE0xe0._0x004 // Module Control Register 2
+#define FLEXSPI_AHB_SUSPND FLEXSPI_8BASE0xe0._0x00c // Module Control Register 2
+
+// Flex SPI RX FIFO Data Register 0-31
+// Offset:  100h + (a × 4h), a = [0,31]
+#define FLEXSPI_RX_FDR00 FLEXSPI_8BASE0xe0._0x020 // Module Control Register 2
+#define FLEXSPI_RX_FDR01 FLEXSPI_8BASE0xe0._0x024 // Module Control Register 2
+#define FLEXSPI_RX_FDR02 FLEXSPI_8BASE0xe0._0x028 // Module Control Register 2
+#define FLEXSPI_RX_FDR03 FLEXSPI_8BASE0xe0._0x02c // Module Control Register 2
+
+#define FLEXSPI_RX_FDR04 FLEXSPI_8BASE0xe0._0x030 // Module Control Register 2
+#define FLEXSPI_RX_FDR05 FLEXSPI_8BASE0xe0._0x034 // Module Control Register 2
+#define FLEXSPI_RX_FDR06 FLEXSPI_8BASE0xe0._0x038 // Module Control Register 2
+#define FLEXSPI_RX_FDR07 FLEXSPI_8BASE0xe0._0x03c // Module Control Register 2
+
+#define FLEXSPI_RX_FDR08 FLEXSPI_8BASE0x120._0x000 // Module Control Register 2
+#define FLEXSPI_RX_FDR09 FLEXSPI_8BASE0x120._0x004 // Module Control Register 2
+#define FLEXSPI_RX_FDR10 FLEXSPI_8BASE0x120._0x008 // Module Control Register 2
+#define FLEXSPI_RX_FDR11 FLEXSPI_8BASE0x120._0x00c // Module Control Register 2
+#define FLEXSPI_RX_FDR12 FLEXSPI_8BASE0x120._0x010 // Module Control Register 2
+#define FLEXSPI_RX_FDR13 FLEXSPI_8BASE0x120._0x014 // Module Control Register 2
+#define FLEXSPI_RX_FDR14 FLEXSPI_8BASE0x120._0x018 // Module Control Register 2
+#define FLEXSPI_RX_FDR15 FLEXSPI_8BASE0x120._0x01c // Module Control Register 2
+
+#define FLEXSPI_RX_FDR16 FLEXSPI_8BASE0x120._0x020 // Module Control Register 2
+#define FLEXSPI_RX_FDR17 FLEXSPI_8BASE0x120._0x024 // Module Control Register 2
+#define FLEXSPI_RX_FDR18 FLEXSPI_8BASE0x120._0x028 // Module Control Register 2
+#define FLEXSPI_RX_FDR19 FLEXSPI_8BASE0x120._0x02c // Module Control Register 2
+
+#define FLEXSPI_RX_FDR20 FLEXSPI_8BASE0x120._0x030 // Module Control Register 2
+#define FLEXSPI_RX_FDR21 FLEXSPI_8BASE0x120._0x034 // Module Control Register 2
+#define FLEXSPI_RX_FDR22 FLEXSPI_8BASE0x120._0x038 // Module Control Register 2
+#define FLEXSPI_RX_FDR23 FLEXSPI_8BASE0x120._0x03c // Module Control Register 2
+
+#define FLEXSPI_RX_FDR24 FLEXSPI_8BASE0x160._0x000 // Module Control Register 2
+#define FLEXSPI_RX_FDR25 FLEXSPI_8BASE0x160._0x004 // Module Control Register 2
+#define FLEXSPI_RX_FDR26 FLEXSPI_8BASE0x160._0x008 // Module Control Register 2
+#define FLEXSPI_RX_FDR27 FLEXSPI_8BASE0x160._0x00c // Module Control Register 2
+
+#define FLEXSPI_RX_FDR28 FLEXSPI_8BASE0x160._0x010 // Module Control Register 2
+#define FLEXSPI_RX_FDR29 FLEXSPI_8BASE0x160._0x014 // Module Control Register 2
+#define FLEXSPI_RX_FDR30 FLEXSPI_8BASE0x160._0x018 // Module Control Register 2
+#define FLEXSPI_RX_FDR31 FLEXSPI_8BASE0x160._0x01c // Module Control Register 2
+
+// Flex SPI RX FIFO Data Register 0-31
+// 180h + (a × 4h), a = [0,31]
+#define FLEXSPI_TX_FDR00 FLEXSPI_8BASE0x160._0x020 // Module Control Register 2
+#define FLEXSPI_TX_FDR01 FLEXSPI_8BASE0x160._0x024 // Module Control Register 2
+#define FLEXSPI_TX_FDR02 FLEXSPI_8BASE0x160._0x028 // Module Control Register 2
+#define FLEXSPI_TX_FDR03 FLEXSPI_8BASE0x160._0x02c // Module Control Register 2
+
+#define FLEXSPI_TX_FDR04 FLEXSPI_8BASE0x160._0x030 // Module Control Register 2
+#define FLEXSPI_TX_FDR05 FLEXSPI_8BASE0x160._0x034 // Module Control Register 2
+#define FLEXSPI_TX_FDR06 FLEXSPI_8BASE0x160._0x038 // Module Control Register 2
+#define FLEXSPI_TX_FDR07 FLEXSPI_8BASE0x160._0x03c // Module Control Register 2
+
+#define FLEXSPI_TX_FDR08 FLEXSPI_8BASE0x1a0._0x000 // Module Control Register 2
+#define FLEXSPI_TX_FDR09 FLEXSPI_8BASE0x1a0._0x004 // Module Control Register 2
+#define FLEXSPI_TX_FDR10 FLEXSPI_8BASE0x1a0._0x008 // Module Control Register 2
+#define FLEXSPI_TX_FDR11 FLEXSPI_8BASE0x1a0._0x00c // Module Control Register 2
+
+#define FLEXSPI_TX_FDR12 FLEXSPI_8BASE0x1a0._0x010 // Module Control Register 2
+#define FLEXSPI_TX_FDR13 FLEXSPI_8BASE0x1a0._0x014 // Module Control Register 2
+#define FLEXSPI_TX_FDR14 FLEXSPI_8BASE0x1a0._0x018 // Module Control Register 2
+#define FLEXSPI_TX_FDR15 FLEXSPI_8BASE0x1a0._0x01c // Module Control Register 2
+
+#define FLEXSPI_TX_FDR16 FLEXSPI_8BASE0x1a0._0x020 // Module Control Register 2
+#define FLEXSPI_TX_FDR17 FLEXSPI_8BASE0x1a0._0x024 // Module Control Register 2
+#define FLEXSPI_TX_FDR18 FLEXSPI_8BASE0x1a0._0x028 // Module Control Register 2
+#define FLEXSPI_TX_FDR19 FLEXSPI_8BASE0x1a0._0x02c // Module Control Register 2
+
+#define FLEXSPI_TX_FDR20 FLEXSPI_8BASE0x1a0._0x030 // Module Control Register 2
+#define FLEXSPI_TX_FDR21 FLEXSPI_8BASE0x1a0._0x034 // Module Control Register 2
+#define FLEXSPI_TX_FDR22 FLEXSPI_8BASE0x1a0._0x038 // Module Control Register 2
+#define FLEXSPI_TX_FDR23 FLEXSPI_8BASE0x1a0._0x03c // Module Control Register 2
+
+#define FLEXSPI_TX_FDR24 FLEXSPI_8BASE0x1e0._0x000 // Module Control Register 2
+#define FLEXSPI_TX_FDR25 FLEXSPI_8BASE0x1e0._0x004 // Module Control Register 2
+#define FLEXSPI_TX_FDR26 FLEXSPI_8BASE0x1e0._0x008 // Module Control Register 2
+#define FLEXSPI_TX_FDR27 FLEXSPI_8BASE0x1e0._0x00c // Module Control Register 2
+
+#define FLEXSPI_TX_FDR28 FLEXSPI_8BASE0x1e0._0x010 // Module Control Register 2
+#define FLEXSPI_TX_FDR29 FLEXSPI_8BASE0x1e0._0x014 // Module Control Register 2
+#define FLEXSPI_TX_FDR30 FLEXSPI_8BASE0x1e0._0x018 // Module Control Register 2
+#define FLEXSPI_TX_FDR31 FLEXSPI_8BASE0x1e0._0x01c // Module Control Register 2
+
+//// 200h + (a × 4h), a = [0,63]
+#define FLEXSPI_LUT00 FLEXSPI_8BASE0x1e0._0x020 // Module Control Register 2
+#define FLEXSPI_LUT01 FLEXSPI_8BASE0x1e0._0x024 // Module Control Register 2
+#define FLEXSPI_LUT02 FLEXSPI_8BASE0x1e0._0x028 // Module Control Register 2
+#define FLEXSPI_LUT03 FLEXSPI_8BASE0x1e0._0x02c // Module Control Register 2
+
+#define FLEXSPI_LUT04 FLEXSPI_8BASE0x1e0._0x030 // Module Control Register 2
+#define FLEXSPI_LUT05 FLEXSPI_8BASE0x1e0._0x034 // Module Control Register 2
+#define FLEXSPI_LUT06 FLEXSPI_8BASE0x1e0._0x038 // Module Control Register 2
+#define FLEXSPI_LUT07 FLEXSPI_8BASE0x1e0._0x03c // Module Control Register 2
+
+#define FLEXSPI_LUT08 FLEXSPI_8BASE0x220._0x000 // Module Control Register 2
+#define FLEXSPI_LUT09 FLEXSPI_8BASE0x220._0x004 // Module Control Register 2
+#define FLEXSPI_LUT10 FLEXSPI_8BASE0x220._0x008 // Module Control Register 2
+#define FLEXSPI_LUT11 FLEXSPI_8BASE0x220._0x00c // Module Control Register 2
+
+#define FLEXSPI_LUT12 FLEXSPI_8BASE0x220._0x010 // Module Control Register 2
+#define FLEXSPI_LUT13 FLEXSPI_8BASE0x220._0x014 // Module Control Register 2
+#define FLEXSPI_LUT14 FLEXSPI_8BASE0x220._0x018 // Module Control Register 2
+#define FLEXSPI_LUT15 FLEXSPI_8BASE0x220._0x01c // Module Control Register 2
+
+#define FLEXSPI_LUT16 FLEXSPI_8BASE0x220._0x020 // Module Control Register 2
+#define FLEXSPI_LUT17 FLEXSPI_8BASE0x220._0x024 // Module Control Register 2
+#define FLEXSPI_LUT18 FLEXSPI_8BASE0x220._0x028 // Module Control Register 2
+#define FLEXSPI_LUT19 FLEXSPI_8BASE0x220._0x02c // Module Control Register 2
+
+#define FLEXSPI_LUT20 FLEXSPI_8BASE0x220._0x030 // Module Control Register 2
+#define FLEXSPI_LUT21 FLEXSPI_8BASE0x220._0x034 // Module Control Register 2
+#define FLEXSPI_LUT22 FLEXSPI_8BASE0x220._0x038 // Module Control Register 2
+#define FLEXSPI_LUT23 FLEXSPI_8BASE0x220._0x03c // Module Control Register 2
+
+#define FLEXSPI_LUT24 FLEXSPI_8BASE0x260._0x000 // Module Control Register 2
+#define FLEXSPI_LUT25 FLEXSPI_8BASE0x260._0x004 // Module Control Register 2
+#define FLEXSPI_LUT26 FLEXSPI_8BASE0x260._0x008 // Module Control Register 2
+#define FLEXSPI_LUT27 FLEXSPI_8BASE0x260._0x00c // Module Control Register 2
+
+#define FLEXSPI_LUT28 FLEXSPI_8BASE0x260._0x010 // Module Control Register 2
+#define FLEXSPI_LUT29 FLEXSPI_8BASE0x260._0x014 // Module Control Register 2
+#define FLEXSPI_LUT30 FLEXSPI_8BASE0x260._0x018 // Module Control Register 2
+#define FLEXSPI_LUT31 FLEXSPI_8BASE0x260._0x01c // Module Control Register 2
+
+#define FLEXSPI_LUT32 FLEXSPI_8BASE0x260._0x020 // Module Control Register 2
+#define FLEXSPI_LUT33 FLEXSPI_8BASE0x260._0x024 // Module Control Register 2
+#define FLEXSPI_LUT34 FLEXSPI_8BASE0x260._0x028 // Module Control Register 2
+#define FLEXSPI_LUT35 FLEXSPI_8BASE0x260._0x02c // Module Control Register 2
+
+#define FLEXSPI_LUT36 FLEXSPI_8BASE0x260._0x030 // Module Control Register 2
+#define FLEXSPI_LUT37 FLEXSPI_8BASE0x260._0x034 // Module Control Register 2
+#define FLEXSPI_LUT38 FLEXSPI_8BASE0x260._0x038 // Module Control Register 2
+#define FLEXSPI_LUT39 FLEXSPI_8BASE0x260._0x03c // Module Control Register 2
+
+#define FLEXSPI_LUT40 FLEXSPI_8BASE0x2a0._0x000 // Module Control Register 2
+#define FLEXSPI_LUT41 FLEXSPI_8BASE0x2a0._0x004 // Module Control Register 2
+#define FLEXSPI_LUT42 FLEXSPI_8BASE0x2a0._0x008 // Module Control Register 2
+#define FLEXSPI_LUT43 FLEXSPI_8BASE0x2a0._0x00c // Module Control Register 2
+
+#define FLEXSPI_LUT44 FLEXSPI_8BASE0x2a0._0x010 // Module Control Register 2
+#define FLEXSPI_LUT45 FLEXSPI_8BASE0x2a0._0x014 // Module Control Register 2
+#define FLEXSPI_LUT46 FLEXSPI_8BASE0x2a0._0x018 // Module Control Register 2
+#define FLEXSPI_LUT47 FLEXSPI_8BASE0x2a0._0x01c // Module Control Register 2
+
+#define FLEXSPI_LUT48 FLEXSPI_8BASE0x2a0._0x020 // Module Control Register 2
+#define FLEXSPI_LUT49 FLEXSPI_8BASE0x2a0._0x024 // Module Control Register 2
+#define FLEXSPI_LUT50 FLEXSPI_8BASE0x2a0._0x028 // Module Control Register 2
+#define FLEXSPI_LUT51 FLEXSPI_8BASE0x2a0._0x02c // Module Control Register 2
+
+#define FLEXSPI_LUT52 FLEXSPI_8BASE0x2a0._0x030 // Module Control Register 2
+#define FLEXSPI_LUT53 FLEXSPI_8BASE0x2a0._0x034 // Module Control Register 2
+#define FLEXSPI_LUT54 FLEXSPI_8BASE0x2a0._0x038 // Module Control Register 2
+#define FLEXSPI_LUT55 FLEXSPI_8BASE0x2a0._0x03c // Module Control Register 2
+
+#define FLEXSPI_LUT56 FLEXSPI_8BASE0x2e0._0x000 // Module Control Register 2
+#define FLEXSPI_LUT57 FLEXSPI_8BASE0x2e0._0x004 // Module Control Register 2
+#define FLEXSPI_LUT58 FLEXSPI_8BASE0x2e0._0x008 // Module Control Register 2
+#define FLEXSPI_LUT59 FLEXSPI_8BASE0x2e0._0x00c // Module Control Register 2
+
+#define FLEXSPI_LUT60 FLEXSPI_8BASE0x2e0._0x010 // Module Control Register 2
+#define FLEXSPI_LUT61 FLEXSPI_8BASE0x2e0._0x014 // Module Control Register 2
+#define FLEXSPI_LUT62 FLEXSPI_8BASE0x2e0._0x018 // Module Control Register 2
+#define FLEXSPI_LUT63 FLEXSPI_8BASE0x2e0._0x01c // Module Control Register 2
+
+/**
+
+
  * @brief Analog MUX Channel Mappings
  *
  * NOTE - Vin1 and Vin2 are all connected to VDDA, on this device.
