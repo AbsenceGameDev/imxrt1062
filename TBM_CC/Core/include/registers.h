@@ -1,5 +1,6 @@
+#ifndef REGISTERS_H
+#define REGISTERS_H
 /* Following assumes long is 32-bits */
-
 typedef volatile unsigned long  vuint32_t;
 typedef volatile unsigned short vuint16_t;
 typedef volatile unsigned char  vuint8_t;
@@ -644,3 +645,5 @@ typedef struct {
 #define MAP_16BIT_REGISTER(ADDRESS) (*(imcrt_16t_offset * ADDRESS)
 #define MAP_32BIT_REGISTER(ADDRESS) (*(imcrt_32t_offset * ADDRESS)
 #define OFFSET_(OFFS) _ #OFFS
+
+#endif // REGISTERS_H
