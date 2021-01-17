@@ -5428,7 +5428,7 @@ typedef enum DMA_CH_MODE
 
 /**
  * @brief: FLEXIO, Flexible Input/Output, Memory Map
- * 49.4 p.2853
+ * 50.5 p.2853
  *
  * Per each: 180 registers, (12 + (4*12)) = 60 registers per each FLEXIO
  * Number of Pin IO is 2^4 for FlexIO1,
@@ -5630,43 +5630,761 @@ typedef enum DMA_CH_MODE
 #define FLEXIO3_SHIFTBUFNIS3 FLEXIO3_BASE._0x0080 // Shifter nibble Swapped
 
 /**
+ * @brief: GPT, General Purpose Timers, Memory Map/Register
+ * 52.7 p.2957
  *
- * 0080h - 8Ch Shifter Control N
- *                (SHIFTCTL0 - SHIFTCTL3)
+ * The GPT has 10 user-accessible 32-bit registers,
+ * which are used to configure, operate, and monitor the state of the GPT.
+ * An IP bus write access to the GPT Control Register (GPT_CR)
+ * and the GPT OutputCompare Register1 (GPT_OCR1)
+ * results in one cycle of wait state, while other
+ * valid IPbus accesses incur 0 wait states.
  *
- * 0100h - 10Ch Shifter Configuration N
- *                (SHIFTCFG0 - SHIFTCFG3)
+ * Irrespective of the Response Select signal value,
+ * a Write access to the GPT Status Registers
+ * (Read-only registers GPT_ICR1, GPT_ICR2, GPT_CNT)
+ * will generate a busexception.
  *
- * 0200h - 20Ch Shifter Buffer N
- *                (SHIFTBUF0 - SHIFTBUF3)
+ * •  If the Response Select signal is driven Low, then the Read/Write
+ *    access to theunimplemented address space of GPT (ips_addr is greater
+ *    than or equal to $BASE +$028) will generate a bus exception.
  *
- * 0280h - 28Ch Shifter Buffer N Bit Swapped
- *                (SHIFTBUFBIS0 - SHIFTBUFBIS3)
+ * •  If the Response Select is driven High, then the Read/Write access to
+ *    the unimplemented address space of GPT will not generate any error
+ *    response (like a busexception)
  *
- * 0300h - 30Ch Shifter Buffer N Byte Swapped
- *                (SHIFTBUFBYS0 - SHIFTBUFBYS3)
+ **/
+
+/**
+ * 401fc000 GPT Control Register (GPT1_CR)
+ * 401fc004 GPT Prescaler Register (GPT1_PR)
+ * 401fc008 GPT Status Register (GPT1_SR)
+ * 401fc00c GPT Interrupt Register (GPT1_IR)
+ * 401fc010 GPT Output Compare Register 1 (GPT1_OCR1)
+ * 401fc014 GPT Output Compare Register 2 (GPT1_OCR2)
+ * 401fc018 GPT Output Compare Register 3 (GPT1_OCR3)
+ * 401fc01c GPT Input Capture Register 1 (GPT1_ICR1)
+ * 401fc020 GPT Input Capture Register 2 (GPT1_ICR2)
+ * 401fc024 GPT Counter Register (GPT1_CNT)
+ * 401f0000 GPT Control Register (GPT2_CR)
+ * 401f0004 GPT Prescaler Register (GPT2_PR)
+ * 401f0008 GPT Status Register (GPT2_SR)
+ * 401f000C GPT Interrupt Register (GPT2_IR)
+ * 401f0010 GPT Output Compare Register 1 (GPT2_OCR1)
+ * 401f0014 GPT Output Compare Register 2 (GPT2_OCR2)
+ * 401f0018 GPT Output Compare Register 3 (GPT2_OCR3)
+ * 401f001c GPT Input Capture Register 1 (GPT2_ICR1)
+ * 401f0020 GPT Input Capture Register 2 (GPT2_ICR2)
+ * 401f0024 GPT Counter Register (GPT2_CNT)
  *
- * 0380h - 38Ch Shifter Buffer N Bit Byte Swapped
- *                (SHIFTBUFBBS0 - SHIFTBUFBBS3)
+ */
+
+/**
+ * @brief: PIT, Periodic Interrupt Timer, Memory Map/Register
+ * 53.9 p.2978
  *
- * 0400h - 40Ch Timer Control N
- *                (TIMCTL0 - TIMCTL3)
+ * Base address:
+ * PIT : 0x40084000
  *
- * 0480h - 48Ch Timer Configuration N
- *                (TIMCFG0 - TIMCFG3)
+ **/
+
+/**
+ * 0hPIT Module Control Register (MCR)
+ * E0hPIT Upper Lifetime Timer Register (LTMR64H)
+ * E4hPIT Lower Lifetime Timer Register (LTMR64L)
+ * 100hTimer Load Value Register (LDVAL0)
+ * 104hCurrent Timer Value Register (CVAL0)
+ * 108hTimer Control Register (TCTRL0)
+ * 10ChTimer Flag Register (TFLG0)
+ * 110hTimer Load Value Register (LDVAL1)
+ * 114hCurrent Timer Value Register (CVAL1)
+ * 118hTimer Control Register (TCTRL1)
+ * 11ChTimer Flag Register (TFLG1)
+ * 120hTimer Load Value Register (LDVAL2)
+ * 124hCurrent Timer Value Register (CVAL2)
+ * 128hTimer Control Register (TCTRL2)
+ * 12ChTimer Flag Register (TFLG2)
+ * 130hTimer Load Value Register (LDVAL3)
+ * 134hCurrent Timer Value Register (CVAL3)
+ * 138hTimer Control Register (TCTRL3)
+ * 13ChTimer Flag Register (TFLG3)
+ */
+
+/**
+ * @brief: TMR, Quad Timer, Memory Map/Register
+ * 54.6 p.2990
  *
- * 0500h - 50Ch Timer Compare N
- *                (TIMCMP0 - TIMCMP3)
+ * Base address:
+ * TMR : 0x401dc000
  *
- * 0680h - 68Ch Shifter Buffer N Nibble Byte Swapped
- *                (SHIFTBUFNBS0 - SHIFTBUFNBS3)
+ **/
+
+/**
+ * 401D_C000Timer Channel Comp. Reg. 1 (TMR1_COMP10)
+ * 401D_C002Timer Channel Comp. Reg. 2 (TMR1_COMP20)
+ * 401D_C004Timer Channel Capture Reg. (TMR1_CAPT0)
+ * 401D_C006Timer Channel Load Reg. (TMR1_LOAD0)
+ * 401D_C008Timer Channel Hold Reg. (TMR1_HOLD0)
+ * 401D_C00ATimer Channel Counter Reg. (TMR1_CNTR0)
+ * 401D_C00CTimer Channel Control Reg. (TMR1_CTRL0)
+ * 401D_C00ETimer Channel Status and Control Reg.(TMR1_SCTRL0)
+ * 401D_C010Timer Channel Comparator Load Reg. 1(TMR1_CMPLD10)
+ * 401D_C012Timer Channel Comparator Load Reg. 2(TMR1_CMPLD20)
+ * 401D_C014Timer Channel Comparator Status, Ctrl Reg.(TMR1_CSCTRL0)
+ * 401D_C016Timer Channel Input Filter Reg. (TMR1_FILT0)
+ * 401D_C018Timer Channel DMA Enable Reg. (TMR1_DMA0)
+ * 401D_C01ETimer Channel Enable Register (TMR1_ENBL)
+ * 401D_C020Timer Channel Compare Register 1 (TMR1_COMP11)
+ * 401D_C022Timer Channel Compare Register 2 (TMR1_COMP21)
+ * 401D_C024Timer Channel Capture Register (TMR1_CAPT1)
+ * 401D_C026Timer Channel Load Register (TMR1_LOAD1)
+ * 401D_C028Timer Channel Hold Register (TMR1_HOLD1)
+ * 401D_C02ATimer Channel Counter Register (TMR1_CNTR1)
+ * 401D_C02CTimer Channel Control Register (TMR1_CTRL1)
+ * 401D_C02ETimer Channel Status and Control Reg.(TMR1_SCTRL1)
+ * 401D_C030Timer Channel Comparator Load Register 1(TMR1_CMPLD11)
+ * 401D_C032Timer Channel Comparator Load Register 2(TMR1_CMPLD21)
+ * 401D_C034Timer Channel Comparator Status, Ctrl Reg.(TMR1_CSCTRL1)
+ * 401D_C036Timer Channel Input Filter Register (TMR1_FILT1)
+ * 401D_C038Timer Channel DMA Enable Register (TMR1_DMA1)
+ * 401D_C040Timer Channel Compare Register 1 (TMR1_COMP12)
+ * 401D_C042Timer Channel Compare Register 2 (TMR1_COMP22)
+ * 401D_C044Timer Channel Capture Register (TMR1_CAPT2)
+ * 401D_C046Timer Channel Load Register (TMR1_LOAD2)
+ * 401D_C048Timer Channel Hold Register (TMR1_HOLD2)
+ * 401D_C04ATimer Channel Counter Register (TMR1_CNTR2)
+ * 401D_C04CTimer Channel Control Register (TMR1_CTRL2)
+ * 401D_C04ETimer Channel Status and Control Register(TMR1_SCTRL2)
+ * 401D_C050Timer Channel Comparator Load Register 1(TMR1_CMPLD12)
+ * 401D_C052Timer Channel Comparator Load Register 2(TMR1_CMPLD22)
+ * 401D_C054Timer Channel Comparator Status, Ctrl Register(TMR1_CSCTRL2)
+ * 401D_C056Timer Channel Input Filter Register (TMR1_FILT2)
+ * 401D_C058Timer Channel DMA Enable Register (TMR1_DMA2)
+ * 401D_C060Timer Channel Compare Register 1 (TMR1_COMP13)
+ * 401D_C062Timer Channel Compare Register 2 (TMR1_COMP23)
+ * 401D_C064Timer Channel Capture Register (TMR1_CAPT3)
+ * 401D_C066Timer Channel Load Register (TMR1_LOAD3)
+ * 401D_C068Timer Channel Hold Register (TMR1_HOLD3)
+ * 401D_C06ATimer Channel Counter Register (TMR1_CNTR3)
+ * 401D_C06CTimer Channel Control Register (TMR1_CTRL3)
+ * 401D_C06ETimer Channel Status and Control Register(TMR1_SCTRL3)
+ * 401D_C070Timer Channel Comparator Load Register 1(TMR1_CMPLD13)
+ * 401D_C072Timer Channel Comparator Load Register 2(TMR1_CMPLD23)
+ * 401D_C074Timer Channel Comparator Stat, Ctrl Reg.(TMR1_CSCTRL3)
+ * 401D_C076Timer Channel Input Filter Reg. (TMR1_FILT3)
+ * 401D_C078Timer Channel DMA Enable Reg. (TMR1_DMA3)
+ * 401E_0000Timer Channel Compare Reg. 1 (TMR2_COMP10)
+ * 401E_0002Timer Channel Compare Reg. 2 (TMR2_COMP20)
+ * 401E_0004Timer Channel Capture Reg. (TMR2_CAPT0)
+ * 401E_0006Timer Channel Load Register (TMR2_LOAD0)
+ * 401E_0008Timer Channel Hold Register (TMR2_HOLD0)
+ * 401E_000ATimer Channel Counter Register (TMR2_CNTR0)
+ * 401E_000CTimer Channel Control Register (TMR2_CTRL0)
+ * 401E_000ETimer Channel Status and Control Register(TMR2_SCTRL0)
+ * 401E_0010Timer Channel Comparator Load Register 1(TMR2_CMPLD10)
+ * 401E_0012Timer Channel Comparator Load Register 2(TMR2_CMPLD20)
+ * 401E_0014Timer Channel Comparator Stat and Ctrl Reg.(TMR2_CSCTRL0)
+ * 401E_0016Timer Channel Input Filter Reg. (TMR2_FILT0)
+ * 401E_0018Timer Channel DMA Enable Reg. (TMR2_DMA0)
+ * 401E_001ETimer Channel Enable Reg. (TMR2_ENBL)
+ * 401E_0020Timer Channel Compare Reg. 1 (TMR2_COMP11)
+ * 401E_0022Timer Channel Compare Reg. 2 (TMR2_COMP21)
+ * 401E_0024Timer Channel Capture Reg. (TMR2_CAPT1)
+ * 401E_0026Timer Channel Load Register (TMR2_LOAD1)
+ * 401E_0028Timer Channel Hold Register (TMR2_HOLD1)
+ * 401E_002ATimer Channel Counter Register (TMR2_CNTR1)
+ * 401E_002CTimer Channel Control Register (TMR2_CTRL1)
+ * 401E_002ETimer Channel Status and Control Register(TMR2_SCTRL1)
+ * 401E_0030Timer Channel Comparator Load Register 1(TMR2_CMPLD11)
+ * 401E_0032Timer Channel Comparator Load Register 2(TMR2_CMPLD21)
+ * 401E_0034Timer Channel Comparator Stat, Ctrl Reg.(TMR2_CSCTRL1)
+ * 401E_0036Timer Channel Input Filter Register (TMR2_FILT1)
+ * 401E_0038Timer Channel DMA Enable Register (TMR2_DMA1)
+ * 401E_0040Timer Channel Compare Register 1 (TMR2_COMP12)
+ * 401E_0042Timer Channel Compare Register 2 (TMR2_COMP22)
+ * 401E_0044Timer Channel Capture Register (TMR2_CAPT2)
+ * 401E_0046Timer Channel Load Register (TMR2_LOAD2)
+ * 401E_0048Timer Channel Hold Register (TMR2_HOLD2)
+ * 401E_004ATimer Channel Counter Register (TMR2_CNTR2)
+ * 401E_004CTimer Channel Control Register (TMR2_CTRL2)
+ * 401E_004ETimer Channel Status and Control Register(TMR2_SCTRL2)
+ * 401E_0050Timer Channel Comparator Load Register 1(TMR2_CMPLD12)
+ * 401E_0052Timer Channel Comparator Load Register 2(TMR2_CMPLD22)
+ * 401E_0054Timer Channel Comparator Stat, Ctrl Reg.(TMR2_CSCTRL2)
+ * 401E_0056Timer Channel Input Filter Register (TMR2_FILT2)
+ * 401E_0058Timer Channel DMA Enable Register (TMR2_DMA2)
+ * 401E_0060Timer Channel Compare Register 1 (TMR2_COMP13)
+ * 401E_0062Timer Channel Compare Register 2 (TMR2_COMP23)
+ * 401E_0064Timer Channel Capture Register (TMR2_CAPT3)
+ * 401E_0066Timer Channel Load Register (TMR2_LOAD3)
+ * 401E_0068Timer Channel Hold Register (TMR2_HOLD3)
+ * 401E_006ATimer Channel Counter Register (TMR2_CNTR3)
+ * 401E_006CTimer Channel Control Register (TMR2_CTRL3)
+ * 401E_006ETimer Channel Status and Control Register(TMR2_SCTRL3)
+ * 401E_0070Timer Channel Comparator Load Register 1(TMR2_CMPLD13)
+ * 401E_0072Timer Channel Comparator Load Register 2(TMR2_CMPLD23)
+ * 401E_0074Timer Channel Comparator Status and Control Register(TMR2_CSCTRL3)
  *
- * 0700h - 70Ch Shifter Buffer N Half Word Swapped
- *                (SHIFTBUFHWS0 - SHIFTBUFHWS3)
+ * 401E_0076Timer Channel Input Filter Register (TMR2_FILT3)
+ * 401E_0078Timer Channel DMA Enable Register (TMR2_DMA3)
+ * 401E_4000Timer Channel Compare Register 1 (TMR3_COMP10)
+ * 401E_4002Timer Channel Compare Register 2 (TMR3_COMP20)
+ * 401E_4004Timer Channel Capture Register (TMR3_CAPT0)
+ * 401E_4006Timer Channel Load Register (TMR3_LOAD0)
+ * 401E_4008Timer Channel Hold Register (TMR3_HOLD0)
+ * 401E_400ATimer Channel Counter Register (TMR3_CNTR0)
+ * 401E_400CTimer Channel Control Register (TMR3_CTRL0)
+ * 401E_400ETimer Channel Status and Control Register(TMR3_SCTRL0)
+ * 401E_4010Timer Channel Comparator Load Register 1(TMR3_CMPLD10)
+ * 401E_4012Timer Channel Comparator Load Register 2(TMR3_CMPLD20)
+ * 4401E_4014Timer Channel Comparator Status and Control Register(TMR3_CSCTRL0)
  *
- * 0780h - 78ChShifter Buffer N Nibble Swapped
- *                 (SHIFTBUFNIS0 - SHIFTBUFNIS3)
+ * 401E_4016Timer Channel Input Filter Register (TMR3_FILT0)
+ * 401E_4018Timer Channel DMA Enable Register (TMR3_DMA0)
+ * 401E_401ETimer Channel Enable Register (TMR3_ENBL)
+ * 401E_4020Timer Channel Compare Register 1 (TMR3_COMP11)
+ * 401E_4022Timer Channel Compare Register 2 (TMR3_COMP21)
+ * 401E_4024Timer Channel Capture Register (TMR3_CAPT1)
+ * 401E_4026Timer Channel Load Register (TMR3_LOAD1)
+ * 401E_4028Timer Channel Hold Register (TMR3_HOLD1)
+ * 401E_402ATimer Channel Counter Register (TMR3_CNTR1)
+ * 401E_402CTimer Channel Control Register (TMR3_CTRL1)
+ * 401E_402ETimer Channel Status and Control Register(TMR3_SCTRL1)
+ * 401E_4030Timer Channel Comparator Load Register 1(TMR3_CMPLD11)
+ * 401E_4032Timer Channel Comparator Load Register 2(TMR3_CMPLD21)
+ * 401E_4034Timer Channel Comparator Status and Control Register(TMR3_CSCTRL1)
  *
+ * 401E_4036Timer Channel Input Filter Register (TMR3_FILT1)
+ * 401E_4038Timer Channel DMA Enable Register (TMR3_DMA1)
+ * 401E_4040Timer Channel Compare Register 1 (TMR3_COMP12)
+ * 401E_4042Timer Channel Compare Register 2 (TMR3_COMP22)
+ * 401E_4044Timer Channel Capture Register (TMR3_CAPT2)
+ * 401E_4046Timer Channel Load Register (TMR3_LOAD2)
+ * 401E_4048Timer Channel Hold Register (TMR3_HOLD2)
+ * 401E_404ATimer Channel Counter Register (TMR3_CNTR2)
+ * 401E_404CTimer Channel Control Register (TMR3_CTRL2)
+ * 401E_404ETimer Channel Status and Control Register(TMR3_SCTRL2)
+ * 401E_4050Timer Channel Comparator Load Register 1(TMR3_CMPLD12)
+ * 401E_4052Timer Channel Comparator Load Register 2(TMR3_CMPLD22)
+ * 4401E_4054Timer Channel Comparator Status and Control Register(TMR3_CSCTRL2)
+ *
+ * 401E_4056Timer Channel Input Filter Register (TMR3_FILT2)
+ * 401E_4058Timer Channel DMA Enable Register (TMR3_DMA2)
+ * 401E_4060Timer Channel Compare Register 1 (TMR3_COMP13)
+ * 401E_4062Timer Channel Compare Register 2 (TMR3_COMP23)
+ * 401E_4064Timer Channel Capture Register (TMR3_CAPT3)
+ * 401E_4066Timer Channel Load Register (TMR3_LOAD3)
+ * 401E_4068Timer Channel Hold Register (TMR3_HOLD3)
+ * 401E_406ATimer Channel Counter Register (TMR3_CNTR3)
+ * 401E_406CTimer Channel Control Register (TMR3_CTRL3)
+ * 401E_406ETimer Channel Status and Control Register(TMR3_SCTRL3)
+ * 401E_4070Timer Channel Comparator Load Register 1(TMR3_CMPLD13)
+ * 401E_4072Timer Channel Comparator Load Register 2(TMR3_CMPLD23)
+ * 401E_4074Timer Channel Comparator Status and Control Register(TMR3_CSCTRL3)
+ *
+ * 401E_4076Timer Channel Input Filter Register (TMR3_FILT3)
+ * 401E_4078Timer Channel DMA Enable Register (TMR3_DMA3)
+ * 401E_8000Timer Channel Compare Register 1 (TMR4_COMP10)
+ * 401E_8002Timer Channel Compare Register 2 (TMR4_COMP20)
+ * 401E_8004Timer Channel Capture Register (TMR4_CAPT0)
+ * 401E_8006Timer Channel Load Register (TMR4_LOAD0)
+ * 401E_8008Timer Channel Hold Register (TMR4_HOLD0)
+ * 401E_800ATimer Channel Counter Register (TMR4_CNTR0)
+ * 401E_800CTimer Channel Control Register (TMR4_CTRL0)
+ * 401E_800ETimer Channel Status and Control Register(TMR4_SCTRL0)
+ * 401E_8010Timer Channel Comparator Load Register 1(TMR4_CMPLD10)
+ * 401E_8012Timer Channel Comparator Load Register 2(TMR4_CMPLD20)
+ * 401E_8014Timer Channel Comparator Status and Control Register(TMR4_CSCTRL0)
+ *
+ * 401E_8016Timer Channel Input Filter Register (TMR4_FILT0)
+ * 401E_8018Timer Channel DMA Enable Register (TMR4_DMA0)
+ * 401E_801ETimer Channel Enable Register (TMR4_ENBL)
+ * 401E_8020Timer Channel Compare Register 1 (TMR4_COMP11)
+ * 401E_8022Timer Channel Compare Register 2 (TMR4_COMP21)
+ * 401E_8024Timer Channel Capture Register (TMR4_CAPT1)
+ * 401E_8026Timer Channel Load Register (TMR4_LOAD1)
+ * 401E_8028Timer Channel Hold Register (TMR4_HOLD1)
+ * 401E_802ATimer Channel Counter Register (TMR4_CNTR1)
+ * 401E_802CTimer Channel Control Register (TMR4_CTRL1)
+ * 401E_802ETimer Channel Status and Control Register(TMR4_SCTRL1)
+ * 401E_8030Timer Channel Comparator Load Register 1(TMR4_CMPLD11)
+ * 401E_8032Timer Channel Comparator Load Register 2(TMR4_CMPLD21)
+ * 401E_8034Timer Channel Comparator Status and Control Register(TMR4_CSCTRL1)
+ *
+ * 401E_8036Timer Channel Input Filter Register (TMR4_FILT1)
+ * 401E_8038Timer Channel DMA Enable Register (TMR4_DMA1)
+ * 401E_8040Timer Channel Compare Register 1 (TMR4_COMP12)
+ * 401E_8042Timer Channel Compare Register 2 (TMR4_COMP22)
+ * 401E_8044Timer Channel Capture Register (TMR4_CAPT2)
+ * 401E_8046Timer Channel Load Register (TMR4_LOAD2)
+ * 401E_8048Timer Channel Hold Register (TMR4_HOLD2)
+ * 401E_804ATimer Channel Counter Register (TMR4_CNTR2)
+ * 401E_804CTimer Channel Control Register (TMR4_CTRL2)
+ * 401E_804ETimer Channel Status and Control Register(TMR4_SCTRL2)
+ * 401E_8050Timer Channel Comparator Load Register 1(TMR4_CMPLD12)
+ * 401E_8052Timer Channel Comparator Load Register 2(TMR4_CMPLD22)
+ * 401E_8054Timer Channel Comparator Status and Control Register(TMR4_CSCTRL2)
+ *
+ * 401E_8056Timer Channel Input Filter Register (TMR4_FILT2)
+ * 401E_8058Timer Channel DMA Enable Register (TMR4_DMA2)
+ * 401E_8060Timer Channel Compare Register 1 (TMR4_COMP13)
+ * 401E_8062Timer Channel Compare Register 2 (TMR4_COMP23)
+ * 401E_8064Timer Channel Capture Register (TMR4_CAPT3)
+ * 401E_8066Timer Channel Load Register (TMR4_LOAD3)
+ * 401E_8068Timer Channel Hold Register (TMR4_HOLD3)
+ * 401E_806ATimer Channel Counter Register (TMR4_CNTR3)
+ * 401E_806CTimer Channel Control Register (TMR4_CTRL3)
+ * 401E_806ETimer Channel Status and Control Register(TMR4_SCTRL3)
+ * 401E_8070Timer Channel Comparator Load Register 1(TMR4_CMPLD13)
+ * 401E_8072Timer Channel Comparator Load Register 2(TMR4_CMPLD23)
+ * 401E_8074Timer Channel Comparator Status and Control Register(TMR4_CSCTRL3)
+ *
+ * 401E_8076Timer Channel Input Filter Register (TMR4_FILT3)
+ * 401E_8078Timer Channel DMA Enable Register (TMR4_DMA3)
+ *
+ *
+ */
+
+/**
+ * @brief: PWM, Enhanced Flex Pulse Widh Modulator (eFlexPWM), Memory
+ *Map/Register 55.8.1, p.3074
+ *
+ * Base addresses:
+ * FlexPWM1: 0x403dc000
+ * FlexPWM2: 0x403e0000
+ * FlexPWM3: 0x403e4000
+ * FlexPWM4: 0x403e8000
+ *
+ * NOTE: PWM_X only applicable to FlexPWM1,
+ * while FlexPWM2/3/4do not have the PWMX outputs or inputs.
+ *
+ **/
+
+/**
+ * 0hCounter Register (SM0CNT)
+ * 2hInitial Count Register (SM0INIT)
+ * 4hControl 2 Register (SM0CTRL2)
+ * 6hControl Register (SM0CTRL)
+ * AhValue Register 0 (SM0VAL0)
+ * ChFractional Value Register 1 (SM0FRACVAL1)
+ * EhValue Register 1 (SM0VAL1)
+ * 10hFractional Value Register 2 (SM0FRACVAL2)
+ * 12hValue Register 2 (SM0VAL2)
+ * 14hFractional Value Register 3 (SM0FRACVAL3)
+ * 16hValue Register 3 (SM0VAL3)
+ * 18hFractional Value Register 4 (SM0FRACVAL4)
+ * 1AhValue Register 4 (SM0VAL4)
+ * 1ChFractional Value Register 5 (SM0FRACVAL5)
+ * 1EhValue Register 5 (SM0VAL5)
+ * 20hFractional Control Register (SM0FRCTRL)
+ * 22hOutput Control Register (SM0OCTRL)
+ * 24hStatus Register (SM0STS)
+ * 26hInterrupt Enable Register (SM0INTEN)
+ * 28hDMA Enable Register (SM0DMAEN)
+ * 2AhOutput Trigger Control Register (SM0TCTRL)
+ * 2ChFault Disable Mapping Register 0 (SM0DISMAP0)
+ * 2EhFault Disable Mapping Register 1 (SM0DISMAP1)
+ * 30hDeadtime Count Register 0 (SM0DTCNT0)
+ * 32hDeadtime Count Register 1 (SM0DTCNT1)
+ * 34hCapture Control A Register (SM0CAPTCTRLA)
+ * 36hCapture Compare A Register (SM0CAPTCOMPA)
+ * 38hCapture Control B Register (SM0CAPTCTRLB)
+ * 3AhCapture Compare B Register (SM0CAPTCOMPB)
+ * 3ChCapture Control X Register (SM0CAPTCTRLX)
+ * 3EhCapture Compare X Register (SM0CAPTCOMPX)
+ * 40hCapture Value 0 Register (SM0CVAL0)
+ * 42hCapture Value 0 Cycle Register (SM0CVAL0CYC)
+ * 44hCapture Value 1 Register (SM0CVAL1)
+ * 46hCapture Value 1 Cycle Register (SM0CVAL1CYC)
+ * 48hCapture Value 2 Register (SM0CVAL2)
+ * 4AhCapture Value 2 Cycle Register (SM0CVAL2CYC)
+ * 4ChCapture Value 3 Register (SM0CVAL3)
+ * 4EhCapture Value 3 Cycle Register (SM0CVAL3CYC)
+ * 50hCapture Value 4 Register (SM0CVAL4)
+ * 52hCapture Value 4 Cycle Register (SM0CVAL4CYC)
+ * 54hCapture Value 5 Register (SM0CVAL5)
+ * 56hCapture Value 5 Cycle Register (SM0CVAL5CYC)
+ * 60hCounter Register (SM1CNT)
+ * 62hInitial Count Register (SM1INIT)
+ * 64hControl 2 Register (SM1CTRL2)
+ * 66hControl Register (SM1CTRL)
+ * 6AhValue Register 0 (SM1VAL0)
+ * 6ChFractional Value Register 1 (SM1FRACVAL1)
+ * 6EhValue Register 1 (SM1VAL1)
+ * 70hFractional Value Register 2 (SM1FRACVAL2)
+ * 72hValue Register 2 (SM1VAL2)
+ * 74hFractional Value Register 3 (SM1FRACVAL3)
+ * 76hValue Register 3 (SM1VAL3)
+ * 78hFractional Value Register 4 (SM1FRACVAL4)
+ * 7AhValue Register 4 (SM1VAL4)
+ * 7ChFractional Value Register 5 (SM1FRACVAL5)
+ * 7EhValue Register 5 (SM1VAL5)
+ * 80hFractional Control Register (SM1FRCTRL)
+ * 82hOutput Control Register (SM1OCTRL)
+ * 84hStatus Register (SM1STS)
+ * 86hInterrupt Enable Register (SM1INTEN)
+ * 88hDMA Enable Register (SM1DMAEN)
+ * 8AhOutput Trigger Control Register (SM1TCTRL)
+ * 8ChFault Disable Mapping Register 0 (SM1DISMAP0)
+ * 8EhFault Disable Mapping Register 1 (SM1DISMAP1)
+ * 90hDeadtime Count Register 0 (SM1DTCNT0)
+ * 92hDeadtime Count Register 1 (SM1DTCNT1)
+ * 94hCapture Control A Register (SM1CAPTCTRLA)
+ * 96hCapture Compare A Register (SM1CAPTCOMPA)
+ * 98hCapture Control B Register (SM1CAPTCTRLB)
+ * 9AhCapture Compare B Register (SM1CAPTCOMPB)
+ * 9ChCapture Control X Register (SM1CAPTCTRLX)
+ * 9EhCapture Compare X Register (SM1CAPTCOMPX)
+ * A0hCapture Value 0 Register (SM1CVAL0)
+ * A2hCapture Value 0 Cycle Register (SM1CVAL0CYC)
+ * A4hCapture Value 1 Register (SM1CVAL1)
+ * A6hCapture Value 1 Cycle Register (SM1CVAL1CYC)
+ * A8hCapture Value 2 Register (SM1CVAL2)
+ * AAhCapture Value 2 Cycle Register (SM1CVAL2CYC)
+ * AChCapture Value 3 Register (SM1CVAL3)
+ * AEhCapture Value 3 Cycle Register (SM1CVAL3CYC)
+ * B0hCapture Value 4 Register (SM1CVAL4)
+ * B2hCapture Value 4 Cycle Register (SM1CVAL4CYC)
+ * B4hCapture Value 5 Register (SM1CVAL5)
+ * B6hCapture Value 5 Cycle Register (SM1CVAL5CYC)
+ * C0hCounter Register (SM2CNT)
+ * C2hInitial Count Register (SM2INIT)
+ * C4hControl 2 Register (SM2CTRL2)
+ * C6hControl Register (SM2CTRL)
+ * CAhValue Register 0 (SM2VAL0)
+ * CChFractional Value Register 1 (SM2FRACVAL1)
+ * CEhValue Register 1 (SM2VAL1)
+ * D0hFractional Value Register 2 (SM2FRACVAL2)
+ * D2hValue Register 2 (SM2VAL2)
+ * D4hFractional Value Register 3 (SM2FRACVAL3)
+ * D6hValue Register 3 (SM2VAL3)
+ * D8hFractional Value Register 4 (SM2FRACVAL4)
+ * DAhValue Register 4 (SM2VAL4)
+ * DChFractional Value Register 5 (SM2FRACVAL5)
+ * DEhValue Register 5 (SM2VAL5)
+ * E0hFractional Control Register (SM2FRCTRL)
+ * E2hOutput Control Register (SM2OCTRL)
+ * E4hStatus Register (SM2STS)
+ * E6hInterrupt Enable Register (SM2INTEN)
+ * E8hDMA Enable Register (SM2DMAEN)
+ * EAhOutput Trigger Control Register (SM2TCTRL)
+ * EChFault Disable Mapping Register 0 (SM2DISMAP0)
+ * EEhFault Disable Mapping Register 1 (SM2DISMAP1)
+ * F0hDeadtime Count Register 0 (SM2DTCNT0)
+ * F2hDeadtime Count Register 1 (SM2DTCNT1)
+ * F4hCapture Control A Register (SM2CAPTCTRLA)
+ * F6hCapture Compare A Register (SM2CAPTCOMPA)
+ * F8hCapture Control B Register (SM2CAPTCTRLB)
+ * FAhCapture Compare B Register (SM2CAPTCOMPB)
+ * FChCapture Control X Register (SM2CAPTCTRLX)
+ * FEhCapture Compare X Register (SM2CAPTCOMPX)
+ * 100hCapture Value 0 Register (SM2CVAL0)
+ * 102hCapture Value 0 Cycle Register (SM2CVAL0CYC)
+ * 104hCapture Value 1 Register (SM2CVAL1)
+ * 106hCapture Value 1 Cycle Register (SM2CVAL1CYC)
+ * 108hCapture Value 2 Register (SM2CVAL2)
+ * 10AhCapture Value 2 Cycle Register (SM2CVAL2CYC)
+ * 10ChCapture Value 3 Register (SM2CVAL3)
+ * 10EhCapture Value 3 Cycle Register (SM2CVAL3CYC)
+ * 110hCapture Value 4 Register (SM2CVAL4)
+ * 112hCapture Value 4 Cycle Register (SM2CVAL4CYC)
+ * 114hCapture Value 5 Register (SM2CVAL5)
+ * 116hCapture Value 5 Cycle Register (SM2CVAL5CYC)
+ * 120hCounter Register (SM3CNT)
+ * 122hInitial Count Register (SM3INIT)
+ * 124hControl 2 Register (SM3CTRL2)
+ * 126hControl Register (SM3CTRL)
+ * 12AhValue Register 0 (SM3VAL0)
+ * 12ChFractional Value Register 1 (SM3FRACVAL1)
+ * 12EhValue Register 1 (SM3VAL1)
+ * 130hFractional Value Register 2 (SM3FRACVAL2)
+ * 132hValue Register 2 (SM3VAL2)
+ * 134hFractional Value Register 3 (SM3FRACVAL3)
+ * 136hValue Register 3 (SM3VAL3)
+ * 138hFractional Value Register 4 (SM3FRACVAL4)
+ * 13AhValue Register 4 (SM3VAL4)
+ * 13ChFractional Value Register 5 (SM3FRACVAL5)
+ * 13EhValue Register 5 (SM3VAL5)
+ * 140hFractional Control Register (SM3FRCTRL)
+ * 142hOutput Control Register (SM3OCTRL)
+ * 144hStatus Register (SM3STS)
+ * 146hInterrupt Enable Register (SM3INTEN)
+ * 148hDMA Enable Register (SM3DMAEN)
+ * 14AhOutput Trigger Control Register (SM3TCTRL)
+ * 14ChFault Disable Mapping Register 0 (SM3DISMAP0)
+ * 14EhFault Disable Mapping Register 1 (SM3DISMAP1)
+ * 150hDeadtime Count Register 0 (SM3DTCNT0)
+ * 152hDeadtime Count Register 1 (SM3DTCNT1)
+ * 154hCapture Control A Register (SM3CAPTCTRLA)
+ * 156hCapture Compare A Register (SM3CAPTCOMPA)
+ * 158hCapture Control B Register (SM3CAPTCTRLB)
+ * 15AhCapture Compare B Register (SM3CAPTCOMPB)
+ * 15ChCapture Control X Register (SM3CAPTCTRLX)
+ * 15EhCapture Compare X Register (SM3CAPTCOMPX)
+ * 160hCapture Value 0 Register (SM3CVAL0)
+ * 162hCapture Value 0 Cycle Register (SM3CVAL0CYC)
+ * 16RO0000h164hCapture Value 1 Register (SM3CVAL1)
+ * 166hCapture Value 1 Cycle Register (SM3CVAL1CYC)
+ * 168hCapture Value 2 Register (SM3CVAL2)
+ * 16AhCapture Value 2 Cycle Register (SM3CVAL2CYC)
+ * 16ChCapture Value 3 Register (SM3CVAL3)
+ * 16EhCapture Value 3 Cycle Register (SM3CVAL3CYC)
+ * 170hCapture Value 4 Register (SM3CVAL4)
+ * 172hCapture Value 4 Cycle Register (SM3CVAL4CYC)
+ * 174hCapture Value 5 Register (SM3CVAL5)
+ * 176hCapture Value 5 Cycle Register (SM3CVAL5CYC)
+ * 180hOutput Enable Register (OUTEN)
+ * 182hMask Register (MASK)
+ * 184hSoftware Controlled Output Register (SWCOUT)
+ * 186hPWM Source Select Register (DTSRCSEL)
+ * 188hMaster Control Register (MCTRL)
+ * 18AhMaster Control 2 Register (MCTRL2)
+ * 18ChFault Control Register (FCTRL0)
+ * 18EhFault Status Register (FSTS0)
+ * 190hFault Filter Register (FFILT0)
+ * 192hFault Test Register (FTST0)
+ * 194hFault Control 2 Register (FCTRL20)
+ *
+ */
+
+/**
+ * @brief: ENC, Quadrature Encoder/decoder, Memory Map/Register
+ * 56.8, p.3187
+ *
+ * Base addresses:
+ * ENCn base address: 403C_8000h + (n-1)×4000h, where n is from 1 to 4.
+ *
+ * NOTE: The address of a register is the sum of a base address and an address
+ *offset. •  Base address is defined at the MCU level •  Address offset is
+ *defined at the module level
+ *
+ * For the base address, see the specific chip documentation.
+ * All memory locations base andoffsets are given in hex.
+ **/
+
+/**
+ * 0hControl Register (CTRL)
+ * 2hInput Filter Register (FILT)
+ * h4hWatchdog Timeout Register (WTR)
+ * 6hPosition Difference Counter Register (POSD)
+ * 8hPosition Difference Hold Register (POSDH)
+ * AhRevolution Counter Register (REV)
+ * ChRevolution Hold Register (REVH)
+ * EhUpper Position Counter Register (UPOS)
+ * 10hLower Position Counter Register (LPOS)
+ * 12hUpper Position Hold Register (UPOSH)
+ * 14hLower Position Hold Register (LPOSH)
+ * 16hUpper Initialization Register (UINIT)
+ * 18hLower Initialization Register (LINIT)
+ * 1AhInput Monitor Register (IMR)
+ * 1ChTest Register (TST)
+ * 1EhControl 2 Register (CTRL2)
+ * 20hUpper Modulus Register (UMOD)
+ * 22hLower Modulus Register (LMOD)
+ * 24hUpper Position Compare Register (UCOMP)
+ * 26hLower Position Compare Register (LCOMP)
+ */
+
+/**
+ * @brief: WDOG1_2, Watchdog Timer , Memory Map/Register
+ * 56.8, p.3151
+ *
+ * WDOG1 base address: 400B_8000h.
+ * WDOG2 base address: 400D_0000h.
+ *
+ **/
+
+/**
+ * 0hWatchdog Control (WCR)
+ * 2hWatchdog Service (WSR)
+ * 4hWatchdog Reset Status (WRSR)
+ * 6hWatchdog Interrupt Control (WICR)
+ * 8hWatchdog Miscellaneous Control (WMCR)
+ */
+
+/**
+ * @brief: RTWDOG, Real Time Watchdog Timer , Memory Map/Register
+ * 58.5 p.3206
+ *
+ * WDOG3 (RTWDOG) base address: 0x400bc000
+ *
+ **/
+
+/**
+ * 0hWatchdog Control and Status (CS)
+ * 4hWatchdog Counter (CNT)
+ * 8hWatchdog Timeout Value (TOVAL)
+ * ChWatchdog Window (WIN)
+ *
+ */
+
+/**
+ * @brief: EWM, External Watchdog Monitor , Memory Map/Register
+ * 59.6 p.3221
+ *
+ * DEFAULT_NICKNAME base address: 0x400b4000
+ *
+ **/
+
+/**
+ * 0hControl Register (CTRL)
+ * 1hService Register (SERV)
+ * 2hCompare Low Register (CMPL)
+ * 3hCompare High Register (CMPH)
+ * 4hClock Control Register (CLKCTRL)
+ * 5hClock Prescaler Register (CLKPRESCALER)
+ *
+ *
+ */
+
+/**
+ * @brief: XBARA,  Inter-Peripheral Crossbar Switch B , Memory Map/Register
+ * 61.4 p.3235
+ *
+ * base address: 0x403bc000
+ *
+ **/
+
+/**
+ * 0x403bc000 CrossbarA Select Reg. 0 (XBARA1_SEL0)
+ * 0x403bc002 CrossbarA Select Reg. 1 (XBARA1_SEL1)
+ * 0x403bc004 CrossbarA Select Reg. 2 (XBARA1_SEL2)
+ * 0x403bc006 CrossbarA Select Reg. 3 (XBARA1_SEL3)
+ * 0x403bc008 CrossbarA Select Reg. 4 (XBARA1_SEL4)
+ * 0x403bc00A CrossbarA Select Reg. 5 (XBARA1_SEL5)
+ * 0x403bc00C CrossbarA Select Reg. 6 (XBARA1_SEL6)
+ * 0x403bc00E CrossbarA Select Reg. 7 (XBARA1_SEL7)
+ * 0x403bc010 CrossbarA Select Reg. 8 (XBARA1_SEL8)
+ * 0x403bc012 CrossbarA Select Reg. 9 (XBARA1_SEL9)
+ * 0x403bc014 CrossbarA Select Reg. 10 (XBARA1_SEL10)
+ * 0x403bc016 CrossbarA Select Reg. 11 (XBARA1_SEL11)
+ * 0x403bc018 CrossbarA Select Reg. 12 (XBARA1_SEL12)
+ * 0x403bc01A CrossbarA Select Reg. 13 (XBARA1_SEL13)
+ * 0x403bc01C CrossbarA Select Reg. 14 (XBARA1_SEL14)
+ * 0x403bc01E CrossbarA Select Reg. 15 (XBARA1_SEL15)
+ * 0x403bc020 CrossbarA Select Reg. 16 (XBARA1_SEL16)
+ * 0x403bc022 CrossbarA Select Reg. 17 (XBARA1_SEL17)
+ * 0x403bc024 CrossbarA Select Reg. 18 (XBARA1_SEL18)
+ * 0x403bc026 CrossbarA Select Reg. 19 (XBARA1_SEL19)
+ * 0x403bc028 CrossbarA Select Reg. 20 (XBARA1_SEL20)
+ * 0x403bc02A CrossbarA Select Reg. 21 (XBARA1_SEL21)
+ * 0x403bc02C CrossbarA Select Reg. 22 (XBARA1_SEL22)
+ * 0x403bc02E CrossbarA Select Reg. 23 (XBARA1_SEL23)
+ * 0x403bc030 CrossbarA Select Reg. 24 (XBARA1_SEL24)
+ * 0x403bc032 CrossbarA Select Reg. 25 (XBARA1_SEL25)
+ * 0x403bc034 CrossbarA Select Reg. 26 (XBARA1_SEL26)
+ * 0x403bc036 CrossbarA Select Reg. 27 (XBARA1_SEL27)
+ * 0x403bc038 CrossbarA Select Reg. 28 (XBARA1_SEL28)
+ * 0x403bc03A CrossbarA Select Reg. 29 (XBARA1_SEL29)
+ * 0x403bc03C CrossbarA Select Reg. 30 (XBARA1_SEL30)
+ * 0x403bc03E CrossbarA Select Reg. 31 (XBARA1_SEL31)
+ * 0x403bc040 CrossbarA Select Reg. 32 (XBARA1_SEL32)
+ * 0x403bc042 CrossbarA Select Reg. 33 (XBARA1_SEL33)
+ * 0x403bc044 CrossbarA Select Reg. 34 (XBARA1_SEL34)
+ * 0x403bc046 CrossbarA Select Reg. 35 (XBARA1_SEL35)
+ * 0x403bc048 CrossbarA Select Reg. 36 (XBARA1_SEL36)
+ * 0x403bc04A CrossbarA Select Reg. 37 (XBARA1_SEL37)
+ * 0x403bc04C CrossbarA Select Reg. 38 (XBARA1_SEL38)
+ * 0x403bc04E CrossbarA Select Reg. 39 (XBARA1_SEL39)
+ * 0x403bc050 CrossbarA Select Reg. 40 (XBARA1_SEL40)
+ * 0x403bc052 CrossbarA Select Reg. 41 (XBARA1_SEL41)
+ * 0x403bc054 CrossbarA Select Reg. 42 (XBARA1_SEL42)
+ * 0x403bc056 CrossbarA Select Reg. 43 (XBARA1_SEL43)
+ * 0x403bc058 CrossbarA Select Reg. 44 (XBARA1_SEL44)
+ * 0x403bc05A CrossbarA Select Reg. 45 (XBARA1_SEL45)
+ * 0x403bc05C CrossbarA Select Reg. 46 (XBARA1_SEL46)
+ * 0x403bc05E CrossbarA Select Reg. 47 (XBARA1_SEL47)
+ * 0x403bc060 CrossbarA Select Reg. 48 (XBARA1_SEL48)
+ * 0x403bc062 CrossbarA Select Reg. 49 (XBARA1_SEL49)
+ * 0x403bc064 CrossbarA Select Reg. 50 (XBARA1_SEL50)
+ * 0x403bc066 CrossbarA Select Reg. 51 (XBARA1_SEL51)
+ * 0x403bc068 CrossbarA Select Reg. 52 (XBARA1_SEL52)
+ * 0x403bc06A CrossbarA Select Reg. 53 (XBARA1_SEL53)
+ * 0x403bc06C CrossbarA Select Reg. 54 (XBARA1_SEL54)
+ * 0x403bc06E CrossbarA Select Reg. 55 (XBARA1_SEL55)
+ * 0x403bc070 CrossbarA Select Reg. 56 (XBARA1_SEL56)
+ * 0x403bc072 CrossbarA Select Reg. 57 (XBARA1_SEL57)
+ * 0x403bc074 CrossbarA Select Reg. 58 (XBARA1_SEL58)
+ * 0x403bc076 CrossbarA Select Reg. 59 (XBARA1_SEL59)
+ * 0x403bc078 CrossbarA Select Reg. 60 (XBARA1_SEL60)
+ * 0x403bc07A CrossbarA Select Reg. 61 (XBARA1_SEL61)
+ * 0x403bc07C CrossbarA Select Reg. 62 (XBARA1_SEL62)
+ * 0x403bc07E CrossbarA Select Reg. 63 (XBARA1_SEL63)
+ * 0x403bc080 CrossbarA Select Reg. 64 (XBARA1_SEL64)
+ * 0x403bc082 CrossbarA Select Reg. 65 (XBARA1_SEL65)
+ * 0x403bc084 CrossbarA Control Re. 0 (XBARA1_CTRL0)
+ * 0x403bc086 CrossbarA Control Re. 1 (XBARA1_CTRL1)
+ */
+
+/**
+ * @brief: XBARB, Inter-Peripheral Crossbar Switch B , Memory Map/Register
+ * 62.3 p.3278
+ *
+ * base address: 0x403c0000
+ *
+ **/
+
+/**
+ * 0x403c0000 CrossbarB Select Reg. 0 (XBARB2_SEL0)
+ * 0x403c0002 CrossbarB Select Reg. 1 (XBARB2_SEL1)
+ * 0x403c0004 CrossbarB Select Reg. 2 (XBARB2_SEL2)
+ * 0x403c0006 CrossbarB Select Reg. 3 (XBARB2_SEL3)
+ * 0x403c0008 CrossbarB Select Reg. 4 (XBARB2_SEL4)
+ * 0x403c000A CrossbarB Select Reg. 5 (XBARB2_SEL5)
+ * 0x403c000C CrossbarB Select Reg. 6 (XBARB2_SEL6)
+ * 0x403c000E CrossbarB Select Reg. 7 (XBARB2_SEL7)
+ * 0x403c4000 CrossbarB Select Reg. 0 (XBARB3_SEL0)
+ * 0x403c4002 CrossbarB Select Reg. 1 (XBARB3_SEL1)
+ * 0x403c4004 CrossbarB Select Reg. 2 (XBARB3_SEL2)
+ * 0x403c4006 CrossbarB Select Reg. 3 (XBARB3_SEL3)
+ * 0x403c4008 CrossbarB Select Reg. 4 (XBARB3_SEL4)
+ * 0x403c400A CrossbarB Select Reg. 5 (XBARB3_SEL5)
+ * 0x403c400C CrossbarB Select Reg. 6 (XBARB3_SEL6)
+ * 0x403c400E CrossbarB Select Reg. 7 (XBARB3_SEL7)
+ *
+ */
+
+/**
+ * @brief: AOI, And-Or-Inverter , Memory Map/Register
+ * 63.4 p.3287
+ *
+ * base address: 0x403b4000
+ *
+ **/
+
+/**
+ * 0x403b4000 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI1_BFCRT010)
+ * 0x403b4002 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI1_BFCRT230)
+ * 0x403b4004 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI1_BFCRT011)
+ * 0x403b4006 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI1_BFCRT231)
+ * 0x403b4008 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI1_BFCRT012)
+ * 0x403b400A Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI1_BFCRT232)
+ * 0x403b400C Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI1_BFCRT013)
+ * 0x403b400E Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI1_BFCRT233)
+ * 0x403b8000 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI2_BFCRT010)
+ * 0x403b8002 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI2_BFCRT230)
+ * 0x403b8004 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI2_BFCRT011)
+ * 0x403b8006 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI2_BFCRT231)
+ * 0x403b8008 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI2_BFCRT012)
+ * 0x403b800A Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI2_BFCRT232)
+ * 0x403b800C Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
+ * (AOI2_BFCRT013)
+ * 0x403b800E Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
+ * (AOI2_BFCRT233)
  */
 
 /**
@@ -5710,7 +6428,8 @@ typedef enum DMA_CH_MODE
  */
 
 /**
- * @brief Comparator Module Mappings
+ * @brief ACMP, Analog Comparator, Memory Map/Register
+ * 66.3, p.3302
  *
  * NOTE - Vin1 and Vin2 are all connected to VDDA, on this device.
  * ================ 65.2 ========================================
@@ -6092,481 +6811,3 @@ DMAMUX_init(DMA_REQUESTS_MUX_CHANNELS CH, uint8_t DMA_SRC)
 }
 
 #endif // SYSTEM_MEMORY_MAP_H
-
-/*
-
-// 4.5 PIT CHANNEL ASSIGNMENT FOR PERIODIC DMA TRIGGERING
-
-DMA Channel Number          PIT Channel
-eDMA Channel 0              PIT Channel 0
-eDMA Channel 1              PIT Channel 1
-eDMA Channel 2              PIT Channel 2
-eDMA Channel 3              PIT Channel 3
-
-
-// 4.6 XBAR RESOURCE ASSIGNMENTS
-
-// XBAR 1 INPUT ASSIGNMENTS
-Assigned Input      |     XBAR1 Input   |    Gate     |
-LOGIC LOW                 XBAR1_IN00        -
-LOGIC HIGH                XBAR1_IN01        -
-IOMUX_XBAR_IN02           XBAR1_IN02        -
-IOMUX_XBAR_IN03           XBAR1_IN03        -
-IOMUX_XBAR_INOUT04        XBAR1_IN04        -
-IOMUX_XBAR_INOUT05        XBAR1_IN05        -
-IOMUX_XBAR_INOUT06        XBAR1_IN06        -
-IOMUX_XBAR_INOUT07        XBAR1_IN07        -
-IOMUX_XBAR_INOUT08        XBAR1_IN08        -
-IOMUX_XBAR_INOUT09        XBAR1_IN09        -
-IOMUX_XBAR_INOUT10        XBAR1_IN10        -
-IOMUX_XBAR_INOUT11        XBAR1_IN11        -
-IOMUX_XBAR_INOUT12        XBAR1_IN12        -
-IOMUX_XBAR_INOUT13        XBAR1_IN13        -
-IOMUX_XBAR_INOUT14        XBAR1_IN14        -
-IOMUX_XBAR_INOUT15        XBAR1_IN15        -
-IOMUX_XBAR_INOUT16        XBAR1_IN16        -
-IOMUX_XBAR_INOUT17        XBAR1_IN17        -
-IOMUX_XBAR_INOUT18        XBAR1_IN18        -
-IOMUX_XBAR_INOUT19        XBAR1_IN19        -
-IOMUX_XBAR_IN20           XBAR1_IN20        -
-IOMUX_XBAR_IN21           XBAR1_IN21        -
-IOMUX_XBAR_IN22           XBAR1_IN22        -
-IOMUX_XBAR_IN23           XBAR1_IN23        -
-IOMUX_XBAR_IN24           XBAR1_IN24        -
-IOMUX_XBAR_IN25           XBAR1_IN25        -
-ACMP1_OUT                 XBAR1_IN26        -
-ACMP2_OUT                 XBAR1_IN27        -
-ACMP3_OUT                 XBAR1_IN28        -
-ACMP4_OUT                 XBAR1_IN29        -
-Reserved                  XBAR1_IN30        -
-Reserved                  XBAR1_IN31        -
-QTIMER3_TIMER0            XBAR1_IN32        -
-QTIMER3_TIMER1            XBAR1_IN33        -
-QTIMER3_TIMER2            XBAR1_IN34        -
-QTIMER3_TIMER3            XBAR1_IN35        -
-QTIMER4_TIMER0            XBAR1_IN36        -
-QTIMER4_TIMER1            XBAR1_IN37        -
-QTIMER4_TIMER2            XBAR1_IN38        -
-QTIMER4_TIMER3            XBAR1_IN39        -
-FLEXPWM1_PWM1_OUT_TRIG0   XBAR1_IN40        OR
-FLEXPWM1_PWM1_OUT_TRIG1                     OR
-FLEXPWM1_PWM2_OUT_TRIG0   XBAR1_IN41        OR
-FLEXPWM1_PWM2_OUT_TRIG1                     OR
-FLEXPWM1_PWM3_OUT_TRIG0   XBAR1_IN42        OR
-FLEXPWM1_PWM3_OUT_TRIG1                     OR
-FLEXPWM1_PWM4_OUT_TRIG0   XBAR1_IN43        OR
-FLEXPWM1_PWM4_OUT_TRIG1                     OR
-FLEXPWM2_PWM1_OUT_TRIG0   XBAR1_IN44        OR
-FLEXPWM2_PWM1_OUT_TRIG1                     OR
-FLEXPWM2_PWM2_OUT_TRIG0   XBAR1_IN45        OR
-FLEXPWM2_PWM2_OUT_TRIG1                     OR
-FLEXPWM2_PWM3_OUT_TRIG0   XBAR1_IN46        OR
-FLEXPWM2_PWM3_OUT_TRIG1                     OR
-FLEXPWM2_PWM4_OUT_TRIG0   XBAR1_IN47        OR
-FLEXPWM2_PWM4_OUT_TRIG1                     OR
-FLEXPWM3_PWM1_OUT_TRIG0   XBAR1_IN48        OR
-FLEXPWM3_PWM1_OUT_TRIG1                     OR
-FLEXPWM3_PWM2_OUT_TRIG0   XBAR1_IN49        OR
-FLEXPWM3_PWM2_OUT_TRIG1                     OR
-FLEXPWM3_PWM3_OUT_TRIG0   XBAR1_IN50        OR
-FLEXPWM3_PWM3_OUT_TRIG1                     OR
-FLEXPWM3_PWM4_OUT_TRIG0   XBAR1_IN51        OR
-FLEXPWM3_PWM4_OUT_TRIG1                     OR
-FLEXPWM4_PWM1_OUT_TRIG0   XBAR1_IN52        OR
-FLEXPWM4_PWM1_OUT_TRIG1                     OR
-FLEXPWM4_PWM2_OUT_TRIG0   XBAR1_IN53        OR
-FLEXPWM4_PWM2_OUT_TRIG1                     OR
-FLEXPWM4_PWM3_OUT_TRIG0   XBAR1_IN54        OR
-FLEXPWM4_PWM3_OUT_TRIG1                     OR
-FLEXPWM4_PWM4_OUT_TRIG0   XBAR1_IN55        OR
-FLEXPWM4_PWM4_OUT_TRIG1                     OR
-PIT_TRIGGER0              XBAR1_IN56        -
-PIT_TRIGGER1              XBAR1_IN57        -
-PIT_TRIGGER2              XBAR1_IN58        -
-PIT_TRIGGER3              XBAR1_IN59        -
-ENC1_POS_MATCH            XBAR1_IN60        -
-ENC2_POS_MATCH            XBAR1_IN61        -
-ENC3_POS_MATCH            XBAR1_IN62        -
-ENC4_POS_MATCH            XBAR1_IN63        -
-DMA_DONE0                 XBAR1_IN64        -
-DMA_DONE1                 XBAR1_IN65        -
-DMA_DONE2                 XBAR1_IN66        -
-DMA_DONE3                 XBAR1_IN67        -
-DMA_DONE4                 XBAR1_IN68        -
-DMA_DONE5                 XBAR1_IN69        -
-DMA_DONE6                 XBAR1_IN70        -
-DMA_DONE7                 XBAR1_IN71        -
-AOI1_OUT0                 XBAR1_IN72        -
-AOI1_OUT1                 XBAR1_IN73        -
-AOI1_OUT2                 XBAR1_IN74        -
-AOI1_OUT3                 XBAR1_IN75        -
-AOI2_OUT0                 XBAR1_IN76        -
-AOI2_OUT1                 XBAR1_IN77        -
-AOI2_OUT2                 XBAR1_IN78        -
-AOI2_OUT3                 XBAR1_IN79        -
-ADC_ETC0_COCO0            XBAR1_IN80        -
-ADC_ETC0_COCO1            XBAR1_IN81        -
-ADC_ETC0_COCO2            XBAR1_IN82        -
-ADC_ETC0_COCO3            XBAR1_IN83        -
-ADC_ETC1_COCO0            XBAR1_IN84        -
-ADC_ETC1_COCO1            XBAR1_IN85        -
-ADC_ETC1_COCO2            XBAR1_IN86        -
-ADC_ETC1_COCO3            XBAR1_IN87        -
-
-// XBAR 2 INPUT ASSIGNMENTS
-LOGIC LOW                 XBAR2_IN00        -
-LOGIC HIGH                XBAR2_IN01        -
-Reserved                  XBAR2_IN02        -
-Reserved                  XBAR2_IN03        -
-Reserved                  XBAR2_IN04        -
-Reserved                  XBAR2_IN05        -
-ACMP1_OUT                 XBAR2_IN06        -
-ACMP2_OUT                 XBAR2_IN07        -
-ACMP3_OUT                 XBAR2_IN08        -
-ACMP4_OUT                 XBAR2_IN09        -
-Reserved                  XBAR2_IN10        -
-Reserved                  XBAR2_IN11        -
-QTIMER3_TIMER0            XBAR2_IN12        -
-QTIMER3_TIMER1            XBAR2_IN13        -
-QTIMER3_TIMER2            XBAR2_IN14        -
-QTIMER3_TIMER3            XBAR2_IN15        -
-QTIMER4_TIMER0            XBAR2_IN16        -
-QTIMER4_TIMER1            XBAR2_IN17        -
-QTIMER4_TIMER2            XBAR2_IN18        -
-QTIMER4_TIMER3            XBAR2_IN19        -
-FLEXPWM1_PWM1_OUT_TRIG0   XBAR2_IN20        OR
-FLEXPWM1_PWM1_OUT_TRIG1   XBAR2_IN20        OR
-FLEXPWM1_PWM2_OUT_TRIG0   XBAR2_IN21        OR
-FLEXPWM1_PWM2_OUT_TRIG1   XBAR2_IN21        OR
-FLEXPWM1_PWM3_OUT_TRIG0   XBAR2_IN22        OR
-FLEXPWM1_PWM3_OUT_TRIG1   XBAR2_IN22        OR
-FLEXPWM1_PWM4_OUT_TRIG0   XBAR2_IN23        OR
-FLEXPWM1_PWM4_OUT_TRIG1   XBAR2_IN23        OR
-FLEXPWM2_PWM1_OUT_TRIG0   XBAR2_IN24        OR
-FLEXPWM2_PWM1_OUT_TRIG1   XBAR2_IN24        OR
-FLEXPWM2_PWM2_OUT_TRIG0   XBAR2_IN25        OR
-FLEXPWM2_PWM2_OUT_TRIG1   XBAR2_IN25        OR
-FLEXPWM2_PWM3_OUT_TRIG0   XBAR2_IN26        OR
-FLEXPWM2_PWM3_OUT_TRIG1   XBAR2_IN26        OR
-FLEXPWM2_PWM4_OUT_TRIG0   XBAR2_IN27        OR
-FLEXPWM2_PWM4_OUT_TRIG1   XBAR2_IN27        OR
-FLEXPWM3_PWM1_OUT_TRIG0   XBAR2_IN28        OR
-FLEXPWM3_PWM1_OUT_TRIG1   XBAR2_IN28        OR
-FLEXPWM3_PWM2_OUT_TRIG0   XBAR2_IN29        OR
-FLEXPWM3_PWM2_OUT_TRIG1   XBAR2_IN29        OR
-FLEXPWM3_PWM3_OUT_TRIG0   XBAR2_IN30        OR
-FLEXPWM3_PWM3_OUT_TRIG1   XBAR2_IN30        OR
-FLEXPWM3_PWM4_OUT_TRIG0   XBAR2_IN31        OR
-FLEXPWM3_PWM4_OUT_TRIG1   XBAR2_IN31        OR
-FLEXPWM4_PWM1_OUT_TRIG0   XBAR2_IN32        OR
-FLEXPWM4_PWM1_OUT_TRIG1   XBAR2_IN32        OR
-FLEXPWM4_PWM2_OUT_TRIG0   XBAR2_IN33        OR
-FLEXPWM4_PWM2_OUT_TRIG1   XBAR2_IN33        OR
-FLEXPWM4_PWM3_OUT_TRIG0   XBAR2_IN34        OR
-FLEXPWM4_PWM3_OUT_TRIG1   XBAR2_IN34        OR
-FLEXPWM4_PWM4_OUT_TRIG0   XBAR2_IN35        OR
-FLEXPWM4_PWM4_OUT_TRIG1   XBAR2_IN35        OR
-PIT_TRIGGER0              XBAR2_IN36        -
-PIT_TRIGGER1              XBAR2_IN37        -
-ADC_ETC0_COCO0            XBAR2_IN38        -
-ADC_ETC0_COCO1            XBAR2_IN39        -
-ADC_ETC0_COCO2            XBAR2_IN40        -
-ADC_ETC0_COCO3            XBAR2_IN41        -
-ADC_ETC1_COCO0            XBAR2_IN42        -
-ADC_ETC1_COCO1            XBAR2_IN43        -
-ADC_ETC1_COCO2            XBAR2_IN44        -
-ADC_ETC1_COCO3            XBAR2_IN45        -
-ENC1_POS_MATCH            XBAR2_IN46        -
-ENC2_POS_MATCH            XBAR2_IN47        -
-ENC3_POS_MATCH            XBAR2_IN48        -
-ENC4_POS_MATCH            XBAR2_IN49        -
-DMA_DONE0                 XBAR2_IN50        -
-DMA_DONE1                 XBAR2_IN51        -
-DMA_DONE2                 XBAR2_IN52        -
-DMA_DONE3                 XBAR2_IN53        -
-DMA_DONE4                 XBAR2_IN54        -
-DMA_DONE5                 XBAR2_IN55        -
-DMA_DONE6                 XBAR2_IN56        -
-DMA_DONE7                 XBAR2_IN57        -
-
-// XBAR 3 INPUT ASSIGNMENTS
-LOGIC LOW                 XBAR3_IN00        -
-LOGIC HIGH                XBAR3_IN01        -
-Reserved                  XBAR3_IN02        -
-Reserved                  XBAR3_IN03        -
-Reserved                  XBAR3_IN04        -
-Reserved                  XBAR3_IN05        -
-ACMP1_OUT                 XBAR3_IN06        -
-ACMP2_OUT                 XBAR3_IN07        -
-ACMP3_OUT                 XBAR3_IN08        -
-ACMP4_OUT                 XBAR3_IN09        -
-Reserved                  XBAR3_IN10        -
-Reserved                  XBAR3_IN11        -
-QTIMER3_TIMER0            XBAR3_IN12        -
-QTIMER3_TIMER1            XBAR3_IN13        -
-QTIMER3_TIMER2            XBAR3_IN14        -
-QTIMER3_TIMER3            XBAR3_IN15        -
-QTIMER4_TIMER0            XBAR3_IN16        -
-QTIMER4_TIMER1            XBAR3_IN17        -
-QTIMER4_TIMER2            XBAR3_IN18        -
-QTIMER4_TIMER3            XBAR3_IN19        -
-FLEXPWM1_PWM1_OUT_TRIG0   XBAR2_IN20        OR
-FLEXPWM1_PWM1_OUT_TRIG1   XBAR2_IN20        OR
-FLEXPWM1_PWM2_OUT_TRIG0   XBAR2_IN21        OR
-FLEXPWM1_PWM2_OUT_TRIG1   XBAR2_IN21        OR
-FLEXPWM1_PWM3_OUT_TRIG0   XBAR2_IN22        OR
-FLEXPWM1_PWM3_OUT_TRIG1   XBAR2_IN22        OR
-FLEXPWM1_PWM4_OUT_TRIG0   XBAR2_IN23        OR
-FLEXPWM1_PWM4_OUT_TRIG1   XBAR2_IN23        OR
-FLEXPWM2_PWM1_OUT_TRIG0   XBAR2_IN24        OR
-FLEXPWM2_PWM1_OUT_TRIG1   XBAR2_IN24        OR
-FLEXPWM2_PWM2_OUT_TRIG0   XBAR2_IN25        OR
-FLEXPWM2_PWM2_OUT_TRIG1   XBAR2_IN25        OR
-FLEXPWM2_PWM3_OUT_TRIG0   XBAR2_IN26        OR
-FLEXPWM2_PWM3_OUT_TRIG1   XBAR2_IN26        OR
-FLEXPWM2_PWM4_OUT_TRIG0   XBAR2_IN27        OR
-FLEXPWM2_PWM4_OUT_TRIG1   XBAR2_IN27        OR
-FLEXPWM3_PWM1_OUT_TRIG0   XBAR2_IN28        OR
-FLEXPWM3_PWM1_OUT_TRIG1   XBAR2_IN28        OR
-FLEXPWM3_PWM2_OUT_TRIG0   XBAR2_IN29        OR
-FLEXPWM3_PWM2_OUT_TRIG1   XBAR2_IN29        OR
-FLEXPWM3_PWM3_OUT_TRIG0   XBAR2_IN30        OR
-FLEXPWM3_PWM3_OUT_TRIG1   XBAR2_IN30        OR
-FLEXPWM3_PWM4_OUT_TRIG0   XBAR2_IN31        OR
-FLEXPWM3_PWM4_OUT_TRIG1   XBAR2_IN31        OR
-FLEXPWM4_PWM1_OUT_TRIG0   XBAR2_IN32        OR
-FLEXPWM4_PWM1_OUT_TRIG1   XBAR2_IN32        OR
-FLEXPWM4_PWM2_OUT_TRIG0   XBAR2_IN33        OR
-FLEXPWM4_PWM2_OUT_TRIG1   XBAR2_IN33        OR
-FLEXPWM4_PWM3_OUT_TRIG0   XBAR2_IN34        OR
-FLEXPWM4_PWM3_OUT_TRIG1   XBAR2_IN34        OR
-FLEXPWM4_PWM4_OUT_TRIG0   XBAR2_IN35        OR
-FLEXPWM4_PWM4_OUT_TRIG1   XBAR2_IN35        OR
-PIT_TRIGGER0              XBAR3_IN36        -
-PIT_TRIGGER1              XBAR3_IN37        -
-ADC_ETC0_COCO0            XBAR3_IN38        -
-ADC_ETC0_COCO1            XBAR3_IN39        -
-ADC_ETC0_COCO2            XBAR3_IN40        -
-ADC_ETC0_COCO3            XBAR3_IN41        -
-ADC_ETC1_COCO0            XBAR3_IN42        -
-ADC_ETC1_COCO1            XBAR3_IN43        -
-ADC_ETC1_COCO2            XBAR3_IN44        -
-ADC_ETC1_COCO3            XBAR3_IN45        -
-ENC1_POS_MATCH            XBAR3_IN46        -
-ENC2_POS_MATCH            XBAR3_IN47        -
-ENC3_POS_MATCH            XBAR3_IN48        -
-ENC4_POS_MATCH            XBAR3_IN49        -
-DMA_DONE0                 XBAR3_IN50        -
-DMA_DONE1                 XBAR3_IN51        -
-DMA_DONE2                 XBAR3_IN52        -
-DMA_DONE3                 XBAR3_IN53        -
-DMA_DONE4                 XBAR3_IN54        -
-DMA_DONE5                 XBAR3_IN55        -
-DMA_DONE6                 XBAR3_IN56        -
-DMA_DONE7                 XBAR3_IN57        -
-
-
-// XBAR 1 OUTPUT ASSIGNMENTS
-XBAR1 Output    |   Assigned Output   |   Gate    |
-XBAR1_OUT00       DMA_CH_MUX_REQ30          -
-XBAR1_OUT01       DMA_CH_MUX_REQ31          -
-XBAR1_OUT02       DMA_CH_MUX_REQ94          -
-XBAR1_OUT03       DMA_CH_MUX_REQ95          -
-XBAR1_OUT04       IOMUX_XBAR_INOUT04        -
-XBAR1_OUT05       IOMUX_XBAR_INOUT05        -
-XBAR1_OUT06       IOMUX_XBAR_INOUT06        -
-XBAR1_OUT07       IOMUX_XBAR_INOUT07        -
-XBAR1_OUT08       IOMUX_XBAR_INOUT08        -
-XBAR1_OUT09       IOMUX_XBAR_INOUT09        -
-XBAR1_OUT10       IOMUX_XBAR_INOUT10        -
-XBAR1_OUT11       IOMUX_XBAR_INOUT11        -
-XBAR1_OUT12       IOMUX_XBAR_INOUT12        -
-XBAR1_OUT13       IOMUX_XBAR_INOUT13        -
-XBAR1_OUT14       IOMUX_XBAR_INOUT14        -
-XBAR1_OUT15       IOMUX_XBAR_INOUT15        -
-XBAR1_OUT16       IOMUX_XBAR_INOUT16        -
-XBAR1_OUT17       IOMUX_XBAR_INOUT17        -
-XBAR1_OUT18       IOMUX_XBAR_INOUT18        -
-XBAR1_OUT19       IOMUX_XBAR_INOUT19        -
-XBAR1_OUT20       ACMP1_SAMPLE              -
-XBAR1_OUT21       ACMP2_SAMPLE              -
-XBAR1_OUT22       ACMP3_SAMPLE              -
-XBAR1_OUT23       ACMP4_SAMPLE              -
-XBAR1_OUT24       Reserved                  -
-XBAR1_OUT25       Reserved                  -
-XBAR1_OUT26       FLEXPWM1_PWM0_EXTA        -
-XBAR1_OUT27       FLEXPWM1_PWM1_EXTA        -
-XBAR1_OUT28       FLEXPWM1_PWM2_EXTA        -
-XBAR1_OUT29       FLEXPWM1_PWM3_EXTA        -
-XBAR1_OUT30       FLEXPWM1_PWM0_EXT_SYNC    -
-XBAR1_OUT31       FLEXPWM1_PWM1_EXT_SYNC    -
-XBAR1_OUT32       FLEXPWM1_PWM2_EXT_SYNC    -
-XBAR1_OUT33       FLEXPWM1_PWM3_EXT_SYNC    -
-XBAR1_OUT34       FLEXPWM1_EXT_CLK          -
-XBAR1_OUT35       FLEXPWM1_FAULT0           -
-XBAR1_OUT36       FLEXPWM1_FAULT1           -
-XBAR1_OUT37       FLEXPWM1_FAULT2           -
-                  FLEXPWM2_FAULT2           -
-                  FLEXPWM3_FAULT2           -
-                  FLEXPWM4_FAULT2           -
-XBAR1_OUT38       FLEXPWM1_FAULT3           -
-                  FLEXPWM2_FAULT3           -
-                  FLEXPWM3_FAULT3           -
-                  FLEXPWM4_FAULT3           -
-XBAR1_OUT39       FLEXPWM1_EXT_FORCE        -
-XBAR1_OUT40       FLEXPWM2_PWM0_EXTA        -
-                  FLEXPWM3_PWM0_EXTA        -
-                  FLEXPWM4_PWM0_EXTA        -
-XBAR1_OUT41       FLEXPWM2_PWM1_EXTA        -
-                  FLEXPWM3_PWM1_EXTA        -
-                  FLEXPWM4_PWM1_EXTA        -
-XBAR1_OUT42       FLEXPWM2_PWM2_EXTA        -
-                  FLEXPWM3_PWM2_EXTA        -
-                  FLEXPWM4_PWM2_EXTA        -
-XBAR1_OUT43       FLEXPWM2_PWM3_EXTA        -
-                  FLEXPWM3_PWM3_EXTA        -
-                  FLEXPWM4_PWM3_EXTA        -
-XBAR1_OUT44       FLEXPWM2_PWM0_EXT_SYNC    -
-XBAR1_OUT45       FLEXPWM2_PWM1_EXT_SYNC    -
-XBAR1_OUT46       FLEXPWM2_PWM2_EXT_SYNC    -
-XBAR1_OUT47       FLEXPWM2_PWM3_EXT_SYNC    -
-XBAR1_OUT48       FLEXPWM2_EXT_CLK          -
-                  FLEXPWM3_EXT_CLK          -
-                  FLEXPWM4_EXT_CLK          -
-XBAR1_OUT49       FLEXPWM2_FAULT0           -
-XBAR1_OUT50       FLEXPWM2_FAULT1           -
-XBAR1_OUT51       FLEXPWM2_EXT_FORCE        -
-XBAR1_OUT52       FLEXPWM3_EXT_SYNC0        -
-XBAR1_OUT53       FLEXPWM3_EXT_SYNC1        -
-XBAR1_OUT54       FLEXPWM3_EXT_SYNC2        -
-XBAR1_OUT55       FLEXPWM3_EXT_SYNC3        -
-XBAR1_OUT56       FLEXPWM3_FAULT0           -
-XBAR1_OUT57       FLEXPWM3_FAULT1           -
-XBAR1_OUT58       FLEXPWM3_EXT_FORCE        -
-XBAR1_OUT59       FLEXPWM4_EXT_SYNC0        -
-XBAR1_OUT60       FLEXPWM4_EXT_SYNC1        -
-XBAR1_OUT61       FLEXPWM4_EXT_SYNC2        -
-
-
-XBAR1_OUT62       FLEXPWM4_EXT_SYNC3        -
-XBAR1_OUT63       FLEXPWM4_FAULT0           -
-XBAR1_OUT64       FLEXPWM4_FAULT1           -
-XBAR1_OUT65       FLEXPWM4_EXT_FORCE        -
-XBAR1_OUT66       ENC1_PHASEA_INPUT         -
-XBAR1_OUT67       ENC1_PHASEB_INPUT         -
-XBAR1_OUT68       ENC1_INDEX                -
-XBAR1_OUT69       ENC1_HOME                 -
-XBAR1_OUT70       ENC1_TRIGGER              -
-XBAR1_OUT71       ENC2_PHASEA_INPUT         -
-XBAR1_OUT72       ENC2_PHASEB_INPUT         -
-XBAR1_OUT73       ENC2_INDEX                -
-XBAR1_OUT74       ENC2_HOME                 -
-XBAR1_OUT75       ENC2_TRIGGER              -
-XBAR1_OUT76       ENC3_PHASEA_INPUT         -
-XBAR1_OUT77       ENC3_PHASEB_INPUT         -
-XBAR1_OUT78       ENC3_INDEX                -
-XBAR1_OUT79       ENC3_HOME                 -
-XBAR1_OUT80       ENC3_TRIGGER              -
-XBAR1_OUT81       ENC4_PHASEA_INPUT         -
-XBAR1_OUT82       ENC4_PHASEB_INPUT         -
-XBAR1_OUT83       ENC4_INDEX                -
-XBAR1_OUT84       ENC4_HOME                 -
-XBAR1_OUT85       ENC4_TRIGGER              -
-XBAR1_OUT86       QTIMER1_TIMER0            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER1_TRM0_INPUT_SEL] XBAR1_OUT87 QTIMER1_TIMER1
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER1_TRM1_INPUT_SEL] XBAR1_OUT88
-QTIMER1_TIMER2            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER1_TRM2_INPUT_SEL] XBAR1_OUT89 QTIMER1_TIMER3
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER1_TRM3_INPUT_SEL] XBAR1_OUT90
-QTIMER2_TIMER0            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER2_TRM0_INPUT_SEL] XBAR1_OUT91 QTIMER2_TIMER1
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER2_TRM1_INPUT_SEL] XBAR1_OUT92
-QTIMER2_TIMER2            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER2_TRM2_INPUT_SEL] XBAR1_OUT93 QTIMER2_TIMER3
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER2_TRM3_INPUT_SEL] XBAR1_OUT94
-QTIMER3_TIMER0            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER3_TRM0_INPUT_SEL] XBAR1_OUT95 QTIMER3_TIMER1
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER3_TRM1_INPUT_SEL] XBAR1_OUT96
-QTIMER3_TIMER2            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER3_TRM2_INPUT_SEL] XBAR1_OUT97 QTIMER3_TIMER3
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER3_TRM3_INPUT_SEL] XBAR1_OUT98
-QTIMER4_TIMER0            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER4_TRM0_INPUT_SEL] XBAR1_OUT99 QTIMER4_TIMER1
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER4_TRM1_INPUT_SEL] XBAR1_OUT100
-QTIMER4_TIMER2            Selectable by
-settingIOMUXC_GPR_GPR6[QTIMER4_TRM2_INPUT_SEL] XBAR1_OUT101 QTIMER4_TIMER3
-Selectable by settingIOMUXC_GPR_GPR6[QTIMER4_TRM3_INPUT_SEL] XBAR1_OUT102
-EWM_EWM_IN                - XBAR1_OUT103      ADC_ETC_TRIG00            -
-XBAR1_OUT104      ADC_ETC_TRIG01            -
-XBAR1_OUT105      ADC_ETC_TRIG02            -
-XBAR1_OUT106      ADC_ETC_TRIG03            -
-XBAR1_OUT107      ADC_ETC_TRIG10            -
-XBAR1_OUT108      ADC_ETC_TRIG11            -
-XBAR1_OUT109      ADC_ETC_TRIG12            -
-XBAR1_OUT110      ADC_ETC_TRIG13            -
-XBAR1_OUT111      LPI2C1_TRG_INPUT          -
-
-XBAR1_OUT112      LPI2C2_TRG_INPUT          -
-XBAR1_OUT113      LPI2C3_TRG_INPUT          -
-XBAR1_OUT114      LPI2C4_TRG_INPUT          -
-XBAR1_OUT115      LPSPI1_TRG_INPUT          -
-XBAR1_OUT116      LPSPI2_TRG_INPUT          -
-XBAR1_OUT117      LPSPI3_TRG_INPUT          -
-XBAR1_OUT118      LPSPI4_TRG_INPUT          -
-XBAR1_OUT119      LPUART1_TRG_INPUT         -
-XBAR1_OUT120      LPUART2_TRG_INPUT         -
-XBAR1_OUT121      LPUART3_TRG_INPUT         -
-XBAR1_OUT122      LPUART4_TRG_INPUT         -
-XBAR1_OUT123      LPUART5_TRG_INPUT         -
-XBAR1_OUT124      LPUART6_TRG_INPUT         -
-XBAR1_OUT125      LPUART7_TRG_INPUT         -
-XBAR1_OUT126      LPUART8_TRG_INPUT         -
-XBAR1_OUT127      FLEXIO1_TRIGGER_IN0       -
-XBAR1_OUT128      FLEXIO1_TRIGGER_IN1       -
-XBAR1_OUT129      FLEXIO2_TRIGGER_IN0       -
-XBAR1_OUT130      FLEXIO2_TRIGGER_IN1       -
-XBAR1_OUT131      Reserved                  -
-
-// XBAR 2 OUTPUT ASSIGNMENTS
-XBAR2_OUT00       AOI1_IN00                 -
-XBAR2_OUT01       AOI1_IN01                 -
-XBAR2_OUT02       AOI1_IN02                 -
-XBAR2_OUT03       AOI1_IN03                 -
-XBAR2_OUT04       AOI1_IN04                 -
-XBAR2_OUT05       AOI1_IN05                 -
-XBAR2_OUT06       AOI1_IN06                 -
-XBAR2_OUT07       AOI1_IN07                 -
-XBAR2_OUT08       AOI1_IN08                 -
-XBAR2_OUT09       AOI1_IN09                 -
-XBAR2_OUT10       AOI1_IN10                 -
-XBAR2_OUT11       AOI1_IN11                 -
-XBAR2_OUT12       AOI1_IN12                 -
-XBAR2_OUT13       AOI1_IN13                 -
-XBAR2_OUT14       AOI1_IN14                 -
-XBAR2_OUT15       AOI1_IN15                 -
-
-
-// XBAR 3 OUTPUT ASSIGNMENTS
-XBAR3_OUT00       AOI2_IN00                 -
-XBAR3_OUT01       AOI2_IN01                 -
-XBAR3_OUT02       AOI2_IN02                 -
-XBAR3_OUT03       AOI2_IN03                 -
-XBAR3_OUT04       AOI2_IN04                 -
-XBAR3_OUT05       AOI2_IN05                 -
-XBAR3_OUT06       AOI2_IN06                 -
-XBAR3_OUT07       AOI2_IN07                 -
-XBAR3_OUT08       AOI2_IN08                 -
-XBAR3_OUT09       AOI2_IN09                 -
-XBAR3_OUT10       AOI2_IN10                 -
-XBAR3_OUT11       AOI2_IN11                 -
-XBAR3_OUT12       AOI2_IN12                 -
-XBAR3_OUT13       AOI2_IN13                 -
-XBAR3_OUT14       AOI2_IN14                 -
-XBAR3_OUT15       AOI2_IN15                 -
-
-
-// 5.0 DIRECT MEMORY ACCESS MULTIPLEXER (DMAMUX)
-// 5.1 CHIP-SPECIFIC DMAMUX INFORMATION
-// ONLY 32-BIT WRITE IS SUPPOERTED FOR THE DMA_CHA_MUX REGISTERS
-/*
-*/
