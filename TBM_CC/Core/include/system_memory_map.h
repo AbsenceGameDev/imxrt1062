@@ -4548,12 +4548,16 @@ typedef enum DMA_CH_MODE
 #define USB_UOG1_GPTIMER1LD USBCORE_BASE._0x0088
 #define USB_UOG1_GPTIMER1CTRL USBCORE_BASE._0x008c
 #define USB_UOG1_SBUSCFG USBCORE_BASE._0x0090
-#define USB_UOG1_CAPLENGTH USBCORE_BASE._0x0100
-#define USB_UOG1_HCIVERSION USBCORE_BASE._0x0102
+#define _8_USBCORE_BASE MAP_8BIT_REGISTER(0x402e0100)
+#define _16_USBCORE_BASE MAP_16BIT_REGISTER(0x402e0100)
+#define USB_UOG1_CAPLENGTH _8_USBCORE_BASE._0x0000
+#define USB_UOG1_HCIVERSION _16_USBCORE_BASE._0x0002
 
 #define USB_UOG1_HCSPARAMS USBCORE_BASE._0x0104
 #define USB_UOG1_HCCPARAMS USBCORE_BASE._0x0108
-#define USB_UOG1_DCIVERSION USBCORE_BASE._0x0120
+
+#define USB_UOG1_DCIVERSION _16_USBCORE_BASE._0x0020
+
 #define USB_UOG1_DCCPARAMS USBCORE_BASE._0x0124
 #define USB_UOG1_USBCMD USBCORE_BASE._0x0140
 #define USB_UOG1_USBSTS USBCORE_BASE._0x0144
@@ -4598,11 +4602,15 @@ typedef enum DMA_CH_MODE
 #define USB_UOG2_GPTIMER1LD USBCORE_BASE._0x0288
 #define USB_UOG2_GPTIMER1CTRL USBCORE_BASE._0x028c
 #define USB_UOG2_SBUSCFG USBCORE_BASE._0x0290
-#define USB_UOG2_CAPLENGTH USBCORE_BASE._0x0300
-#define USB_UOG2_HCIVERSION USBCORE_BASE._0x0302
+
+#define _8_USBCORE_BASE1 MAP_8BIT_REGISTER(0x402e0300)
+#define _16_USBCORE_BASE1 MAP_16BIT_REGISTER(0x402e0300)
+#define USB_UOG2_CAPLENGTH _8_USBCORE_BASE1._0x0000
+#define USB_UOG2_HCIVERSION _16_USBCORE_BASE1._0x0002
 #define USB_UOG2_HCSPARAMS USBCORE_BASE._0x0304
 #define USB_UOG2_HCCPARAMS USBCORE_BASE._0x0308
-#define USB_UOG2_DCIVERSION USBCORE_BASE._0x0320
+
+#define USB_UOG2_DCIVERSION _16_USBCORE_BASE1._0x0020
 #define USB_UOG2_DCCPARAMS USBCORE_BASE._0x0324
 #define USB_UOG2_USBCMD USBCORE_BASE._0x0340
 #define USB_UOG2_USBSTS USBCORE_BASE._0x0344
@@ -4754,6 +4762,84 @@ typedef enum DMA_CH_MODE
 #define USB_ANALOG_USB2_MISC_TOG USB_PA_BASE0._0x00bc
 
 #define USB_ANALOG_DIGPROG USB_PA_BASE0._0x00c0
+
+//  Low Speed periphials
+/**
+ * @brief: FLEXCAN, Flexible Controller Area Network Memory Map
+ * 44.9, p.2555
+ *
+ * USBPHY Hardware Register Format Summary
+ * Base Address: 0x401d0000
+ *
+ * // 37 registers
+ **/
+
+/**
+ * @brief: CANFD/FlexCAN3, Flexible Data-rate Controller Area Network Memory Map
+ * 45.6.2, p.2654
+ *
+ * USBPHY Hardware Register Format Summary
+ * Base Address: 0x401d8000
+ *
+ **/
+
+/**
+ * @brief: KPP, Key Pad Port Memory Map
+ * 46.7 p.2733
+ *
+ * USBPHY Hardware Register Format Summary
+ * Base Address: 0x401d8000
+ *
+ **/
+#define KPP_BASE MAP_16BIT_REGISTER(0x401fc000)
+#define KPP_KPCR KPP_BASE._0x0000
+#define KPP_KPSR KPP_BASE._0x0002
+#define KPP_KDDR KPP_BASE._0x0004
+#define KPP_KPDR KPP_BASE._0x0006
+
+/**
+ * @brief: LPI2C, Low Power Inter-Integrated Circuit, Memory Map
+ * 47.4.1 p.2758
+ *
+ * Base addresses:
+ * LPI2C1: 0x403f0000
+ * LPI2C2: 0x403f4000
+ * LPI2C3: 0x403f8000
+ * LPI2C4: 0x403fc000
+ **/
+
+/**
+ * @brief: LPSPI, Low Power Serial Peripheral Interface, Memory Map
+ * 48.4.1 p.2810
+ *
+ * Base addresses:
+ * LPSPI1: 0c40394000
+ * LPSPI2: 0x40398000
+ * LPSPI3: 0x4039c000
+ * LPSPI4: 0x403a0000
+ **/
+
+/**
+ * @brief: LPUART, Low Power Universal Async. Receiver/transmitter, Memory Map
+ * 49.4 p.2853
+ *
+ * Base addresses:
+ * LPUART(n): 0x40184000 + (n-1) * 0x4000,
+ * where n goes from 1 to 8.
+ **/
+
+/**
+ * @brief: FLEXIO, Flexible Input/Output, Memory Map
+ * 49.4 p.2853
+ *
+ * Number of Pin IO is 2^4 for FlexIO1,
+ * 2^5 for FlexIO2 and FlexIO3
+ *
+ * Base addresses:
+ * FlexIO1: 0x401ac000
+ * FlexIO2: 0x401b0000
+ * FlexIO3: 0x42020000
+ **/
 
 /**
 

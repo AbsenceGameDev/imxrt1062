@@ -644,6 +644,6 @@ typedef struct {
 #define MAP_8BIT_REGISTER(ADDRESS) (*(imcrt_8t_offset * ADDRESS)
 #define MAP_16BIT_REGISTER(ADDRESS) (*(imcrt_16t_offset * ADDRESS)
 #define MAP_32BIT_REGISTER(ADDRESS) (*(imcrt_32t_offset * ADDRESS)
-#define _OFFSET0(A, B) (A + B)
+#define _OFFSET(A, B) (A + B)
 
 #endif // REGISTERS_H
