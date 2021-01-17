@@ -5654,30 +5654,29 @@ typedef enum DMA_CH_MODE
  *    response (like a busexception)
  *
  **/
+#define GPT_BASE0 MAP_8BIT_REGISTER(0x401ec000)
+#define GPT1_CR GPT_BASE0._0xc000 // Control Register
+#define GPT1_PR GPT_BASE0._0xc004 // Prescaler Register
+#define GPT1_SR GPT_BASE0._0xc008 // Status Register
+#define GPT1_IR GPT_BASE0._0xc00c // Interrupt Register
+#define GPT1_OCR1 GPT_BASE0._0xc010 // Output Compare Register 1
+#define GPT1_OCR2 GPT_BASE0._0xc014 // Output Compare Register 2
+#define GPT1_OCR3 GPT_BASE0._0xc018 // Output Compare Register 3
+#define GPT1_ICR1 GPT_BASE0._0xc01c // Input Capture Register 1
+#define GPT1_ICR2 GPT_BASE0._0xc020 // Input Capture Register 2
+#define GPT1_CNT GPT_BASE0._0xc024 // Counter Register
 
-/**
- * 401fc000 GPT Control Register (GPT1_CR)
- * 401fc004 GPT Prescaler Register (GPT1_PR)
- * 401fc008 GPT Status Register (GPT1_SR)
- * 401fc00c GPT Interrupt Register (GPT1_IR)
- * 401fc010 GPT Output Compare Register 1 (GPT1_OCR1)
- * 401fc014 GPT Output Compare Register 2 (GPT1_OCR2)
- * 401fc018 GPT Output Compare Register 3 (GPT1_OCR3)
- * 401fc01c GPT Input Capture Register 1 (GPT1_ICR1)
- * 401fc020 GPT Input Capture Register 2 (GPT1_ICR2)
- * 401fc024 GPT Counter Register (GPT1_CNT)
- * 401f0000 GPT Control Register (GPT2_CR)
- * 401f0004 GPT Prescaler Register (GPT2_PR)
- * 401f0008 GPT Status Register (GPT2_SR)
- * 401f000C GPT Interrupt Register (GPT2_IR)
- * 401f0010 GPT Output Compare Register 1 (GPT2_OCR1)
- * 401f0014 GPT Output Compare Register 2 (GPT2_OCR2)
- * 401f0018 GPT Output Compare Register 3 (GPT2_OCR3)
- * 401f001c GPT Input Capture Register 1 (GPT2_ICR1)
- * 401f0020 GPT Input Capture Register 2 (GPT2_ICR2)
- * 401f0024 GPT Counter Register (GPT2_CNT)
- *
- */
+#define GPT_BASE1 MAP_8BIT_REGISTER(0x401f0000)
+#define GPT2_CR GPT_BASE1._0x0000 // Control Register
+#define GPT2_PR GPT_BASE1._0x0004 // Prescaler Register
+#define GPT2_SR GPT_BASE1._0x0008 // Status Register
+#define GPT2_IR GPT_BASE1._0x000C // Interrupt Register
+#define GPT2_OCR1 GPT_BASE1._0x0010 // Output Compare Register 1
+#define GPT2_OCR2 GPT_BASE1._0x0014 // Output Compare Register 2
+#define GPT2_OCR3 GPT_BASE1._0x0018 // Output Compare Register 3
+#define GPT2_ICR1 GPT_BASE1._0x001c // Input Capture Register 1
+#define GPT2_ICR2 GPT_BASE1._0x0020 // Input Capture Register 2
+#define GPT2_CNT GPT_BASE1._0x0024 // Counter Register
 
 /**
  * @brief: PIT, Periodic Interrupt Timer, Memory Map/Register
@@ -5687,27 +5686,28 @@ typedef enum DMA_CH_MODE
  * PIT : 0x40084000
  *
  **/
+#define PIT_BASE MAP_8BIT_REGISTER(0x400b4000)
 
 /**
- * 0hPIT Module Control Register (MCR)
- * E0hPIT Upper Lifetime Timer Register (LTMR64H)
- * E4hPIT Lower Lifetime Timer Register (LTMR64L)
- * 100hTimer Load Value Register (LDVAL0)
- * 104hCurrent Timer Value Register (CVAL0)
- * 108hTimer Control Register (TCTRL0)
- * 10ChTimer Flag Register (TFLG0)
- * 110hTimer Load Value Register (LDVAL1)
- * 114hCurrent Timer Value Register (CVAL1)
- * 118hTimer Control Register (TCTRL1)
- * 11ChTimer Flag Register (TFLG1)
- * 120hTimer Load Value Register (LDVAL2)
- * 124hCurrent Timer Value Register (CVAL2)
- * 128hTimer Control Register (TCTRL2)
- * 12ChTimer Flag Register (TFLG2)
- * 130hTimer Load Value Register (LDVAL3)
- * 134hCurrent Timer Value Register (CVAL3)
- * 138hTimer Control Register (TCTRL3)
- * 13ChTimer Flag Register (TFLG3)
+ * #define PIT_MCR PIT_BASE._0x0000 // Module Control Register
+ * #define PIT_LTMR64H PIT_BASE._0x00e0 // Upper Lifetime Timer Register
+ * #define PIT_LTMR64L PIT_BASE._0x00e4 // Lower Lifetime Timer Register
+ * #define PIT_LDVAL0 PIT_BASE._0x0100 // Timer Load Value Register
+ * #define PIT_CVAL0 PIT_BASE._0x0104 // Current Timer Value Register
+ * #define PIT_TCTRL0 PIT_BASE._0x0108 // Timer Control Register
+ * #define PIT_TFLG0 PIT_BASE._0x010c // Timer Flag Register
+ * #define PIT_LDVAL1 PIT_BASE._0x0110 // Timer Load Value Register
+ * #define PIT_CVAL1 PIT_BASE._0x0114 // Current Timer Value Register
+ * #define PIT_TCTRL1 PIT_BASE._0x0118 // Timer Control Register
+ * #define PIT_TFLG1 PIT_BASE._0x011c // Timer Flag Register
+ * #define PIT_LDVAL2 PIT_BASE._0x0120 // Timer Load Value Register
+ * #define PIT_CVAL2 PIT_BASE._0x0124 // Current Timer Value Register
+ * #define PIT_TCTRL2 PIT_BASE._0x0128 // Timer Control Register
+ * #define PIT_TFLG2 PIT_BASE._0x012c // Timer Flag Register
+ * #define PIT_LDVAL3 PIT_BASE._0x0130 // Timer Load Value Register
+ * #define PIT_CVAL3 PIT_BASE._0x0134 // Current Timer Value Register
+ * #define PIT_TCTRL3 PIT_BASE._0x0138 // Timer Control Register
+ * #define PIT_TFLG3 PIT_BASE._0x013c // Timer Flag Register
  */
 
 /**
@@ -5718,229 +5718,221 @@ typedef enum DMA_CH_MODE
  * TMR : 0x401dc000
  *
  **/
+#define EWM_BASE MAP_8BIT_REGISTER(0x400b4000)
 
 /**
- * 401D_C000Timer Channel Comp. Reg. 1 (TMR1_COMP10)
- * 401D_C002Timer Channel Comp. Reg. 2 (TMR1_COMP20)
- * 401D_C004Timer Channel Capture Reg. (TMR1_CAPT0)
- * 401D_C006Timer Channel Load Reg. (TMR1_LOAD0)
- * 401D_C008Timer Channel Hold Reg. (TMR1_HOLD0)
- * 401D_C00ATimer Channel Counter Reg. (TMR1_CNTR0)
- * 401D_C00CTimer Channel Control Reg. (TMR1_CTRL0)
- * 401D_C00ETimer Channel Status and Control Reg.(TMR1_SCTRL0)
- * 401D_C010Timer Channel Comparator Load Reg. 1(TMR1_CMPLD10)
- * 401D_C012Timer Channel Comparator Load Reg. 2(TMR1_CMPLD20)
- * 401D_C014Timer Channel Comparator Status, Ctrl Reg.(TMR1_CSCTRL0)
- * 401D_C016Timer Channel Input Filter Reg. (TMR1_FILT0)
- * 401D_C018Timer Channel DMA Enable Reg. (TMR1_DMA0)
- * 401D_C01ETimer Channel Enable Register (TMR1_ENBL)
- * 401D_C020Timer Channel Compare Register 1 (TMR1_COMP11)
- * 401D_C022Timer Channel Compare Register 2 (TMR1_COMP21)
- * 401D_C024Timer Channel Capture Register (TMR1_CAPT1)
- * 401D_C026Timer Channel Load Register (TMR1_LOAD1)
- * 401D_C028Timer Channel Hold Register (TMR1_HOLD1)
- * 401D_C02ATimer Channel Counter Register (TMR1_CNTR1)
- * 401D_C02CTimer Channel Control Register (TMR1_CTRL1)
- * 401D_C02ETimer Channel Status and Control Reg.(TMR1_SCTRL1)
- * 401D_C030Timer Channel Comparator Load Register 1(TMR1_CMPLD11)
- * 401D_C032Timer Channel Comparator Load Register 2(TMR1_CMPLD21)
- * 401D_C034Timer Channel Comparator Status, Ctrl Reg.(TMR1_CSCTRL1)
- * 401D_C036Timer Channel Input Filter Register (TMR1_FILT1)
- * 401D_C038Timer Channel DMA Enable Register (TMR1_DMA1)
- * 401D_C040Timer Channel Compare Register 1 (TMR1_COMP12)
- * 401D_C042Timer Channel Compare Register 2 (TMR1_COMP22)
- * 401D_C044Timer Channel Capture Register (TMR1_CAPT2)
- * 401D_C046Timer Channel Load Register (TMR1_LOAD2)
- * 401D_C048Timer Channel Hold Register (TMR1_HOLD2)
- * 401D_C04ATimer Channel Counter Register (TMR1_CNTR2)
- * 401D_C04CTimer Channel Control Register (TMR1_CTRL2)
- * 401D_C04ETimer Channel Status and Control Register(TMR1_SCTRL2)
- * 401D_C050Timer Channel Comparator Load Register 1(TMR1_CMPLD12)
- * 401D_C052Timer Channel Comparator Load Register 2(TMR1_CMPLD22)
- * 401D_C054Timer Channel Comparator Status, Ctrl Register(TMR1_CSCTRL2)
- * 401D_C056Timer Channel Input Filter Register (TMR1_FILT2)
- * 401D_C058Timer Channel DMA Enable Register (TMR1_DMA2)
- * 401D_C060Timer Channel Compare Register 1 (TMR1_COMP13)
- * 401D_C062Timer Channel Compare Register 2 (TMR1_COMP23)
- * 401D_C064Timer Channel Capture Register (TMR1_CAPT3)
- * 401D_C066Timer Channel Load Register (TMR1_LOAD3)
- * 401D_C068Timer Channel Hold Register (TMR1_HOLD3)
- * 401D_C06ATimer Channel Counter Register (TMR1_CNTR3)
- * 401D_C06CTimer Channel Control Register (TMR1_CTRL3)
- * 401D_C06ETimer Channel Status and Control Register(TMR1_SCTRL3)
- * 401D_C070Timer Channel Comparator Load Register 1(TMR1_CMPLD13)
- * 401D_C072Timer Channel Comparator Load Register 2(TMR1_CMPLD23)
- * 401D_C074Timer Channel Comparator Stat, Ctrl Reg.(TMR1_CSCTRL3)
- * 401D_C076Timer Channel Input Filter Reg. (TMR1_FILT3)
- * 401D_C078Timer Channel DMA Enable Reg. (TMR1_DMA3)
- * 401E_0000Timer Channel Compare Reg. 1 (TMR2_COMP10)
- * 401E_0002Timer Channel Compare Reg. 2 (TMR2_COMP20)
- * 401E_0004Timer Channel Capture Reg. (TMR2_CAPT0)
- * 401E_0006Timer Channel Load Register (TMR2_LOAD0)
- * 401E_0008Timer Channel Hold Register (TMR2_HOLD0)
- * 401E_000ATimer Channel Counter Register (TMR2_CNTR0)
- * 401E_000CTimer Channel Control Register (TMR2_CTRL0)
- * 401E_000ETimer Channel Status and Control Register(TMR2_SCTRL0)
- * 401E_0010Timer Channel Comparator Load Register 1(TMR2_CMPLD10)
- * 401E_0012Timer Channel Comparator Load Register 2(TMR2_CMPLD20)
- * 401E_0014Timer Channel Comparator Stat and Ctrl Reg.(TMR2_CSCTRL0)
- * 401E_0016Timer Channel Input Filter Reg. (TMR2_FILT0)
- * 401E_0018Timer Channel DMA Enable Reg. (TMR2_DMA0)
- * 401E_001ETimer Channel Enable Reg. (TMR2_ENBL)
- * 401E_0020Timer Channel Compare Reg. 1 (TMR2_COMP11)
- * 401E_0022Timer Channel Compare Reg. 2 (TMR2_COMP21)
- * 401E_0024Timer Channel Capture Reg. (TMR2_CAPT1)
- * 401E_0026Timer Channel Load Register (TMR2_LOAD1)
- * 401E_0028Timer Channel Hold Register (TMR2_HOLD1)
- * 401E_002ATimer Channel Counter Register (TMR2_CNTR1)
- * 401E_002CTimer Channel Control Register (TMR2_CTRL1)
- * 401E_002ETimer Channel Status and Control Register(TMR2_SCTRL1)
- * 401E_0030Timer Channel Comparator Load Register 1(TMR2_CMPLD11)
- * 401E_0032Timer Channel Comparator Load Register 2(TMR2_CMPLD21)
- * 401E_0034Timer Channel Comparator Stat, Ctrl Reg.(TMR2_CSCTRL1)
- * 401E_0036Timer Channel Input Filter Register (TMR2_FILT1)
- * 401E_0038Timer Channel DMA Enable Register (TMR2_DMA1)
- * 401E_0040Timer Channel Compare Register 1 (TMR2_COMP12)
- * 401E_0042Timer Channel Compare Register 2 (TMR2_COMP22)
- * 401E_0044Timer Channel Capture Register (TMR2_CAPT2)
- * 401E_0046Timer Channel Load Register (TMR2_LOAD2)
- * 401E_0048Timer Channel Hold Register (TMR2_HOLD2)
- * 401E_004ATimer Channel Counter Register (TMR2_CNTR2)
- * 401E_004CTimer Channel Control Register (TMR2_CTRL2)
- * 401E_004ETimer Channel Status and Control Register(TMR2_SCTRL2)
- * 401E_0050Timer Channel Comparator Load Register 1(TMR2_CMPLD12)
- * 401E_0052Timer Channel Comparator Load Register 2(TMR2_CMPLD22)
- * 401E_0054Timer Channel Comparator Stat, Ctrl Reg.(TMR2_CSCTRL2)
- * 401E_0056Timer Channel Input Filter Register (TMR2_FILT2)
- * 401E_0058Timer Channel DMA Enable Register (TMR2_DMA2)
- * 401E_0060Timer Channel Compare Register 1 (TMR2_COMP13)
- * 401E_0062Timer Channel Compare Register 2 (TMR2_COMP23)
- * 401E_0064Timer Channel Capture Register (TMR2_CAPT3)
- * 401E_0066Timer Channel Load Register (TMR2_LOAD3)
- * 401E_0068Timer Channel Hold Register (TMR2_HOLD3)
- * 401E_006ATimer Channel Counter Register (TMR2_CNTR3)
- * 401E_006CTimer Channel Control Register (TMR2_CTRL3)
- * 401E_006ETimer Channel Status and Control Register(TMR2_SCTRL3)
- * 401E_0070Timer Channel Comparator Load Register 1(TMR2_CMPLD13)
- * 401E_0072Timer Channel Comparator Load Register 2(TMR2_CMPLD23)
- * 401E_0074Timer Channel Comparator Status and Control Register(TMR2_CSCTRL3)
- *
- * 401E_0076Timer Channel Input Filter Register (TMR2_FILT3)
- * 401E_0078Timer Channel DMA Enable Register (TMR2_DMA3)
- * 401E_4000Timer Channel Compare Register 1 (TMR3_COMP10)
- * 401E_4002Timer Channel Compare Register 2 (TMR3_COMP20)
- * 401E_4004Timer Channel Capture Register (TMR3_CAPT0)
- * 401E_4006Timer Channel Load Register (TMR3_LOAD0)
- * 401E_4008Timer Channel Hold Register (TMR3_HOLD0)
- * 401E_400ATimer Channel Counter Register (TMR3_CNTR0)
- * 401E_400CTimer Channel Control Register (TMR3_CTRL0)
- * 401E_400ETimer Channel Status and Control Register(TMR3_SCTRL0)
- * 401E_4010Timer Channel Comparator Load Register 1(TMR3_CMPLD10)
- * 401E_4012Timer Channel Comparator Load Register 2(TMR3_CMPLD20)
- * 4401E_4014Timer Channel Comparator Status and Control Register(TMR3_CSCTRL0)
- *
- * 401E_4016Timer Channel Input Filter Register (TMR3_FILT0)
- * 401E_4018Timer Channel DMA Enable Register (TMR3_DMA0)
- * 401E_401ETimer Channel Enable Register (TMR3_ENBL)
- * 401E_4020Timer Channel Compare Register 1 (TMR3_COMP11)
- * 401E_4022Timer Channel Compare Register 2 (TMR3_COMP21)
- * 401E_4024Timer Channel Capture Register (TMR3_CAPT1)
- * 401E_4026Timer Channel Load Register (TMR3_LOAD1)
- * 401E_4028Timer Channel Hold Register (TMR3_HOLD1)
- * 401E_402ATimer Channel Counter Register (TMR3_CNTR1)
- * 401E_402CTimer Channel Control Register (TMR3_CTRL1)
- * 401E_402ETimer Channel Status and Control Register(TMR3_SCTRL1)
- * 401E_4030Timer Channel Comparator Load Register 1(TMR3_CMPLD11)
- * 401E_4032Timer Channel Comparator Load Register 2(TMR3_CMPLD21)
- * 401E_4034Timer Channel Comparator Status and Control Register(TMR3_CSCTRL1)
- *
- * 401E_4036Timer Channel Input Filter Register (TMR3_FILT1)
- * 401E_4038Timer Channel DMA Enable Register (TMR3_DMA1)
- * 401E_4040Timer Channel Compare Register 1 (TMR3_COMP12)
- * 401E_4042Timer Channel Compare Register 2 (TMR3_COMP22)
- * 401E_4044Timer Channel Capture Register (TMR3_CAPT2)
- * 401E_4046Timer Channel Load Register (TMR3_LOAD2)
- * 401E_4048Timer Channel Hold Register (TMR3_HOLD2)
- * 401E_404ATimer Channel Counter Register (TMR3_CNTR2)
- * 401E_404CTimer Channel Control Register (TMR3_CTRL2)
- * 401E_404ETimer Channel Status and Control Register(TMR3_SCTRL2)
- * 401E_4050Timer Channel Comparator Load Register 1(TMR3_CMPLD12)
- * 401E_4052Timer Channel Comparator Load Register 2(TMR3_CMPLD22)
- * 4401E_4054Timer Channel Comparator Status and Control Register(TMR3_CSCTRL2)
- *
- * 401E_4056Timer Channel Input Filter Register (TMR3_FILT2)
- * 401E_4058Timer Channel DMA Enable Register (TMR3_DMA2)
- * 401E_4060Timer Channel Compare Register 1 (TMR3_COMP13)
- * 401E_4062Timer Channel Compare Register 2 (TMR3_COMP23)
- * 401E_4064Timer Channel Capture Register (TMR3_CAPT3)
- * 401E_4066Timer Channel Load Register (TMR3_LOAD3)
- * 401E_4068Timer Channel Hold Register (TMR3_HOLD3)
- * 401E_406ATimer Channel Counter Register (TMR3_CNTR3)
- * 401E_406CTimer Channel Control Register (TMR3_CTRL3)
- * 401E_406ETimer Channel Status and Control Register(TMR3_SCTRL3)
- * 401E_4070Timer Channel Comparator Load Register 1(TMR3_CMPLD13)
- * 401E_4072Timer Channel Comparator Load Register 2(TMR3_CMPLD23)
- * 401E_4074Timer Channel Comparator Status and Control Register(TMR3_CSCTRL3)
- *
- * 401E_4076Timer Channel Input Filter Register (TMR3_FILT3)
- * 401E_4078Timer Channel DMA Enable Register (TMR3_DMA3)
- * 401E_8000Timer Channel Compare Register 1 (TMR4_COMP10)
- * 401E_8002Timer Channel Compare Register 2 (TMR4_COMP20)
- * 401E_8004Timer Channel Capture Register (TMR4_CAPT0)
- * 401E_8006Timer Channel Load Register (TMR4_LOAD0)
- * 401E_8008Timer Channel Hold Register (TMR4_HOLD0)
- * 401E_800ATimer Channel Counter Register (TMR4_CNTR0)
- * 401E_800CTimer Channel Control Register (TMR4_CTRL0)
- * 401E_800ETimer Channel Status and Control Register(TMR4_SCTRL0)
- * 401E_8010Timer Channel Comparator Load Register 1(TMR4_CMPLD10)
- * 401E_8012Timer Channel Comparator Load Register 2(TMR4_CMPLD20)
- * 401E_8014Timer Channel Comparator Status and Control Register(TMR4_CSCTRL0)
- *
- * 401E_8016Timer Channel Input Filter Register (TMR4_FILT0)
- * 401E_8018Timer Channel DMA Enable Register (TMR4_DMA0)
- * 401E_801ETimer Channel Enable Register (TMR4_ENBL)
- * 401E_8020Timer Channel Compare Register 1 (TMR4_COMP11)
- * 401E_8022Timer Channel Compare Register 2 (TMR4_COMP21)
- * 401E_8024Timer Channel Capture Register (TMR4_CAPT1)
- * 401E_8026Timer Channel Load Register (TMR4_LOAD1)
- * 401E_8028Timer Channel Hold Register (TMR4_HOLD1)
- * 401E_802ATimer Channel Counter Register (TMR4_CNTR1)
- * 401E_802CTimer Channel Control Register (TMR4_CTRL1)
- * 401E_802ETimer Channel Status and Control Register(TMR4_SCTRL1)
- * 401E_8030Timer Channel Comparator Load Register 1(TMR4_CMPLD11)
- * 401E_8032Timer Channel Comparator Load Register 2(TMR4_CMPLD21)
- * 401E_8034Timer Channel Comparator Status and Control Register(TMR4_CSCTRL1)
- *
- * 401E_8036Timer Channel Input Filter Register (TMR4_FILT1)
- * 401E_8038Timer Channel DMA Enable Register (TMR4_DMA1)
- * 401E_8040Timer Channel Compare Register 1 (TMR4_COMP12)
- * 401E_8042Timer Channel Compare Register 2 (TMR4_COMP22)
- * 401E_8044Timer Channel Capture Register (TMR4_CAPT2)
- * 401E_8046Timer Channel Load Register (TMR4_LOAD2)
- * 401E_8048Timer Channel Hold Register (TMR4_HOLD2)
- * 401E_804ATimer Channel Counter Register (TMR4_CNTR2)
- * 401E_804CTimer Channel Control Register (TMR4_CTRL2)
- * 401E_804ETimer Channel Status and Control Register(TMR4_SCTRL2)
- * 401E_8050Timer Channel Comparator Load Register 1(TMR4_CMPLD12)
- * 401E_8052Timer Channel Comparator Load Register 2(TMR4_CMPLD22)
- * 401E_8054Timer Channel Comparator Status and Control Register(TMR4_CSCTRL2)
- *
- * 401E_8056Timer Channel Input Filter Register (TMR4_FILT2)
- * 401E_8058Timer Channel DMA Enable Register (TMR4_DMA2)
- * 401E_8060Timer Channel Compare Register 1 (TMR4_COMP13)
- * 401E_8062Timer Channel Compare Register 2 (TMR4_COMP23)
- * 401E_8064Timer Channel Capture Register (TMR4_CAPT3)
- * 401E_8066Timer Channel Load Register (TMR4_LOAD3)
- * 401E_8068Timer Channel Hold Register (TMR4_HOLD3)
- * 401E_806ATimer Channel Counter Register (TMR4_CNTR3)
- * 401E_806CTimer Channel Control Register (TMR4_CTRL3)
- * 401E_806ETimer Channel Status and Control Register(TMR4_SCTRL3)
- * 401E_8070Timer Channel Comparator Load Register 1(TMR4_CMPLD13)
- * 401E_8072Timer Channel Comparator Load Register 2(TMR4_CMPLD23)
- * 401E_8074Timer Channel Comparator Status and Control Register(TMR4_CSCTRL3)
- *
- * 401E_8076Timer Channel Input Filter Register (TMR4_FILT3)
- * 401E_8078Timer Channel DMA Enable Register (TMR4_DMA3)
+ * #define TMR1_COMP10 TMR_BASE00._0x401dc000
+ * #define TMR1_COMP20 TMR_BASE00._0x401dc002
+ * #define TMR1_CAPT0 TMR_BASE00._0x401dc004
+ * #define TMR1_LOAD0 TMR_BASE00._0x401dc006
+ * #define TMR1_HOLD0 TMR_BASE00._0x401dc008
+ * #define TMR1_CNTR0 TMR_BASE00._0x401dc00a
+ * #define TMR1_CTRL0 TMR_BASE00._0x401dc00c
+ * #define TMR1_SCTRL0 TMR_BASE00._0x401dc00e
+ * #define TMR1_CMPLD10 TMR_BASE00._0x401dc010
+ * #define TMR1_CMPLD20 TMR_BASE00._0x401dc012
+ * #define TMR1_CSCTRL0 TMR_BASE00._0x401dc014
+ * #define TMR1_FILT0 TMR_BASE00._0x401dc016
+ * #define TMR1_DMA0 TMR_BASE00._0x401dc018
+ * #define TMR1_ENBL TMR_BASE00._0x401dc01e
+ * #define TMR1_COMP11 TMR_BASE00._0x401dc020
+ * #define TMR1_COMP21 TMR_BASE00._0x401dc022
+ * #define TMR1_CAPT1 TMR_BASE00._0x401dc024
+ * #define TMR1_LOAD1 TMR_BASE00._0x401dc026
+ * #define TMR1_HOLD1 TMR_BASE00._0x401dc028
+ * #define TMR1_CNTR1 TMR_BASE00._0x401dc02a
+ * #define TMR1_CTRL1 TMR_BASE00._0x401dc02c
+ * #define TMR1_SCTRL1 TMR_BASE00._0x401dc02e
+ * #define TMR1_CMPLD11 TMR_BASE00._0x401dc030
+ * #define TMR1_CMPLD21 TMR_BASE00._0x401dc032
+ * #define TMR1_CSCTRL1 TMR_BASE00._0x401dc034
+ * #define TMR1_FILT1 TMR_BASE00._0x401dc036
+ * #define TMR1_DMA1 TMR_BASE00._0x401dc038
+ * #define TMR1_COMP12 TMR_BASE00._0x401dc040
+ * #define TMR1_COMP22 TMR_BASE00._0x401dc042
+ * #define TMR1_CAPT2 TMR_BASE00._0x401dc044
+ * #define TMR1_LOAD2 TMR_BASE00._0x401dc046
+ * #define TMR1_HOLD2 TMR_BASE00._0x401dc048
+ * #define TMR1_CNTR2 TMR_BASE00._0x401dc04a
+ * #define TMR1_CTRL2 TMR_BASE00._0x401dc04c
+ * #define TMR1_SCTRL2 TMR_BASE00._0x401dc04e
+ * #define TMR1_CMPLD12 TMR_BASE00._0x401dc050
+ * #define TMR1_CMPLD22 TMR_BASE00._0x401dc052
+ * #define TMR1_CSCTRL2 TMR_BASE00._0x401dc054
+ * #define TMR1_FILT2 TMR_BASE00._0x401dc056
+ * #define TMR1_DMA2 TMR_BASE00._0x401dc058
+ * #define TMR1_COMP13 TMR_BASE00._0x401dc060
+ * #define TMR1_COMP23 TMR_BASE00._0x401dc062
+ * #define TMR1_CAPT3 TMR_BASE00._0x401dc064
+ * #define TMR1_LOAD3 TMR_BASE00._0x401dc066
+ * #define TMR1_HOLD3 TMR_BASE00._0x401dc068
+ * #define TMR1_CNTR3 TMR_BASE00._0x401dc06a
+ * #define TMR1_CTRL3 TMR_BASE00._0x401dc06c
+ * #define TMR1_SCTRL3 TMR_BASE00._0x401dc06e
+ * #define TMR1_CMPLD13 TMR_BASE00._0x401dc070
+ * #define TMR1_CMPLD23 TMR_BASE00._0x401dc072
+ * #define TMR1_CSCTRL3 TMR_BASE00._0x401dc074
+ * #define TMR1_FILT3 TMR_BASE00._0x401dc076
+ * #define TMR1_DMA3 TMR_BASE00._0x401dc078
+ * #define TMR2_COMP10 TMR_BASE00._0x401e0000
+ * #define TMR2_COMP20 TMR_BASE00._0x401e0002
+ * #define TMR2_CAPT0 TMR_BASE00._0x401e0004
+ * #define TMR2_LOAD0 TMR_BASE00._0x401e0006
+ * #define TMR2_HOLD0 TMR_BASE00._0x401e0008
+ * #define TMR2_CNTR0 TMR_BASE00._0x401e000a
+ * #define TMR2_CTRL0 TMR_BASE00._0x401e000c
+ * #define TMR2_SCTRL0 TMR_BASE00._0x401e000e
+ * #define TMR2_CMPLD10 TMR_BASE00._0x401e0010
+ * #define TMR2_CMPLD20 TMR_BASE00._0x401e0012
+ * #define TMR2_CSCTRL0 TMR_BASE00._0x401e0014
+ * #define TMR2_FILT0 TMR_BASE00._0x401e0016
+ * #define TMR2_DMA0 TMR_BASE00._0x401e0018
+ * #define TMR2_ENBL TMR_BASE00._0x401e001e
+ * #define TMR2_COMP11 TMR_BASE00._0x401e0020
+ * #define TMR2_COMP21 TMR_BASE00._0x401e0022
+ * #define TMR2_CAPT1 TMR_BASE00._0x401e0024
+ * #define TMR2_LOAD1 TMR_BASE00._0x401e0026
+ * #define TMR2_HOLD1 TMR_BASE00._0x401e0028
+ * #define TMR2_CNTR1 TMR_BASE00._0x401e002a
+ * #define TMR2_CTRL1 TMR_BASE00._0x401e002c
+ * #define TMR2_SCTRL1 TMR_BASE00._0x401e002e
+ * #define TMR2_CMPLD11 TMR_BASE00._0x401e0030
+ * #define TMR2_CMPLD21 TMR_BASE00._0x401e0032
+ * #define TMR2_CSCTRL1 TMR_BASE00._0x401e0034
+ * #define TMR2_FILT1 TMR_BASE00._0x401e0036
+ * #define TMR2_DMA1 TMR_BASE00._0x401e0038
+ * #define TMR2_COMP12 TMR_BASE00._0x401e0040
+ * #define TMR2_COMP22 TMR_BASE00._0x401e0042
+ * #define TMR2_CAPT2 TMR_BASE00._0x401e0044
+ * #define TMR2_LOAD2 TMR_BASE00._0x401e0046
+ * #define TMR2_HOLD2 TMR_BASE00._0x401e0048
+ * #define TMR2_CNTR2 TMR_BASE00._0x401e004a
+ * #define TMR2_CTRL2 TMR_BASE00._0x401e004c
+ * #define TMR2_SCTRL2 TMR_BASE00._0x401e004e
+ * #define TMR2_CMPLD12 TMR_BASE00._0x401e0050
+ * #define TMR2_CMPLD22 TMR_BASE00._0x401e0052
+ * #define TMR2_CSCTRL2 TMR_BASE00._0x401e0054
+ * #define TMR2_FILT2 TMR_BASE00._0x401e0056
+ * #define TMR2_DMA2 TMR_BASE00._0x401e0058
+ * #define TMR2_COMP13 TMR_BASE00._0x401e0060
+ * #define TMR2_COMP23 TMR_BASE00._0x401e0062
+ * #define TMR2_CAPT3 TMR_BASE00._0x401e0064
+ * #define TMR2_LOAD3 TMR_BASE00._0x401e0066
+ * #define TMR2_HOLD3 TMR_BASE00._0x401e0068
+ * #define TMR2_CNTR3 TMR_BASE00._0x401e006a
+ * #define TMR2_CTRL3 TMR_BASE00._0x401e006c
+ * #define TMR2_SCTRL3 TMR_BASE00._0x401e006e
+ * #define TMR2_CMPLD13 TMR_BASE00._0x401e0070
+ * #define TMR2_CMPLD23 TMR_BASE00._0x401e0072
+ * #define TMR2_CSCTRL3 TMR_BASE00._0x401e0074
+ * #define TMR2_FILT3 TMR_BASE00._0x401e0076
+ * #define TMR2_DMA3 TMR_BASE00._0x401e0078
+ * #define TMR3_COMP10 TMR_BASE00._0x401e4000
+ * #define TMR3_COMP20 TMR_BASE00._0x401e4002
+ * #define TMR3_CAPT0 TMR_BASE00._0x401e4004
+ * #define TMR3_LOAD0 TMR_BASE00._0x401e4006
+ * #define TMR3_HOLD0 TMR_BASE00._0x401e4008
+ * #define TMR3_CNTR0 TMR_BASE00._0x401e400a
+ * #define TMR3_CTRL0 TMR_BASE00._0x401e400c
+ * #define TMR3_SCTRL0 TMR_BASE00._0x401e400e
+ * #define TMR3_CMPLD10 TMR_BASE00._0x401e4010
+ * #define TMR3_CMPLD20 TMR_BASE00._0x401e4012
+ * #define TMR3_CSCTRL0 TMR_BASE00._0x44014014
+ * #define TMR3_FILT0 TMR_BASE00._0x401e4016
+ * #define TMR3_DMA0 TMR_BASE00._0x401e4018
+ * #define TMR3_ENBL TMR_BASE00._0x401e401e
+ * #define TMR3_COMP11 TMR_BASE00._0x401e4020
+ * #define TMR3_COMP21 TMR_BASE00._0x401e4022
+ * #define TMR3_CAPT1 TMR_BASE00._0x401e4024
+ * #define TMR3_LOAD1 TMR_BASE00._0x401e4026
+ * #define TMR3_HOLD1 TMR_BASE00._0x401e4028
+ * #define TMR3_CNTR1 TMR_BASE00._0x401e402a
+ * #define TMR3_CTRL1 TMR_BASE00._0x401e402c
+ * #define TMR3_SCTRL1 TMR_BASE00._0x401e402e
+ * #define TMR3_CMPLD11 TMR_BASE00._0x401e4030
+ * #define TMR3_CMPLD21 TMR_BASE00._0x401e4032
+ * #define TMR3_CSCTRL1 TMR_BASE00._0x401e4034
+ * #define TMR3_FILT1 TMR_BASE00._0x401e4036
+ * #define TMR3_DMA1 TMR_BASE00._0x401e4038
+ * #define TMR3_COMP12 TMR_BASE00._0x401e4040
+ * #define TMR3_COMP22 TMR_BASE00._0x401e4042
+ * #define TMR3_CAPT2 TMR_BASE00._0x401e4044
+ * #define TMR3_LOAD2 TMR_BASE00._0x401e4046
+ * #define TMR3_HOLD2 TMR_BASE00._0x401e4048
+ * #define TMR3_CNTR2 TMR_BASE00._0x401e404a
+ * #define TMR3_CTRL2 TMR_BASE00._0x401e404c
+ * #define TMR3_SCTRL2 TMR_BASE00._0x401e404e
+ * #define TMR3_CMPLD12 TMR_BASE00._0x401e4050
+ * #define TMR3_CMPLD22 TMR_BASE00._0x401e4052
+ * #define TMR3_CSCTRL2 TMR_BASE00._0x44014054
+ * #define TMR3_FILT2 TMR_BASE00._0x401e4056
+ * #define TMR3_DMA2 TMR_BASE00._0x401e4058
+ * #define TMR3_COMP13 TMR_BASE00._0x401e4060
+ * #define TMR3_COMP23 TMR_BASE00._0x401e4062
+ * #define TMR3_CAPT3 TMR_BASE00._0x401e4064
+ * #define TMR3_LOAD3 TMR_BASE00._0x401e4066
+ * #define TMR3_HOLD3 TMR_BASE00._0x401e4068
+ * #define TMR3_CNTR3 TMR_BASE00._0x401e406a
+ * #define TMR3_CTRL3 TMR_BASE00._0x401e406c
+ * #define TMR3_SCTRL3 TMR_BASE00._0x401e406e
+ * #define TMR3_CMPLD13 TMR_BASE00._0x401e4070
+ * #define TMR3_CMPLD23 TMR_BASE00._0x401e4072
+ * #define TMR3_CSCTRL3 TMR_BASE00._0x401e4074
+ * #define TMR3_FILT3 TMR_BASE00._0x401e4076
+ * #define TMR3_DMA3 TMR_BASE00._0x401e4078
+ * #define TMR4_COMP10 TMR_BASE00._0x401e8000
+ * #define TMR4_COMP20 TMR_BASE00._0x401e8002
+ * #define TMR4_CAPT0 TMR_BASE00._0x401e8004
+ * #define TMR4_LOAD0 TMR_BASE00._0x401e8006
+ * #define TMR4_HOLD0 TMR_BASE00._0x401e8008
+ * #define TMR4_CNTR0 TMR_BASE00._0x401e800a
+ * #define TMR4_CTRL0 TMR_BASE00._0x401e800c
+ * #define TMR4_SCTRL0 TMR_BASE00._0x401e800e
+ * #define TMR4_CMPLD10 TMR_BASE00._0x401e8010
+ * #define TMR4_CMPLD20 TMR_BASE00._0x401e8012
+ * #define TMR4_CSCTRL0 TMR_BASE00._0x401e8014
+ * #define TMR4_FILT0 TMR_BASE00._0x401e8016
+ * #define TMR4_DMA0 TMR_BASE00._0x401e8018
+ * #define TMR4_ENBL TMR_BASE00._0x401e801e
+ * #define TMR4_COMP11 TMR_BASE00._0x401e8020
+ * #define TMR4_COMP21 TMR_BASE00._0x401e8022
+ * #define TMR4_CAPT1 TMR_BASE00._0x401e8024
+ * #define TMR4_LOAD1 TMR_BASE00._0x401e8026
+ * #define TMR4_HOLD1 TMR_BASE00._0x401e8028
+ * #define TMR4_CNTR1 TMR_BASE00._0x401e802a
+ * #define TMR4_CTRL1 TMR_BASE00._0x401e802c
+ * #define TMR4_SCTRL1 TMR_BASE00._0x401e802e
+ * #define TMR4_CMPLD11 TMR_BASE00._0x401e8030
+ * #define TMR4_CMPLD21 TMR_BASE00._0x401e8032
+ * #define TMR4_CSCTRL1 TMR_BASE00._0x401e8034
+ * #define TMR4_FILT1 TMR_BASE00._0x401e8036
+ * #define TMR4_DMA1 TMR_BASE00._0x401e8038
+ * #define TMR4_COMP12 TMR_BASE00._0x401e8040
+ * #define TMR4_COMP22 TMR_BASE00._0x401e8042
+ * #define TMR4_CAPT2 TMR_BASE00._0x401e8044
+ * #define TMR4_LOAD2 TMR_BASE00._0x401e8046
+ * #define TMR4_HOLD2 TMR_BASE00._0x401e8048
+ * #define TMR4_CNTR2 TMR_BASE00._0x401e804a
+ * #define TMR4_CTRL2 TMR_BASE00._0x401e804c
+ * #define TMR4_SCTRL2 TMR_BASE00._0x401e804e
+ * #define TMR4_CMPLD12 TMR_BASE00._0x401e8050
+ * #define TMR4_CMPLD22 TMR_BASE00._0x401e8052
+ * #define TMR4_CSCTRL2 TMR_BASE00._0x401e8054
+ * #define TMR4_FILT2 TMR_BASE00._0x401e8056
+ * #define TMR4_DMA2 TMR_BASE00._0x401e8058
+ * #define TMR4_COMP13 TMR_BASE00._0x401e8060
+ * #define TMR4_COMP23 TMR_BASE00._0x401e8062
+ * #define TMR4_CAPT3 TMR_BASE00._0x401e8064
+ * #define TMR4_LOAD3 TMR_BASE00._0x401e8066
+ * #define TMR4_HOLD3 TMR_BASE00._0x401e8068
+ * #define TMR4_CNTR3 TMR_BASE00._0x401e806a
+ * #define TMR4_CTRL3 TMR_BASE00._0x401e806C
+ * #define TMR4_SCTRL3 TMR_BASE00._0x401e806e
+ * #define TMR4_CMPLD13 TMR_BASE00._0x401e8070
+ * #define TMR4_CMPLD23 TMR_BASE00._0x401e8072
+ * #define TMR4_CSCTRL3 TMR_BASE00._0x401e8074
+ * #define TMR4_FILT3 TMR_BASE00._0x401e8076
+ * #define TMR4_DMA3 TMR_BASE00._0x401e8078
  *
  *
  */
@@ -5959,191 +5951,192 @@ typedef enum DMA_CH_MODE
  * while FlexPWM2/3/4do not have the PWMX outputs or inputs.
  *
  **/
+#define EWM_BASE MAP_8BIT_REGISTER(0x400b4000)
 
 /**
- * 0hCounter Register (SM0CNT)
- * 2hInitial Count Register (SM0INIT)
- * 4hControl 2 Register (SM0CTRL2)
- * 6hControl Register (SM0CTRL)
- * AhValue Register 0 (SM0VAL0)
- * ChFractional Value Register 1 (SM0FRACVAL1)
- * EhValue Register 1 (SM0VAL1)
- * 10hFractional Value Register 2 (SM0FRACVAL2)
- * 12hValue Register 2 (SM0VAL2)
- * 14hFractional Value Register 3 (SM0FRACVAL3)
- * 16hValue Register 3 (SM0VAL3)
- * 18hFractional Value Register 4 (SM0FRACVAL4)
- * 1AhValue Register 4 (SM0VAL4)
- * 1ChFractional Value Register 5 (SM0FRACVAL5)
- * 1EhValue Register 5 (SM0VAL5)
- * 20hFractional Control Register (SM0FRCTRL)
- * 22hOutput Control Register (SM0OCTRL)
- * 24hStatus Register (SM0STS)
- * 26hInterrupt Enable Register (SM0INTEN)
- * 28hDMA Enable Register (SM0DMAEN)
- * 2AhOutput Trigger Control Register (SM0TCTRL)
- * 2ChFault Disable Mapping Register 0 (SM0DISMAP0)
- * 2EhFault Disable Mapping Register 1 (SM0DISMAP1)
- * 30hDeadtime Count Register 0 (SM0DTCNT0)
- * 32hDeadtime Count Register 1 (SM0DTCNT1)
- * 34hCapture Control A Register (SM0CAPTCTRLA)
- * 36hCapture Compare A Register (SM0CAPTCOMPA)
- * 38hCapture Control B Register (SM0CAPTCTRLB)
- * 3AhCapture Compare B Register (SM0CAPTCOMPB)
- * 3ChCapture Control X Register (SM0CAPTCTRLX)
- * 3EhCapture Compare X Register (SM0CAPTCOMPX)
- * 40hCapture Value 0 Register (SM0CVAL0)
- * 42hCapture Value 0 Cycle Register (SM0CVAL0CYC)
- * 44hCapture Value 1 Register (SM0CVAL1)
- * 46hCapture Value 1 Cycle Register (SM0CVAL1CYC)
- * 48hCapture Value 2 Register (SM0CVAL2)
- * 4AhCapture Value 2 Cycle Register (SM0CVAL2CYC)
- * 4ChCapture Value 3 Register (SM0CVAL3)
- * 4EhCapture Value 3 Cycle Register (SM0CVAL3CYC)
- * 50hCapture Value 4 Register (SM0CVAL4)
- * 52hCapture Value 4 Cycle Register (SM0CVAL4CYC)
- * 54hCapture Value 5 Register (SM0CVAL5)
- * 56hCapture Value 5 Cycle Register (SM0CVAL5CYC)
- * 60hCounter Register (SM1CNT)
- * 62hInitial Count Register (SM1INIT)
- * 64hControl 2 Register (SM1CTRL2)
- * 66hControl Register (SM1CTRL)
- * 6AhValue Register 0 (SM1VAL0)
- * 6ChFractional Value Register 1 (SM1FRACVAL1)
- * 6EhValue Register 1 (SM1VAL1)
- * 70hFractional Value Register 2 (SM1FRACVAL2)
- * 72hValue Register 2 (SM1VAL2)
- * 74hFractional Value Register 3 (SM1FRACVAL3)
- * 76hValue Register 3 (SM1VAL3)
- * 78hFractional Value Register 4 (SM1FRACVAL4)
- * 7AhValue Register 4 (SM1VAL4)
- * 7ChFractional Value Register 5 (SM1FRACVAL5)
- * 7EhValue Register 5 (SM1VAL5)
- * 80hFractional Control Register (SM1FRCTRL)
- * 82hOutput Control Register (SM1OCTRL)
- * 84hStatus Register (SM1STS)
- * 86hInterrupt Enable Register (SM1INTEN)
- * 88hDMA Enable Register (SM1DMAEN)
- * 8AhOutput Trigger Control Register (SM1TCTRL)
- * 8ChFault Disable Mapping Register 0 (SM1DISMAP0)
- * 8EhFault Disable Mapping Register 1 (SM1DISMAP1)
- * 90hDeadtime Count Register 0 (SM1DTCNT0)
- * 92hDeadtime Count Register 1 (SM1DTCNT1)
- * 94hCapture Control A Register (SM1CAPTCTRLA)
- * 96hCapture Compare A Register (SM1CAPTCOMPA)
- * 98hCapture Control B Register (SM1CAPTCTRLB)
- * 9AhCapture Compare B Register (SM1CAPTCOMPB)
- * 9ChCapture Control X Register (SM1CAPTCTRLX)
- * 9EhCapture Compare X Register (SM1CAPTCOMPX)
- * A0hCapture Value 0 Register (SM1CVAL0)
- * A2hCapture Value 0 Cycle Register (SM1CVAL0CYC)
- * A4hCapture Value 1 Register (SM1CVAL1)
- * A6hCapture Value 1 Cycle Register (SM1CVAL1CYC)
- * A8hCapture Value 2 Register (SM1CVAL2)
- * AAhCapture Value 2 Cycle Register (SM1CVAL2CYC)
- * AChCapture Value 3 Register (SM1CVAL3)
- * AEhCapture Value 3 Cycle Register (SM1CVAL3CYC)
- * B0hCapture Value 4 Register (SM1CVAL4)
- * B2hCapture Value 4 Cycle Register (SM1CVAL4CYC)
- * B4hCapture Value 5 Register (SM1CVAL5)
- * B6hCapture Value 5 Cycle Register (SM1CVAL5CYC)
- * C0hCounter Register (SM2CNT)
- * C2hInitial Count Register (SM2INIT)
- * C4hControl 2 Register (SM2CTRL2)
- * C6hControl Register (SM2CTRL)
- * CAhValue Register 0 (SM2VAL0)
- * CChFractional Value Register 1 (SM2FRACVAL1)
- * CEhValue Register 1 (SM2VAL1)
- * D0hFractional Value Register 2 (SM2FRACVAL2)
- * D2hValue Register 2 (SM2VAL2)
- * D4hFractional Value Register 3 (SM2FRACVAL3)
- * D6hValue Register 3 (SM2VAL3)
- * D8hFractional Value Register 4 (SM2FRACVAL4)
- * DAhValue Register 4 (SM2VAL4)
- * DChFractional Value Register 5 (SM2FRACVAL5)
- * DEhValue Register 5 (SM2VAL5)
- * E0hFractional Control Register (SM2FRCTRL)
- * E2hOutput Control Register (SM2OCTRL)
- * E4hStatus Register (SM2STS)
- * E6hInterrupt Enable Register (SM2INTEN)
- * E8hDMA Enable Register (SM2DMAEN)
- * EAhOutput Trigger Control Register (SM2TCTRL)
- * EChFault Disable Mapping Register 0 (SM2DISMAP0)
- * EEhFault Disable Mapping Register 1 (SM2DISMAP1)
- * F0hDeadtime Count Register 0 (SM2DTCNT0)
- * F2hDeadtime Count Register 1 (SM2DTCNT1)
- * F4hCapture Control A Register (SM2CAPTCTRLA)
- * F6hCapture Compare A Register (SM2CAPTCOMPA)
- * F8hCapture Control B Register (SM2CAPTCTRLB)
- * FAhCapture Compare B Register (SM2CAPTCOMPB)
- * FChCapture Control X Register (SM2CAPTCTRLX)
- * FEhCapture Compare X Register (SM2CAPTCOMPX)
- * 100hCapture Value 0 Register (SM2CVAL0)
- * 102hCapture Value 0 Cycle Register (SM2CVAL0CYC)
- * 104hCapture Value 1 Register (SM2CVAL1)
- * 106hCapture Value 1 Cycle Register (SM2CVAL1CYC)
- * 108hCapture Value 2 Register (SM2CVAL2)
- * 10AhCapture Value 2 Cycle Register (SM2CVAL2CYC)
- * 10ChCapture Value 3 Register (SM2CVAL3)
- * 10EhCapture Value 3 Cycle Register (SM2CVAL3CYC)
- * 110hCapture Value 4 Register (SM2CVAL4)
- * 112hCapture Value 4 Cycle Register (SM2CVAL4CYC)
- * 114hCapture Value 5 Register (SM2CVAL5)
- * 116hCapture Value 5 Cycle Register (SM2CVAL5CYC)
- * 120hCounter Register (SM3CNT)
- * 122hInitial Count Register (SM3INIT)
- * 124hControl 2 Register (SM3CTRL2)
- * 126hControl Register (SM3CTRL)
- * 12AhValue Register 0 (SM3VAL0)
- * 12ChFractional Value Register 1 (SM3FRACVAL1)
- * 12EhValue Register 1 (SM3VAL1)
- * 130hFractional Value Register 2 (SM3FRACVAL2)
- * 132hValue Register 2 (SM3VAL2)
- * 134hFractional Value Register 3 (SM3FRACVAL3)
- * 136hValue Register 3 (SM3VAL3)
- * 138hFractional Value Register 4 (SM3FRACVAL4)
- * 13AhValue Register 4 (SM3VAL4)
- * 13ChFractional Value Register 5 (SM3FRACVAL5)
- * 13EhValue Register 5 (SM3VAL5)
- * 140hFractional Control Register (SM3FRCTRL)
- * 142hOutput Control Register (SM3OCTRL)
- * 144hStatus Register (SM3STS)
- * 146hInterrupt Enable Register (SM3INTEN)
- * 148hDMA Enable Register (SM3DMAEN)
- * 14AhOutput Trigger Control Register (SM3TCTRL)
- * 14ChFault Disable Mapping Register 0 (SM3DISMAP0)
- * 14EhFault Disable Mapping Register 1 (SM3DISMAP1)
- * 150hDeadtime Count Register 0 (SM3DTCNT0)
- * 152hDeadtime Count Register 1 (SM3DTCNT1)
- * 154hCapture Control A Register (SM3CAPTCTRLA)
- * 156hCapture Compare A Register (SM3CAPTCOMPA)
- * 158hCapture Control B Register (SM3CAPTCTRLB)
- * 15AhCapture Compare B Register (SM3CAPTCOMPB)
- * 15ChCapture Control X Register (SM3CAPTCTRLX)
- * 15EhCapture Compare X Register (SM3CAPTCOMPX)
- * 160hCapture Value 0 Register (SM3CVAL0)
- * 162hCapture Value 0 Cycle Register (SM3CVAL0CYC)
- * 16RO0000h164hCapture Value 1 Register (SM3CVAL1)
- * 166hCapture Value 1 Cycle Register (SM3CVAL1CYC)
- * 168hCapture Value 2 Register (SM3CVAL2)
- * 16AhCapture Value 2 Cycle Register (SM3CVAL2CYC)
- * 16ChCapture Value 3 Register (SM3CVAL3)
- * 16EhCapture Value 3 Cycle Register (SM3CVAL3CYC)
- * 170hCapture Value 4 Register (SM3CVAL4)
- * 172hCapture Value 4 Cycle Register (SM3CVAL4CYC)
- * 174hCapture Value 5 Register (SM3CVAL5)
- * 176hCapture Value 5 Cycle Register (SM3CVAL5CYC)
- * 180hOutput Enable Register (OUTEN)
- * 182hMask Register (MASK)
- * 184hSoftware Controlled Output Register (SWCOUT)
- * 186hPWM Source Select Register (DTSRCSEL)
- * 188hMaster Control Register (MCTRL)
- * 18AhMaster Control 2 Register (MCTRL2)
- * 18ChFault Control Register (FCTRL0)
- * 18EhFault Status Register (FSTS0)
- * 190hFault Filter Register (FFILT0)
- * 192hFault Test Register (FTST0)
- * 194hFault Control 2 Register (FCTRL20)
+ * 0x0000 Counter Register (SM0CNT)
+ * 0x0002 Initial Count Register (SM0INIT)
+ * 0x0004 Control 2 Register (SM0CTRL2)
+ * 0x0006 Control Register (SM0CTRL)
+ * 0x000A Value Register 0 (SM0VAL0)
+ * 0x000C Fractional Value Register 1 (SM0FRACVAL1)
+ * 0x000E Value Register 1 (SM0VAL1)
+ * 0x0010 Fractional Value Register 2 (SM0FRACVAL2)
+ * 0x0012 Value Register 2 (SM0VAL2)
+ * 0x0014 Fractional Value Register 3 (SM0FRACVAL3)
+ * 0x0016 Value Register 3 (SM0VAL3)
+ * 0x0018 Fractional Value Register 4 (SM0FRACVAL4)
+ * 0x001A Value Register 4 (SM0VAL4)
+ * 0x001C Fractional Value Register 5 (SM0FRACVAL5)
+ * 0x001E Value Register 5 (SM0VAL5)
+ * 0x0020 Fractional Control Register (SM0FRCTRL)
+ * 0x0022 Output Control Register (SM0OCTRL)
+ * 0x0024 Status Register (SM0STS)
+ * 0x0026 Interrupt Enable Register (SM0INTEN)
+ * 0x0028 DMA Enable Register (SM0DMAEN)
+ * 0x002A Output Trigger Control Register (SM0TCTRL)
+ * 0x002C Fault Disable Mapping Register 0 (SM0DISMAP0)
+ * 0x002E Fault Disable Mapping Register 1 (SM0DISMAP1)
+ * 0x0030 Deadtime Count Register 0 (SM0DTCNT0)
+ * 0x0032 Deadtime Count Register 1 (SM0DTCNT1)
+ * 0x0034 Capture Control A Register (SM0CAPTCTRLA)
+ * 0x0036 Capture Compare A Register (SM0CAPTCOMPA)
+ * 0x0038 Capture Control B Register (SM0CAPTCTRLB)
+ * 0x003A Capture Compare B Register (SM0CAPTCOMPB)
+ * 0x003C Capture Control X Register (SM0CAPTCTRLX)
+ * 0x003E Capture Compare X Register (SM0CAPTCOMPX)
+ * 0x0040 Capture Value 0 Register (SM0CVAL0)
+ * 0x0042 Capture Value 0 Cycle Register (SM0CVAL0CYC)
+ * 0x0044 Capture Value 1 Register (SM0CVAL1)
+ * 0x0046 Capture Value 1 Cycle Register (SM0CVAL1CYC)
+ * 0x0048 Capture Value 2 Register (SM0CVAL2)
+ * 0x004A Capture Value 2 Cycle Register (SM0CVAL2CYC)
+ * 0x004C Capture Value 3 Register (SM0CVAL3)
+ * 0x004E Capture Value 3 Cycle Register (SM0CVAL3CYC)
+ * 0x0050 Capture Value 4 Register (SM0CVAL4)
+ * 0x0052 Capture Value 4 Cycle Register (SM0CVAL4CYC)
+ * 0x0054 Capture Value 5 Register (SM0CVAL5)
+ * 0x0056 Capture Value 5 Cycle Register (SM0CVAL5CYC)
+ * 0x0060 Counter Register (SM1CNT)
+ * 0x0062 Initial Count Register (SM1INIT)
+ * 0x0064 Control 2 Register (SM1CTRL2)
+ * 0x0066 Control Register (SM1CTRL)
+ * 0x006A Value Register 0 (SM1VAL0)
+ * 0x006C Fractional Value Register 1 (SM1FRACVAL1)
+ * 0x006E Value Register 1 (SM1VAL1)
+ * 0x0070 Fractional Value Register 2 (SM1FRACVAL2)
+ * 0x0072 Value Register 2 (SM1VAL2)
+ * 0x00x0 74 Fractional Value Register 3 (SM1FRACVAL3)
+ * 0x00x0 76 Value Register 3 (SM1VAL3)
+ * 0x00x0 78 Fractional Value Register 4 (SM1FRACVAL4)
+ * 0x00x0 7A Value Register 4 (SM1VAL4)
+ * 0x00x0 7C Fractional Value Register 5 (SM1FRACVAL5)
+ * 0x00x0 7E Value Register 5 (SM1VAL5)
+ * 0x00x0 80 Fractional Control Register (SM1FRCTRL)
+ * 0x00x0 82 Output Control Register (SM1OCTRL)
+ * 0x00x0 84 Status Register (SM1STS)
+ * 0x00x0 86 Interrupt Enable Register (SM1INTEN)
+ * 0x00x0 88 DMA Enable Register (SM1DMAEN)
+ * 0x00x0 8A Output Trigger Control Register (SM1TCTRL)
+ * 0x00x0 8C Fault Disable Mapping Register 0 (SM1DISMAP0)
+ * 0x00x0 8E Fault Disable Mapping Register 1 (SM1DISMAP1)
+ * 0x00x0 90 Deadtime Count Register 0 (SM1DTCNT0)
+ * 0x00x0 92 Deadtime Count Register 1 (SM1DTCNT1)
+ * 0x00x0 94 Capture Control A Register (SM1CAPTCTRLA)
+ * 0x00x0 96 Capture Compare A Register (SM1CAPTCOMPA)
+ * 0x00x0 98 Capture Control B Register (SM1CAPTCTRLB)
+ * 0x00x0 9A Capture Compare B Register (SM1CAPTCOMPB)
+ * 0x00x0 9C Capture Control X Register (SM1CAPTCTRLX)
+ * 0x00x0 9E Capture Compare X Register (SM1CAPTCOMPX)
+ * 0x00x0 A0 Capture Value 0 Register (SM1CVAL0)
+ * 0x00x0 A2 Capture Value 0 Cycle Register (SM1CVAL0CYC)
+ * 0x00x0 A4 Capture Value 1 Register (SM1CVAL1)
+ * 0x00x0 A6 Capture Value 1 Cycle Register (SM1CVAL1CYC)
+ * 0x00x0 A8 Capture Value 2 Register (SM1CVAL2)
+ * 0x00x0 AA Capture Value 2 Cycle Register (SM1CVAL2CYC)
+ * 0x00x0 AC Capture Value 3 Register (SM1CVAL3)
+ * 0x00x0 AE Capture Value 3 Cycle Register (SM1CVAL3CYC)
+ * 0x00x0 B0 Capture Value 4 Register (SM1CVAL4)
+ * 0x00x0 B2 Capture Value 4 Cycle Register (SM1CVAL4CYC)
+ * 0x00x0 B4 Capture Value 5 Register (SM1CVAL5)
+ * 0x00x0 B6 Capture Value 5 Cycle Register (SM1CVAL5CYC)
+ * 0x00x0 C0 Counter Register (SM2CNT)
+ * 0x00x0 C2 Initial Count Register (SM2INIT)
+ * 0x00x0 C4 Control 2 Register (SM2CTRL2)
+ * 0x00x0 C6 Control Register (SM2CTRL)
+ * 0x00x0 CA Value Register 0 (SM2VAL0)
+ * 0x00x0 CC Fractional Value Register 1 (SM2FRACVAL1)
+ * 0x00x0 CE Value Register 1 (SM2VAL1)
+ * 0x00x0 D0 Fractional Value Register 2 (SM2FRACVAL2)
+ * 0x00x0 D2 Value Register 2 (SM2VAL2)
+ * 0x00x0 D4 Fractional Value Register 3 (SM2FRACVAL3)
+ * 0x00x0 D6 Value Register 3 (SM2VAL3)
+ * 0x00x0 D8 Fractional Value Register 4 (SM2FRACVAL4)
+ * 0x00x0 DA Value Register 4 (SM2VAL4)
+ * 0x00x0 DC Fractional Value Register 5 (SM2FRACVAL5)
+ * 0x00x0 DE Value Register 5 (SM2VAL5)
+ * 0x00x0 E0 Fractional Control Register (SM2FRCTRL)
+ * 0x00x0 E2 Output Control Register (SM2OCTRL)
+ * 0x00x0 E4 Status Register (SM2STS)
+ * 0x00x0 E6 Interrupt Enable Register (SM2INTEN)
+ * 0x00x0 E8 DMA Enable Register (SM2DMAEN)
+ * 0x00x0 EA Output Trigger Control Register (SM2TCTRL)
+ * 0x00x0 EC Fault Disable Mapping Register 0 (SM2DISMAP0)
+ * 0x00x0 EE Fault Disable Mapping Register 1 (SM2DISMAP1)
+ * 0x00x0 F0 Deadtime Count Register 0 (SM2DTCNT0)
+ * 0x00x0 F2 Deadtime Count Register 1 (SM2DTCNT1)
+ * 0x00x0 F4 Capture Control A Register (SM2CAPTCTRLA)
+ * 0x00x0 F6 Capture Compare A Register (SM2CAPTCOMPA)
+ * 0x00x0 F8 Capture Control B Register (SM2CAPTCTRLB)
+ * 0x00x0 FA Capture Compare B Register (SM2CAPTCOMPB)
+ * 0x00x0 FC Capture Control X Register (SM2CAPTCTRLX)
+ * 0x00x0 FE Capture Compare X Register (SM2CAPTCOMPX)
+ * 0x0100 Capture Value 0 Register (SM2CVAL0)
+ * 0x0102 Capture Value 0 Cycle Register (SM2CVAL0CYC)
+ * 0x0104 Capture Value 1 Register (SM2CVAL1)
+ * 0x0106 Capture Value 1 Cycle Register (SM2CVAL1CYC)
+ * 0x0108 Capture Value 2 Register (SM2CVAL2)
+ * 0x010A Capture Value 2 Cycle Register (SM2CVAL2CYC)
+ * 0x010C Capture Value 3 Register (SM2CVAL3)
+ * 0x010E Capture Value 3 Cycle Register (SM2CVAL3CYC)
+ * 0x0110 Capture Value 4 Register (SM2CVAL4)
+ * 0x0112 Capture Value 4 Cycle Register (SM2CVAL4CYC)
+ * 0x0114 Capture Value 5 Register (SM2CVAL5)
+ * 0x0116 Capture Value 5 Cycle Register (SM2CVAL5CYC)
+ * 0x0120 Counter Register (SM3CNT)
+ * 0x0122 Initial Count Register (SM3INIT)
+ * 0x0124 Control 2 Register (SM3CTRL2)
+ * 0x0126 Control Register (SM3CTRL)
+ * 0x012A Value Register 0 (SM3VAL0)
+ * 0x012C Fractional Value Register 1 (SM3FRACVAL1)
+ * 0x012E Value Register 1 (SM3VAL1)
+ * 0x0130 Fractional Value Register 2 (SM3FRACVAL2)
+ * 0x0132 Value Register 2 (SM3VAL2)
+ * 0x0134 Fractional Value Register 3 (SM3FRACVAL3)
+ * 0x0136 Value Register 3 (SM3VAL3)
+ * 0x0138 Fractional Value Register 4 (SM3FRACVAL4)
+ * 0x013A Value Register 4 (SM3VAL4)
+ * 0x013C Fractional Value Register 5 (SM3FRACVAL5)
+ * 0x013E Value Register 5 (SM3VAL5)
+ * 0x0140 Fractional Control Register (SM3FRCTRL)
+ * 0x0142 Output Control Register (SM3OCTRL)
+ * 0x0144 Status Register (SM3STS)
+ * 0x0146 Interrupt Enable Register (SM3INTEN)
+ * 0x0148 DMA Enable Register (SM3DMAEN)
+ * 0x014A Output Trigger Control Register (SM3TCTRL)
+ * 0x014C Fault Disable Mapping Register 0 (SM3DISMAP0)
+ * 0x014E Fault Disable Mapping Register 1 (SM3DISMAP1)
+ * 0x0150 Deadtime Count Register 0 (SM3DTCNT0)
+ * 0x0152 Deadtime Count Register 1 (SM3DTCNT1)
+ * 0x0154 Capture Control A Register (SM3CAPTCTRLA)
+ * 0x0156 Capture Compare A Register (SM3CAPTCOMPA)
+ * 0x0158 Capture Control B Register (SM3CAPTCTRLB)
+ * 0x015A Capture Compare B Register (SM3CAPTCOMPB)
+ * 0x015C Capture Control X Register (SM3CAPTCTRLX)
+ * 0x015E Capture Compare X Register (SM3CAPTCOMPX)
+ * 0x0160 Capture Value 0 Register (SM3CVAL0)
+ * 0x0162 Capture Value 0 Cycle Register (SM3CVAL0CYC)
+ * 0x0164 Capture Value 1 Register (SM3CVAL1)
+ * 0x0166 Capture Value 1 Cycle Register (SM3CVAL1CYC)
+ * 0x0168 Capture Value 2 Register (SM3CVAL2)
+ * 0x016A Capture Value 2 Cycle Register (SM3CVAL2CYC)
+ * 0x016C Capture Value 3 Register (SM3CVAL3)
+ * 0x016E Capture Value 3 Cycle Register (SM3CVAL3CYC)
+ * 0x0170 Capture Value 4 Register (SM3CVAL4)
+ * 0x0172 Capture Value 4 Cycle Register (SM3CVAL4CYC)
+ * 0x0174 Capture Value 5 Register (SM3CVAL5)
+ * 0x0176 Capture Value 5 Cycle Register (SM3CVAL5CYC)
+ * 0x0180 Output Enable Register (OUTEN)
+ * 0x0182 Mask Register (MASK)
+ * 0x0184 Software Controlled Output Register (SWCOUT)
+ * 0x0186 PWM Source Select Register (DTSRCSEL)
+ * 0x0188 Master Control Register (MCTRL)
+ * 0x018A Master Control 2 Register (MCTRL2)
+ * 0x018C Fault Control Register (FCTRL0)
+ * 0x018E Fault Status Register (FSTS0)
+ * 0x0190 Fault Filter Register (FFILT0)
+ * 0x0192 Fault Test Register (FTST0)
+ * 0x0194 Fault Control 2 Register (FCTRL20)
  *
  */
 
@@ -6162,28 +6155,97 @@ typedef enum DMA_CH_MODE
  * All memory locations base andoffsets are given in hex.
  **/
 
-/**
- * 0hControl Register (CTRL)
- * 2hInput Filter Register (FILT)
- * h4hWatchdog Timeout Register (WTR)
- * 6hPosition Difference Counter Register (POSD)
- * 8hPosition Difference Hold Register (POSDH)
- * AhRevolution Counter Register (REV)
- * ChRevolution Hold Register (REVH)
- * EhUpper Position Counter Register (UPOS)
- * 10hLower Position Counter Register (LPOS)
- * 12hUpper Position Hold Register (UPOSH)
- * 14hLower Position Hold Register (LPOSH)
- * 16hUpper Initialization Register (UINIT)
- * 18hLower Initialization Register (LINIT)
- * 1AhInput Monitor Register (IMR)
- * 1ChTest Register (TST)
- * 1EhControl 2 Register (CTRL2)
- * 20hUpper Modulus Register (UMOD)
- * 22hLower Modulus Register (LMOD)
- * 24hUpper Position Compare Register (UCOMP)
- * 26hLower Position Compare Register (LCOMP)
- */
+// ENC 1
+#define ENC1_BASE MAP_16BIT_REGISTER(0x403c8000)
+#define ENC1_CTRL ENC1_BASE._0x0000 // Control Register
+#define ENC1_FILT ENC1_BASE._0x0002 // Input Filter Register
+#define ENC1_WTR ENC1_BASE._0x000h // Watchdog Timeout Registe
+#define ENC1_POSD ENC1_BASE._0x0006 // Position Difference Counter Register
+#define ENC1_POSDH ENC1_BASE._0x0008 // Position Difference Hold Register
+#define ENC1_REV ENC1_BASE._0x000a // Revolution Counter Register
+#define ENC1_REVH ENC1_BASE._0x000c // Revolution Hold Register
+#define ENC1_UPOS ENC1_BASE._0x000e // Upper Position Counter Register
+#define ENC1_LPOS ENC1_BASE._0x0010 // Lower Position Counter Register
+#define ENC1_UPOSH ENC1_BASE._0x0012 // Upper Position Hold Register
+#define ENC1_LPOSH ENC1_BASE._0x0014 // Lower Position Hold Register
+#define ENC1_UINIT ENC1_BASE._0x0016 // Upper Initialization Register
+#define ENC1_LINIT ENC1_BASE._0x0018 // Lower Initialization Register
+#define ENC1_IMR ENC1_BASE._0x001a // Input Monitor Registe
+#define ENC1_TST ENC1_BASE._0x001c // Test Registe
+#define ENC1_CTRL2 ENC1_BASE._0x001e // Control 2 Register
+#define ENC1_UMOD ENC1_BASE._0x0020 // Upper Modulus Register
+#define ENC1_LMOD ENC1_BASE._0x0022 // Lower Modulus Register
+#define ENC1_UCOMP ENC1_BASE._0x0024 // Upper Position Compare Register
+#define ENC1_LCOMP ENC1_BASE._0x0026 // Lower Position Compare Register
+
+// ENC 2
+#define ENC2_BASE MAP_16BIT_REGISTER(0x403cc000)
+#define ENC2_CTRL ENC2_BASE._0x0000 // Control Register
+#define ENC2_FILT ENC2_BASE._0x0002 // Input Filter Register
+#define ENC2_WTR ENC2_BASE._0x000h // Watchdog Timeout Registe
+#define ENC2_POSD ENC2_BASE._0x0006 // Position Difference Counter Register
+#define ENC2_POSDH ENC2_BASE._0x0008 // Position Difference Hold Register
+#define ENC2_REV ENC2_BASE._0x000a // Revolution Counter Registe
+#define ENC2_REVH ENC2_BASE._0x000c // Revolution Hold Register
+#define ENC2_UPOS ENC2_BASE._0x000e // Upper Position Counter Register
+#define ENC2_LPOS ENC2_BASE._0x0010 // Lower Position Counter Register
+#define ENC2_UPOSH ENC2_BASE._0x0012 // Upper Position Hold Register
+#define ENC2_LPOSH ENC2_BASE._0x0014 // Lower Position Hold Register
+#define ENC2_UINIT ENC2_BASE._0x0016 // Upper Initialization Register
+#define ENC2_LINIT ENC2_BASE._0x0018 // Lower Initialization Register
+#define ENC2_IMR ENC2_BASE._0x001a // Input Monitor Registe
+#define ENC2_TST ENC2_BASE._0x001c // Test Registe
+#define ENC2_CTRL2 ENC2_BASE._0x001e // Control 2 Register
+#define ENC2_UMOD ENC2_BASE._0x0020 // Upper Modulus Register
+#define ENC2_LMOD ENC2_BASE._0x0022 // Lower Modulus Register
+#define ENC2_UCOMP ENC2_BASE._0x0024 // Upper Position Compare Register
+#define ENC2_LCOMP ENC2_BASE._0x0026 // Lower Position Compare Register
+
+// ENC 3
+#define ENC3_BASE MAP_16BIT_REGISTER(0x403d0000)
+#define ENC3_CTRL ENC3_BASE._0x0000 // Control Register
+#define ENC3_FILT ENC3_BASE._0x0002 // Input Filter Register
+#define ENC3_WTR ENC3_BASE._0x000h // Watchdog Timeout Registe
+#define ENC3_POSD ENC3_BASE._0x0006 // Position Difference Counter Register
+#define ENC3_POSDH ENC3_BASE._0x0008 // Position Difference Hold Register
+#define ENC3_REV ENC3_BASE._0x000a // Revolution Counter Registe
+#define ENC3_REVH ENC3_BASE._0x000c // Revolution Hold Register
+#define ENC3_UPOS ENC3_BASE._0x000e // Upper Position Counter Register
+#define ENC3_LPOS ENC3_BASE._0x0010 // Lower Position Counter Register
+#define ENC3_UPOSH ENC3_BASE._0x0012 // Upper Position Hold Register
+#define ENC3_LPOSH ENC3_BASE._0x0014 // Lower Position Hold Register
+#define ENC3_UINIT ENC3_BASE._0x0016 // Upper Initialization Register
+#define ENC3_LINIT ENC3_BASE._0x0018 // Lower Initialization Register
+#define ENC3_IMR ENC3_BASE._0x001a // Input Monitor Registe
+#define ENC3_TST ENC3_BASE._0x001c // Test Registe
+#define ENC3_CTRL2 ENC3_BASE._0x001e // Control 2 Register
+#define ENC3_UMOD ENC3_BASE._0x0020 // Upper Modulus Register
+#define ENC3_LMOD ENC3_BASE._0x0022 // Lower Modulus Register
+#define ENC3_UCOMP ENC3_BASE._0x0024 // Upper Position Compare Register
+#define ENC3_LCOMP ENC3_BASE._0x0026 // Lower Position Compare Register
+
+// ENC 4
+#define ENC4_BASE MAP_16BIT_REGISTER(0x403d4000)
+#define ENC4_CTRL ENC4_BASE._0x0000 // Control Register
+#define ENC4_FILT ENC4_BASE._0x0002 // Input Filter Register
+#define ENC4_WTR ENC4_BASE._0x000h // Watchdog Timeout Registe
+#define ENC4_POSD ENC4_BASE._0x0006 // Position Difference Counter Register
+#define ENC4_POSDH ENC4_BASE._0x0008 // Position Difference Hold Register
+#define ENC4_REV ENC4_BASE._0x000a // Revolution Counter Registe
+#define ENC4_REVH ENC4_BASE._0x000c // Revolution Hold Register
+#define ENC4_UPOS ENC4_BASE._0x000e // Upper Position Counter Register
+#define ENC4_LPOS ENC4_BASE._0x0010 // Lower Position Counter Register
+#define ENC4_UPOSH ENC4_BASE._0x0012 // Upper Position Hold Register
+#define ENC4_LPOSH ENC4_BASE._0x0014 // Lower Position Hold Register
+#define ENC4_UINIT ENC4_BASE._0x0016 // Upper Initialization Register
+#define ENC4_LINIT ENC4_BASE._0x0018 // Lower Initialization Register
+#define ENC4_IMR ENC4_BASE._0x001a // Input Monitor Registe
+#define ENC4_TST ENC4_BASE._0x001c // Test Registe
+#define ENC4_CTRL2 ENC4_BASE._0x001e // Control 2 Register
+#define ENC4_UMOD ENC4_BASE._0x0020 // Upper Modulus Register
+#define ENC4_LMOD ENC4_BASE._0x0022 // Lower Modulus Register
+#define ENC4_UCOMP ENC4_BASE._0x0024 // Upper Position Compare Register
+#define ENC4_LCOMP ENC4_BASE._0x0026 // Lower Position Compare Register
 
 /**
  * @brief: WDOG1_2, Watchdog Timer , Memory Map/Register
@@ -6194,13 +6256,19 @@ typedef enum DMA_CH_MODE
  *
  **/
 
-/**
- * 0hWatchdog Control (WCR)
- * 2hWatchdog Service (WSR)
- * 4hWatchdog Reset Status (WRSR)
- * 6hWatchdog Interrupt Control (WICR)
- * 8hWatchdog Miscellaneous Control (WMCR)
- */
+#define WDOG1_BASE MAP_8BIT_REGISTER(0x400b8000)
+#define WDOG1_WCR WDOG1_BASE._0x0000 // Watchdog Control
+#define WDOG1_WSR WDOG1_BASE._0x0002 // Watchdog Service
+#define WDOG1_WRSR WDOG1_BASE._0x0004 // Watchdog Reset Status
+#define WDOG1_WICR WDOG1_BASE._0x0006 // Watchdog Interrupt Control
+#define WDOG1_WMCR WDOG1_BASE._0x0008 // Watchdog Miscellaneous Control
+
+#define WDOG2_BASE MAP_8BIT_REGISTER(0x400d0000)
+#define WDOG2_WCR WDOG2_BASE._0x0000 // Watchdog Control
+#define WDOG2_WSR WDOG2_BASE._0x0002 // Watchdog Service
+#define WDOG2_WRSR WDOG2_BASE._0x0004 // Watchdog Reset Status
+#define WDOG2_WICR WDOG2_BASE._0x0006 // Watchdog Interrupt Control
+#define WDOG2_WMCR WDOG2_BASE._0x0008 // Watchdog Miscellaneous Control
 
 /**
  * @brief: RTWDOG, Real Time Watchdog Timer , Memory Map/Register
@@ -6209,33 +6277,25 @@ typedef enum DMA_CH_MODE
  * WDOG3 (RTWDOG) base address: 0x400bc000
  *
  **/
-
-/**
- * 0hWatchdog Control and Status (CS)
- * 4hWatchdog Counter (CNT)
- * 8hWatchdog Timeout Value (TOVAL)
- * ChWatchdog Window (WIN)
- *
- */
+#define RTWDOG_BASE MAP_32BIT_REGISTER(0x400bc000)
+#define RTWDOG_CS RTWDOG_BASE._0x0000 // Watchdog Control and Status
+#define RTWDOG_CNT RTWDOG_BASE._0x0004 // Watchdog Counter
+#define RTWDOG_TOVAL RTWDOG_BASE._0x0008 // Watchdog Timeout Value
+#define RTWDOG_WIN RTWDOG_BASE._0x000c // Watchdog Window
 
 /**
  * @brief: EWM, External Watchdog Monitor , Memory Map/Register
  * 59.6 p.3221
  *
  * DEFAULT_NICKNAME base address: 0x400b4000
- *
  **/
-
-/**
- * 0hControl Register (CTRL)
- * 1hService Register (SERV)
- * 2hCompare Low Register (CMPL)
- * 3hCompare High Register (CMPH)
- * 4hClock Control Register (CLKCTRL)
- * 5hClock Prescaler Register (CLKPRESCALER)
- *
- *
- */
+#define EWM_BASE MAP_8BIT_REGISTER(0x400b4000)
+#define EWM_CTRL EWM_BASE._0x0000 // Control Register
+#define EWM_SERV EWM_BASE._0x0001 // Service Register
+#define EWM_CMPL EWM_BASE._0x0002 // Compare Low Register
+#define EWM_CMPH EWM_BASE._0x0003 // Compare High Register
+#define EWM_CLKCTRL EWM_BASE._0x0004 // Clock Control Register
+#define EWM_CLKPRESCALER EWM_BASE._0x0005 // Clock Prescaler Register
 
 /**
  * @brief: XBARA,  Inter-Peripheral Crossbar Switch B , Memory Map/Register
@@ -6244,77 +6304,75 @@ typedef enum DMA_CH_MODE
  * base address: 0x403bc000
  *
  **/
-
-/**
- * 0x403bc000 CrossbarA Select Reg. 0 (XBARA1_SEL0)
- * 0x403bc002 CrossbarA Select Reg. 1 (XBARA1_SEL1)
- * 0x403bc004 CrossbarA Select Reg. 2 (XBARA1_SEL2)
- * 0x403bc006 CrossbarA Select Reg. 3 (XBARA1_SEL3)
- * 0x403bc008 CrossbarA Select Reg. 4 (XBARA1_SEL4)
- * 0x403bc00A CrossbarA Select Reg. 5 (XBARA1_SEL5)
- * 0x403bc00C CrossbarA Select Reg. 6 (XBARA1_SEL6)
- * 0x403bc00E CrossbarA Select Reg. 7 (XBARA1_SEL7)
- * 0x403bc010 CrossbarA Select Reg. 8 (XBARA1_SEL8)
- * 0x403bc012 CrossbarA Select Reg. 9 (XBARA1_SEL9)
- * 0x403bc014 CrossbarA Select Reg. 10 (XBARA1_SEL10)
- * 0x403bc016 CrossbarA Select Reg. 11 (XBARA1_SEL11)
- * 0x403bc018 CrossbarA Select Reg. 12 (XBARA1_SEL12)
- * 0x403bc01A CrossbarA Select Reg. 13 (XBARA1_SEL13)
- * 0x403bc01C CrossbarA Select Reg. 14 (XBARA1_SEL14)
- * 0x403bc01E CrossbarA Select Reg. 15 (XBARA1_SEL15)
- * 0x403bc020 CrossbarA Select Reg. 16 (XBARA1_SEL16)
- * 0x403bc022 CrossbarA Select Reg. 17 (XBARA1_SEL17)
- * 0x403bc024 CrossbarA Select Reg. 18 (XBARA1_SEL18)
- * 0x403bc026 CrossbarA Select Reg. 19 (XBARA1_SEL19)
- * 0x403bc028 CrossbarA Select Reg. 20 (XBARA1_SEL20)
- * 0x403bc02A CrossbarA Select Reg. 21 (XBARA1_SEL21)
- * 0x403bc02C CrossbarA Select Reg. 22 (XBARA1_SEL22)
- * 0x403bc02E CrossbarA Select Reg. 23 (XBARA1_SEL23)
- * 0x403bc030 CrossbarA Select Reg. 24 (XBARA1_SEL24)
- * 0x403bc032 CrossbarA Select Reg. 25 (XBARA1_SEL25)
- * 0x403bc034 CrossbarA Select Reg. 26 (XBARA1_SEL26)
- * 0x403bc036 CrossbarA Select Reg. 27 (XBARA1_SEL27)
- * 0x403bc038 CrossbarA Select Reg. 28 (XBARA1_SEL28)
- * 0x403bc03A CrossbarA Select Reg. 29 (XBARA1_SEL29)
- * 0x403bc03C CrossbarA Select Reg. 30 (XBARA1_SEL30)
- * 0x403bc03E CrossbarA Select Reg. 31 (XBARA1_SEL31)
- * 0x403bc040 CrossbarA Select Reg. 32 (XBARA1_SEL32)
- * 0x403bc042 CrossbarA Select Reg. 33 (XBARA1_SEL33)
- * 0x403bc044 CrossbarA Select Reg. 34 (XBARA1_SEL34)
- * 0x403bc046 CrossbarA Select Reg. 35 (XBARA1_SEL35)
- * 0x403bc048 CrossbarA Select Reg. 36 (XBARA1_SEL36)
- * 0x403bc04A CrossbarA Select Reg. 37 (XBARA1_SEL37)
- * 0x403bc04C CrossbarA Select Reg. 38 (XBARA1_SEL38)
- * 0x403bc04E CrossbarA Select Reg. 39 (XBARA1_SEL39)
- * 0x403bc050 CrossbarA Select Reg. 40 (XBARA1_SEL40)
- * 0x403bc052 CrossbarA Select Reg. 41 (XBARA1_SEL41)
- * 0x403bc054 CrossbarA Select Reg. 42 (XBARA1_SEL42)
- * 0x403bc056 CrossbarA Select Reg. 43 (XBARA1_SEL43)
- * 0x403bc058 CrossbarA Select Reg. 44 (XBARA1_SEL44)
- * 0x403bc05A CrossbarA Select Reg. 45 (XBARA1_SEL45)
- * 0x403bc05C CrossbarA Select Reg. 46 (XBARA1_SEL46)
- * 0x403bc05E CrossbarA Select Reg. 47 (XBARA1_SEL47)
- * 0x403bc060 CrossbarA Select Reg. 48 (XBARA1_SEL48)
- * 0x403bc062 CrossbarA Select Reg. 49 (XBARA1_SEL49)
- * 0x403bc064 CrossbarA Select Reg. 50 (XBARA1_SEL50)
- * 0x403bc066 CrossbarA Select Reg. 51 (XBARA1_SEL51)
- * 0x403bc068 CrossbarA Select Reg. 52 (XBARA1_SEL52)
- * 0x403bc06A CrossbarA Select Reg. 53 (XBARA1_SEL53)
- * 0x403bc06C CrossbarA Select Reg. 54 (XBARA1_SEL54)
- * 0x403bc06E CrossbarA Select Reg. 55 (XBARA1_SEL55)
- * 0x403bc070 CrossbarA Select Reg. 56 (XBARA1_SEL56)
- * 0x403bc072 CrossbarA Select Reg. 57 (XBARA1_SEL57)
- * 0x403bc074 CrossbarA Select Reg. 58 (XBARA1_SEL58)
- * 0x403bc076 CrossbarA Select Reg. 59 (XBARA1_SEL59)
- * 0x403bc078 CrossbarA Select Reg. 60 (XBARA1_SEL60)
- * 0x403bc07A CrossbarA Select Reg. 61 (XBARA1_SEL61)
- * 0x403bc07C CrossbarA Select Reg. 62 (XBARA1_SEL62)
- * 0x403bc07E CrossbarA Select Reg. 63 (XBARA1_SEL63)
- * 0x403bc080 CrossbarA Select Reg. 64 (XBARA1_SEL64)
- * 0x403bc082 CrossbarA Select Reg. 65 (XBARA1_SEL65)
- * 0x403bc084 CrossbarA Control Re. 0 (XBARA1_CTRL0)
- * 0x403bc086 CrossbarA Control Re. 1 (XBARA1_CTRL1)
- */
+#define XBARA_BASE MAP_16BIT_REGISTER(0x403bc000)
+#define XBARA1_SEL0 XBARA_BASE._0x0000 // CrossbarA Slct Reg. 0
+#define XBARA1_SEL1 XBARA_BASE._0x0002 // CrossbarA Slct Reg. 1
+#define XBARA1_SEL2 XBARA_BASE._0x0004 // CrossbarA Slct Reg. 2
+#define XBARA1_SEL3 XBARA_BASE._0x0006 // CrossbarA Slct Reg. 3
+#define XBARA1_SEL4 XBARA_BASE._0x0008 // CrossbarA Slct Reg. 4
+#define XBARA1_SEL5 XBARA_BASE._0x000a // CrossbarA Slct Reg. 5
+#define XBARA1_SEL6 XBARA_BASE._0x000c // CrossbarA Slct Reg. 6
+#define XBARA1_SEL7 XBARA_BASE._0x000e // CrossbarA Slct Reg. 7
+#define XBARA1_SEL8 XBARA_BASE._0x0010 // CrossbarA Slct Reg. 8
+#define XBARA1_SEL9 XBARA_BASE._0x0012 // CrossbarA Slct Reg. 9
+#define XBARA1_SEL10 XBARA_BASE._0x0014 // CrossbarA Slct Reg. 10
+#define XBARA1_SEL11 XBARA_BASE._0x0016 // CrossbarA Slct Reg. 11
+#define XBARA1_SEL12 XBARA_BASE._0x0018 // CrossbarA Slct Reg. 12
+#define XBARA1_SEL13 XBARA_BASE._0x001a // CrossbarA Slct Reg. 13
+#define XBARA1_SEL14 XBARA_BASE._0x001c // CrossbarA Slct Reg. 14
+#define XBARA1_SEL15 XBARA_BASE._0x001e // CrossbarA Slct Reg. 15
+#define XBARA1_SEL16 XBARA_BASE._0x0020 // CrossbarA Slct Reg. 16
+#define XBARA1_SEL17 XBARA_BASE._0x0022 // CrossbarA Slct Reg. 17
+#define XBARA1_SEL18 XBARA_BASE._0x0024 // CrossbarA Slct Reg. 18
+#define XBARA1_SEL19 XBARA_BASE._0x0026 // CrossbarA Slct Reg. 19
+#define XBARA1_SEL20 XBARA_BASE._0x0028 // CrossbarA Slct Reg. 20
+#define XBARA1_SEL21 XBARA_BASE._0x002a // CrossbarA Slct Reg. 21
+#define XBARA1_SEL22 XBARA_BASE._0x002c // CrossbarA Slct Reg. 22
+#define XBARA1_SEL23 XBARA_BASE._0x002e // CrossbarA Slct Reg. 23
+#define XBARA1_SEL24 XBARA_BASE._0x0030 // CrossbarA Slct Reg. 24
+#define XBARA1_SEL25 XBARA_BASE._0x0032 // CrossbarA Slct Reg. 25
+#define XBARA1_SEL26 XBARA_BASE._0x0034 // CrossbarA Slct Reg. 26
+#define XBARA1_SEL27 XBARA_BASE._0x0036 // CrossbarA Slct Reg. 27
+#define XBARA1_SEL28 XBARA_BASE._0x0038 // CrossbarA Slct Reg. 28
+#define XBARA1_SEL29 XBARA_BASE._0x003a // CrossbarA Slct Reg. 29
+#define XBARA1_SEL30 XBARA_BASE._0x003c // CrossbarA Slct Reg. 30
+#define XBARA1_SEL31 XBARA_BASE._0x003e // CrossbarA Slct Reg. 31
+#define XBARA1_SEL32 XBARA_BASE._0x0040 // CrossbarA Slct Reg. 32
+#define XBARA1_SEL33 XBARA_BASE._0x0042 // CrossbarA Slct Reg. 33
+#define XBARA1_SEL34 XBARA_BASE._0x0044 // CrossbarA Slct Reg. 34
+#define XBARA1_SEL35 XBARA_BASE._0x0046 // CrossbarA Slct Reg. 35
+#define XBARA1_SEL36 XBARA_BASE._0x0048 // CrossbarA Slct Reg. 36
+#define XBARA1_SEL37 XBARA_BASE._0x004a // CrossbarA Slct Reg. 37
+#define XBARA1_SEL38 XBARA_BASE._0x004c // CrossbarA Slct Reg. 38
+#define XBARA1_SEL39 XBARA_BASE._0x004e // CrossbarA Slct Reg. 39
+#define XBARA1_SEL40 XBARA_BASE._0x0050 // CrossbarA Slct Reg. 40
+#define XBARA1_SEL41 XBARA_BASE._0x0052 // CrossbarA Slct Reg. 41
+#define XBARA1_SEL42 XBARA_BASE._0x0054 // CrossbarA Slct Reg. 42
+#define XBARA1_SEL43 XBARA_BASE._0x0056 // CrossbarA Slct Reg. 43
+#define XBARA1_SEL44 XBARA_BASE._0x0058 // CrossbarA Slct Reg. 44
+#define XBARA1_SEL45 XBARA_BASE._0x005a // CrossbarA Slct Reg. 45
+#define XBARA1_SEL46 XBARA_BASE._0x005c // CrossbarA Slct Reg. 46
+#define XBARA1_SEL47 XBARA_BASE._0x005e // CrossbarA Slct Reg. 47
+#define XBARA1_SEL48 XBARA_BASE._0x0060 // CrossbarA Slct Reg. 48
+#define XBARA1_SEL49 XBARA_BASE._0x0062 // CrossbarA Slct Reg. 49
+#define XBARA1_SEL50 XBARA_BASE._0x0064 // CrossbarA Slct Reg. 50
+#define XBARA1_SEL51 XBARA_BASE._0x0066 // CrossbarA Slct Reg. 51
+#define XBARA1_SEL52 XBARA_BASE._0x0068 // CrossbarA Slct Reg. 52
+#define XBARA1_SEL53 XBARA_BASE._0x006a // CrossbarA Slct Reg. 53
+#define XBARA1_SEL54 XBARA_BASE._0x006c // CrossbarA Slct Reg. 54
+#define XBARA1_SEL55 XBARA_BASE._0x006e // CrossbarA Slct Reg. 55
+#define XBARA1_SEL56 XBARA_BASE._0x0070 // CrossbarA Slct Reg. 56
+#define XBARA1_SEL57 XBARA_BASE._0x0072 // CrossbarA Slct Reg. 57
+#define XBARA1_SEL58 XBARA_BASE._0x0074 // CrossbarA Slct Reg. 58
+#define XBARA1_SEL59 XBARA_BASE._0x0076 // CrossbarA Slct Reg. 59
+#define XBARA1_SEL60 XBARA_BASE._0x0078 // CrossbarA Slct Reg. 60
+#define XBARA1_SEL61 XBARA_BASE._0x007a // CrossbarA Slct Reg. 61
+#define XBARA1_SEL62 XBARA_BASE._0x007c // CrossbarA Slct Reg. 62
+#define XBARA1_SEL63 XBARA_BASE._0x007e // CrossbarA Slct Reg. 63
+#define XBARA1_SEL64 XBARA_BASE._0x0080 // CrossbarA Slct Reg. 64
+#define XBARA1_SEL65 XBARA_BASE._0x0082 // CrossbarA Slct Reg. 65
+#define XBARA1_CTRL0 XBARA_BASE._0x0084 // CrossbarA Cnrol Re. 0
+#define XBARA1_CTRL1 XBARA_BASE._0x0086 // CrossbarA Cnrol Re. 1
 
 /**
  * @brief: XBARB, Inter-Peripheral Crossbar Switch B , Memory Map/Register
@@ -6323,69 +6381,54 @@ typedef enum DMA_CH_MODE
  * base address: 0x403c0000
  *
  **/
+#define XBARB_BASE0 MAP_16BIT_REGISTER(0x403c0000)
+#define XBARB2_SEL0 XBARB_BASE0._0x0000 // CrossbarB Select Reg. 0
+#define XBARB2_SEL1 XBARB_BASE0._0x0002 // CrossbarB Select Reg. 1
+#define XBARB2_SEL2 XBARB_BASE0._0x0004 // CrossbarB Select Reg. 2
+#define XBARB2_SEL3 XBARB_BASE0._0x0006 // CrossbarB Select Reg. 3
+#define XBARB2_SEL4 XBARB_BASE0._0x0008 // CrossbarB Select Reg. 4
+#define XBARB2_SEL5 XBARB_BASE0._0x000A // CrossbarB Select Reg. 5
+#define XBARB2_SEL6 XBARB_BASE0._0x000C // CrossbarB Select Reg. 6
+#define XBARB2_SEL7 XBARB_BASE0._0x000E // CrossbarB Select Reg. 7
 
-/**
- * 0x403c0000 CrossbarB Select Reg. 0 (XBARB2_SEL0)
- * 0x403c0002 CrossbarB Select Reg. 1 (XBARB2_SEL1)
- * 0x403c0004 CrossbarB Select Reg. 2 (XBARB2_SEL2)
- * 0x403c0006 CrossbarB Select Reg. 3 (XBARB2_SEL3)
- * 0x403c0008 CrossbarB Select Reg. 4 (XBARB2_SEL4)
- * 0x403c000A CrossbarB Select Reg. 5 (XBARB2_SEL5)
- * 0x403c000C CrossbarB Select Reg. 6 (XBARB2_SEL6)
- * 0x403c000E CrossbarB Select Reg. 7 (XBARB2_SEL7)
- * 0x403c4000 CrossbarB Select Reg. 0 (XBARB3_SEL0)
- * 0x403c4002 CrossbarB Select Reg. 1 (XBARB3_SEL1)
- * 0x403c4004 CrossbarB Select Reg. 2 (XBARB3_SEL2)
- * 0x403c4006 CrossbarB Select Reg. 3 (XBARB3_SEL3)
- * 0x403c4008 CrossbarB Select Reg. 4 (XBARB3_SEL4)
- * 0x403c400A CrossbarB Select Reg. 5 (XBARB3_SEL5)
- * 0x403c400C CrossbarB Select Reg. 6 (XBARB3_SEL6)
- * 0x403c400E CrossbarB Select Reg. 7 (XBARB3_SEL7)
- *
- */
+#define XBARB_BASE1 MAP_16BIT_REGISTER(0x403c4000)
+#define XBARB3_SEL0 XBARB_BASE1._0x0000 // CrossbarB Slct Reg. 0
+#define XBARB3_SEL1 XBARB_BASE1._0x0002 // CrossbarB Slct Reg. 1
+#define XBARB3_SEL2 XBARB_BASE1._0x0004 // CrossbarB Slct Reg. 2
+#define XBARB3_SEL3 XBARB_BASE1._0x0006 // CrossbarB Slct Reg. 3
+#define XBARB3_SEL4 XBARB_BASE1._0x0008 // CrossbarB Slct Reg. 4
+#define XBARB3_SEL5 XBARB_BASE1._0x000A // CrossbarB Slct Reg. 5
+#define XBARB3_SEL6 XBARB_BASE1._0x000C // CrossbarB Slct Reg. 6
+#define XBARB3_SEL7 XBARB_BASE1._0x000E // CrossbarB Slct Reg. 7
 
 /**
  * @brief: AOI, And-Or-Inverter , Memory Map/Register
  * 63.4 p.3287
  *
  * base address: 0x403b4000
+ * base address 2: 0x403b8000
  *
  **/
 
-/**
- * 0x403b4000 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI1_BFCRT010)
- * 0x403b4002 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI1_BFCRT230)
- * 0x403b4004 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI1_BFCRT011)
- * 0x403b4006 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI1_BFCRT231)
- * 0x403b4008 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI1_BFCRT012)
- * 0x403b400A Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI1_BFCRT232)
- * 0x403b400C Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI1_BFCRT013)
- * 0x403b400E Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI1_BFCRT233)
- * 0x403b8000 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI2_BFCRT010)
- * 0x403b8002 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI2_BFCRT230)
- * 0x403b8004 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI2_BFCRT011)
- * 0x403b8006 Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI2_BFCRT231)
- * 0x403b8008 Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI2_BFCRT012)
- * 0x403b800A Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI2_BFCRT232)
- * 0x403b800C Bool Fnc. Term 0 & 1 Config. Reg. forEVENTn
- * (AOI2_BFCRT013)
- * 0x403b800E Bool Fnc. Term 2 & 3 Config. Reg. forEVENTn
- * (AOI2_BFCRT233)
- */
+#define AOI_BASE0 MAP_16BIT_REGISTER(0x403b4000)
+#define AOI1_BFCRT010 AOI_BASE0._0x0000
+#define AOI1_BFCRT230 AOI_BASE0._0x0002
+#define AOI1_BFCRT011 AOI_BASE0._0x0004
+#define AOI1_BFCRT231 AOI_BASE0._0x0006
+#define AOI1_BFCRT012 AOI_BASE0._0x0008
+#define AOI1_BFCRT232 AOI_BASE0._0x000a
+#define AOI1_BFCRT013 AOI_BASE0._0x000c
+#define AOI1_BFCRT233 AOI_BASE0._0x000e
+
+#define AOI_BASE1 MAP_16BIT_REGISTER(0x403b8000)
+#define AOI2_BFCRT010 AOI_BASE1._0x0000
+#define AOI2_BFCRT230 AOI_BASE1._0x0002
+#define AOI2_BFCRT011 AOI_BASE1._0x0004
+#define AOI2_BFCRT231 AOI_BASE1._0x0006
+#define AOI2_BFCRT012 AOI_BASE1._0x0008
+#define AOI2_BFCRT232 AOI_BASE1._0x000a
+#define AOI2_BFCRT013 AOI_BASE1._0x000c
+#define AOI2_BFCRT233 AOI_BASE1._0x000e
 
 /**
 
