@@ -4125,16 +4125,31 @@ typedef enum DMA_CH_MODE
 
 /**
  * @brief: SPDIF, Sony/Philips Digital Interface Memory Map/Register
- * 38.5, p.1981
+ * 40.6, p.2036
  * SPDIF base address: 0x40380000
  **/
 
 /**
- * @brief: SAI, Synchrounous Audio Interface Memory Map/Register
- * 38.5, p.1981
- * SAI1 base address: 0x40384000
- * SAI2 base address: 0x40388000
- * SAI3 base address: 0x4038c000
+ * @brief: ENET, Ethernet MAC
+ * 41.6, p.2068
+ *
+ * ENET registers must be read or written with 32-bit accesses.
+ * Non-32 bit accesses willterminate with an error.
+ * Reserved bits should be written with 0 and ignored on read.
+ * Unused registers read zeroand a write has no effect
+ *
+ * Register Map Summary
+ * 0x0000 – 0x01FF    Configuration
+ *                    Core control and status registers
+ *
+ * 0x0200 – 0x03FF    Statistics counters
+ *                    MIB and Remote Network Monitoring (RFC 2819) registers
+ *
+ * 0x0400 – 0x0430    1588 control
+ *                    1588 adjustable timer (TSM) and 1588 frame control
+ *
+ * 0x0600 – 0x07FC    Capture/Comp block
+ *                    Registers for the Capture/Compare block
  **/
 
 /**
