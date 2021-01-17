@@ -3698,6 +3698,100 @@ typedef enum DMA_CH_MODE
 #include "flexspi_addr.h"
 
 /**
+ * @brief: ARM-Cortex M7 Memory Map/Register, 29.4, p.1744
+ * The bus system is composed of five instances:
+ * SIM_M7, SIM_PER, SIM_M,SIM_MAIN and SIM_EMS.
+ * Three of them have GPV registers which are
+ * helpful for busarbitration and performance.
+ *
+ * These registers are are NOT aimplemented on chip:
+ * IB registers. Address region control registers.
+ *
+ * These are the available registers:
+ * SIM_MAIN registers,
+ * SIM_M registers,
+ * SIM_M7 registers,
+ * Periphial ID registers.
+ * (The peripheral ID registers are implemented in SIM_MAIN, SIM_M,
+ * and SIM_M7.For more details, please see the below mentioned document.)
+ *
+ *
+ * For detailed descriptions of these registers,
+ * see the ARMdocument:
+ * DI0397I_corelink_network_interconnect_nic301_r2p3_trm.pdf.
+ **/
+
+/**
+ * @brief: 1.SIM_MAIN registers
+ * The SIM_MAIN GPV base address is GPV0_BASE = 0x41000000. The
+ * following registers are implemented in this NIC.
+ * REGISTERGROUP_REGISTERNAME_MODULENAME_PORTNAME
+ **/
+#define GPV0_BASE MAP_32BIT_REGISTER(0x41000000)
+#define SIM_MAIN_READQOS_LCD_MA2 (GPV0_BASE._0x0100 + 0x44000)
+#define SIM_MAIN_READQOS_CSI_MA3 (GPV0_BASE._0x0100 + 0x45000)
+#define SIM_MAIN_READQOS_PXP_MA4 (GPV0_BASE._0x0100 + 0x46000)
+
+#define SIM_MAIN_WRITEQOS_LCD_MA2 (GPV0_BASE._0x0104 + 0x44000)
+#define SIM_MAIN_WRITEQOS_CSI_MA3 (GPV0_BASE._0x0104 + 0x45000)
+#define SIM_MAIN_WRITEQOS_PXP_MA4 (GPV0_BASE._0x0104 + 0x46000)
+
+#define SIM_MAIN_FNMOD_LCD_MA2 (GPV0_BASE._0x0108 + 0x44000)
+#define SIM_MAIN_FNMOD_CSI_MA3 (GPV0_BASE._0x0108 + 0x45000)
+#define SIM_MAIN_FNMOD_PXP_MA4 (GPV0_BASE._0x0108 + 0x46000)
+
+/**
+ * @brief: 2.SIM_M registers
+ * The SIM_M GPV base address is GPV1_BASE = 0x41100000. The
+ * following registers are implemented in this NIC.
+ **/
+#define GPV1_BASE MAP_32BIT_REGISTER(0x41100000)
+
+#define SIM_MAIN_FNMOD2_DCP_MC0 (GPV1_BASE._0x0024 + 0x42000)
+#define SIM_MAIN_FNMODAHB_ENET_MC1 (GPV1_BASE._0x0028 + 0x43000)
+#define SIM_MAIN_FNMODAHB_TEST_MC5 (GPV1_BASE._0x0028 + 0x47000)
+#define SIM_MAIN_FNMODAHB_ENET2_MC6 (GPV1_BASE._0x0100 + 0x48000)
+
+#define SIM_MAIN_READQOS_DCP_MC0 (GPV1_BASE._0x0100 + 0x42000)
+#define SIM_MAIN_READQOS_ENET_MC1 (GPV1_BASE._0x0100 + 0x43000)
+#define SIM_MAIN_READQOS_USBO2_MC2 (GPV1_BASE._0x0100 + 0x44000)
+#define SIM_MAIN_READQOS_USDHC1_MC3 (GPV1_BASE._0x0100 + 0x45000)
+#define SIM_MAIN_READQOS_USDHC2_MC4 (GPV1_BASE._0x0100 + 0x46000)
+#define SIM_MAIN_READQOS_TEST_MC5 (GPV1_BASE._0x0100 + 0x47000)
+#define SIM_MAIN_READQOS_ENET2_MC6 (GPV1_BASE._0x0100 + 0x48000)
+//
+#define SIM_MAIN_WRITEQOS_DCP_MC0 (GPV1_BASE._0x0104 + 0x42000)
+#define SIM_MAIN_WRITEQOS_ENET_MC0 (GPV1_BASE._0x0104 + 0x43000)
+#define SIM_MAIN_WRITEQOS_USBO2_MC0 (GPV1_BASE._0x0104 + 0x44000)
+#define SIM_MAIN_WRITEQOS_USDHC1_MC0 (GPV1_BASE._0x0104 + 0x45000)
+#define SIM_MAIN_WRITEQOS_USDHC2_MC0 (GPV1_BASE._0x0104 + 0x46000)
+#define SIM_MAIN_WRITEQOS_TEST_MC0 (GPV1_BASE._0x0104 + 0x47000)
+#define SIM_MAIN_WRITEQOS_ENET2_MC0 (GPV1_BASE._0x0104 + 0x48000)
+//
+#define SIM_MAIN_FNMOD_DCP_MC0 (GPV1_BASE._0x0108 + 0x42000)
+#define SIM_MAIN_FNMOD_ENET_MC0 (GPV1_BASE._0x0108 + 0x43000)
+#define SIM_MAIN_FNMOD_USBO2_MC0 (GPV1_BASE._0x0108 + 0x44000)
+#define SIM_MAIN_FNMOD_USDHC1_MC0 (GPV1_BASE._0x0108 + 0x45000)
+#define SIM_MAIN_FNMOD_USDHC2_MC0 (GPV1_BASE._0x0108 + 0x46000)
+#define SIM_MAIN_FNMOD_TEST_MC0 (GPV1_BASE._0x0108 + 0x47000)
+#define SIM_MAIN_FNMOD_ENET2_MC0 (GPV1_BASE._0x0108 + 0x48000)
+
+/**
+ * @brief: 3.SIM_M7 registers
+ * The SIM_M7 GPV base address is GPV4_BASE = 0x41400000. The
+ * following registers are implemented in this NIC.
+ **/
+#define GPV4_BASE MAP_32BIT_REGISTER(0x41400000)
+#define SIM_MAIN_FNMODAHB_DMA_MB1 (GPV4_BASE._0x0028 + 0x43000)
+#define SIM_MAIN_WRTIDEMARK_CM7_MB0 (GPV4_BASE._0x0040 + 0x42000)
+#define SIM_MAIN_READQOS_CM7_MB0 (GPV4_BASE._0x0100 + 0x42000)
+#define SIM_MAIN_READQOS_DMA_MB1 (GPV4_BASE._0x0100 + 0x43000)
+#define SIM_MAIN_WRITEQOS_CM7_MB0 (GPV4_BASE._0x0104 + 0x42000)
+#define SIM_MAIN_WRITEQOS_DMA_MB1 (GPV4_BASE._0x0104 + 0x43000)
+#define SIM_MAIN_FNMOD_CM7_MB0 (GPV4_BASE._0x0108 + 0x42000)
+#define SIM_MAIN_FNMOD_DMA_MB1 (GPV4_BASE._0x0108 + 0x43000)
+
+/**
 
 
  * @brief Analog MUX Channel Mappings
