@@ -1,4 +1,4 @@
-#include "imxrt1062.h"
+#include "system_memory_map.h"
 
 extern unsigned long _stextload;
 extern unsigned long _stext;

@@ -641,6 +641,30 @@ typedef struct {
 
 } imxrt_8t_offset;
 
+typedef enum
+{
+  high = 0x0,
+  low = 0x1
+} EAnalogState;
+
+typedef enum
+{
+  _A = 0x0,
+  _B = 0x1
+} EState;
+
+typedef enum
+{
+  ALT0 = 0x0,
+  ALT1 = 0x1,
+  ALT2 = 0x2,
+  ALT3 = 0x3,
+  ALT4 = 0x4,
+  ALT5 = 0x5,
+  ALT6 = 0x6,
+  ALT7 = 0x7,
+} EMuxModes;
+
 #define MAP_8BIT_REGISTER(ADDRESS) (*(imcrt_8t_offset * ADDRESS)
 #define MAP_16BIT_REGISTER(ADDRESS) (*(imcrt_16t_offset * ADDRESS)
 #define MAP_32BIT_REGISTER(ADDRESS) (*(imcrt_32t_offset * ADDRESS)
