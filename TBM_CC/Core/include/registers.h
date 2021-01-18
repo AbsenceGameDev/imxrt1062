@@ -646,4 +646,13 @@ typedef struct {
 #define MAP_32BIT_REGISTER(ADDRESS) (*(imcrt_32t_offset * ADDRESS)
 #define _OFFSET(A, B) (A + B)
 
+#define IOMUXC_PAD_SRE ((uint32_t)(1 << 0))
+#define IOMUXC_PAD_DSE(n) ((uint32_t)(((n)&0x07) << 3))
+#define IOMUXC_PAD_SPEED(n) ((uint32_t)(((n)&0x03) << 6))
+#define IOMUXC_PAD_ODE ((uint32_t)(1 << 11))
+#define IOMUXC_PAD_PKE ((uint32_t)(1 << 12))
+#define IOMUXC_PAD_PUE ((uint32_t)(1 << 13))
+#define IOMUXC_PAD_PUS(n) ((uint32_t)(((n)&0x03) << 14))
+#define IOMUXC_PAD_HYS ((uint32_t)(1 << 16))
+
 #endif // REGISTERS_H
