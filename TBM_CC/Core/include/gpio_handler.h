@@ -29,11 +29,33 @@ typedef enum
 
 typedef enum
 {
+  EGPIO_IN = 0x0,
+  EGPIO_OUT = 0x1
+} EGpioGDir;
+
+typedef enum
+{
   LOW_LVL_SENSITIVITY = 0x0,
   HIGH_LVL_SENSITIVITY = 0x1,
   RISING_EDGE_SENSITIVITY = 0x2,
   FALLING_EDGE_SENSITIVITY = 0x3,
 } E_ICRFIELDS_GPIO;
+
+typedef enum
+{
+  EGPIO_INT_DIS = 0x0,
+  EGPIO_INT_CLR_STAT = 0x1
+} EGpioIMR;
+
+/**
+ * Edge select. When GPIO_EDGE_SEL[n] is set, the GPIO disregards the ICR[n]
+ * setting, and detects anyedge on the corresponding input signal.
+ **/
+typedef enum
+{
+  EGPIO_EDGE_SET = 0x0,
+  EGPIO_EDGE_CLR = 0x1
+} EGpioEdgeSelect;
 
 typedef enum
 {
@@ -129,14 +151,24 @@ typedef enum
 } EBitMuxPad_HYS; // Hysteresis Enable Field
 
 typedef struct {
-  uint8_t     bit_id;
-  uint8_t     value;
-  vuint32_t * base_addr;
-  uint8_t     pin;
+  uint8_t              bit_id;
+  uint8_t              value;
+  vuint32_t *          base_addr;
+  static const uint8_t pin;
+  EBaseGPIO            offsets;
 } SStoredGPIO;
+
+void
+init_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register){};
 
 void *
 handle_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register){};
+
+void
+set_icr1(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting){};
+
+void
+set_icr2(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting){};
 
 uint32_t
 read_gpio(vuint32_t gpio_base_addr, EBaseGPIO gpio_register){};

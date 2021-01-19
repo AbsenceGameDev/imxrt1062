@@ -10,7 +10,7 @@ EAnalogState
 read_state_8t_DataPin(vuint8_t * pin_addr){};
 
 void
-inti_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
+init_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
 {
   // Set MUXmode, ALT5 = GPIO2_IO3
   IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
@@ -20,6 +20,9 @@ inti_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
    **/
   IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
 
+  /**
+   * @brief: Set all MUX bits in the correct General Purpose Register (GPR)
+   **/
   switch (gpio_device.pin) {
       // GPR26 [GPIO1,GPIO6]
     case 0x1:
@@ -75,6 +78,18 @@ handle_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
     case ISR_INTERRUPT_STAT_REG: return NULL;
   }
   return NULL;
+};
+
+void
+set_icr1(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting)
+{
+  *(gpio_device->base_addr + ICR1_INTERRUPT_CONF_REG1) = setting;
+};
+
+void
+set_icr2(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting)
+{
+  *(gpio_device->base_addr + ICR2_INTERRUPT_CONF_REG2) = setting;
 };
 
 // E_ICRFIELDS_GPIO
