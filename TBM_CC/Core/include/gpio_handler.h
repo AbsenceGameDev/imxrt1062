@@ -94,6 +94,16 @@ typedef enum
 
 typedef enum
 {
+  ALT0 = 0x0,
+  ALT1 = 0x1,
+  ALT2 = 0x2,
+  ALT3 = 0x3,
+  ALT4 = 0x4,
+  ALT5 = 0x5
+} EMuxMode;
+
+typedef enum
+{
   SRE_0_SLOW_SLEW_RATE = 0x0,
   SRE_1_FAST_SLEW_RATE = 0x1
 } EBitMuxPad_SRE; // Slew Rate Field
@@ -157,6 +167,16 @@ typedef struct {
   static const uint8_t pin;
   EBaseGPIO            offsets;
 } SStoredGPIO;
+
+typedef enum
+{
+  GPIO_AD_B0,
+  GPIO_AD_B1,
+  GPIO_B0,
+  GPIO_B1,
+  GPIO_SD_B0,
+  GPIO_SD_B1
+} EPadCR;
 
 void
 init_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register){};

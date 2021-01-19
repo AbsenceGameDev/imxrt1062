@@ -9,16 +9,46 @@ read_state_16t_DataPin(vuint16_t * pin_addr){};
 EAnalogState
 read_state_8t_DataPin(vuint8_t * pin_addr){};
 
-void
-init_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
-{
-  // Set MUXmode, ALT5 = GPIO2_IO3
-  IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
+typedef union {
+  EBitMuxPad_SRE   slew_rate;
+  EBitMuxPad_DSE   drive_strength;
+  EBitMuxPad_SPEED speed;
+  EBitMuxPad_ODE   open_drain;
+  EBitMuxPad_PKE   pull_keep_enable;
+  EBitMuxPad_PUE   pull_keep_select;
+  EBitMuxPad_PUS   pull_up_down_conf;
+  EBitMuxPad_HYS   hysteresis_enable;
+  EMuxMode         selected_mux_mode;
+} UPadFields;
 
-  /**
-   * @brief: Set DSE field (Drive Strenght Field)
-   **/
-  IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+typedef struct {
+  vuint32_t * mux_pad_addr;
+  vuint32_t * pad_pad_addr;
+  UPadFields  current_pad_type;
+} SPadContext;
+void
+init_gpio(SStoredGPIO gpio_device,
+          EBaseGPIO   gpio_register,
+          EPadCR      pad_group,
+          uint8_t     pad_position)
+{
+  switch (pad_position) {
+    case GPIO_AD_B0: break;
+    case GPIO_AD_B1: break;
+    case GPIO_B0:
+      // Set MUXmode, ALT5 = GPIO2_IO3
+      *((&IOMUXC_PAD_PAD_GPIO_B0_CR00) + pad_position) = 0x5;
+
+      /**
+       * @brief: Set DSE field (Drive Strenght Field)
+       **/
+      *((&IOMUXC_PAD_PAD_GPIO_B0_CR00) + pad_position) =
+          IOMUXC_PAD_DSE(DSE_7_R0_7);
+      break;
+    case GPIO_B1: break;
+    case GPIO_SD_B0: break;
+    case GPIO_SD_B1: break;
+  }
 
   /**
    * @brief: Set all MUX bits in the correct General Purpose Register (GPR)
