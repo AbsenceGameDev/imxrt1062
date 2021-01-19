@@ -12,104 +12,59 @@ read_state_16t_DataPin(vuint16_t * pin_addr){};
 EAnalogState
 read_state_8t_DataPin(vuint8_t * pin_addr){};
 
-void
-set_gpio_muxmode(vuint32_t * gpio_addr, EMuxModes mux_mode)
+typedef enum
 {
-  *gpio_addr = mux_mode;
-}
+  DR_DATA_REG = 0x0,
+  GDIR_DIR_REG = 0x4,
+  PSR_PAD_STATUS_REG = 0x8,
+  ICR1_INTERRUPT_CONF_REG1 = 0xc,
+  ICR2_INTERRUPT_CONF_REG2 = 0x10,
+  IMR_INTERRUPT_MASK_REG = 0x14,
+  ISR_INTERRUPT_STAT_REG = 0x18,
+  EDGE_SEL = 0x1c,
+  DR_SET = 0x84,
+  DR_CLEAR = 0x88,
+  DR_TOGGLE = 0x8c,
+} EBaseGPIO;
 
-void
-set_gpio_gdir(vuint32_t * gpio_gdir_addr, uint_fast8_t direction_bit)
+typedef enum
 {
-  *gpio_gdir_addr |= (0x1 << direction_bit);
-}
-
-void
-set_gpio_datar(vuint32_t * gpio_dr_set_addr, uint_fast8_t direction_bit)
-{
-  *gpio_dr_set_addr |= (0x1 << direction_bit);
-}
-
-void
-clr_gpio_datar(vuint32_t * gpio_dr_clr, uint_fast8_t direction_bit)
-{
-  *gpio_dr_clr |= (0x1 << direction_bit);
-}
+  BYTE,
+  WORD,
+  DWORD
+} ERegisterSize;
 
 void
-tog_gpio_datar(vuint32_t * gpio_dr_tog, uint_fast8_t direction_bit)
-{
-  *gpio_dr_tog |= (0x1 << direction_bit);
-}
+handle_gpio(vuint32_t gpio_base_addr,
+            EBaseGPIO gpio_register,
+            uint8_t   direction_bit){};
+
+uint32_t
+read_gpio(vuint32_t gpio_base_addr, EBaseGPIO gpio_register){};
+void
+set_gpio_muxmode(vuint32_t * gpio_addr, EMuxModes mux_mode){};
+void
+set_gpio_gdir(vuint32_t * gpio_gdir_addr, uint_fast8_t direction_bit){};
+void
+set_gpio_datar(vuint32_t * gpio_dr_set_addr, uint_fast8_t direction_bit){};
+void
+clr_gpio_datar(vuint32_t * gpio_dr_clr, uint_fast8_t direction_bit){};
+void
+tog_gpio_datar(vuint32_t * gpio_dr_tog, uint_fast8_t direction_bit){};
 
 void
-set_iomuxc_byte(vuint32_t * addr, uint_fast8_t byte)
-{
-  *addr = byte;
-}
+set_iomuxc_byte(vuint32_t * addr, uint_fast8_t byte){};
 void
-set_iomuxc_word(vuint32_t * addr, uint_fast16_t word)
-{
-  *addr = word;
-}
+set_iomuxc_word(vuint32_t * addr, uint_fast16_t word){};
 void
-set_iomuxc_dword(vuint32_t * addr, uint_fast32_t dword)
-{
-  *addr = dword;
-}
+set_iomuxc_dword(vuint32_t * addr, uint_fast32_t dword){};
 
 void
-flip_selected_gpr(vuint32_t gpr_iomuxc_gpr)
-{
-  *gpr_iomuxc_gpr = !(gpr_iomuxc_gpr);
-}
+flip_selected_gpr(vuint32_t gpr_iomuxc_gpr){};
+void
+set_iomuxc_gpr(vuint32_t gpr_iomuxc_gpr, EState set_state){};
 
 void
-set_iomuxc_gpr(vuint32_t gpr_iomuxc_gpr, EState set_state)
-{
-  (*gpr_iomuxc_gpr) = 0xffffffff * (set_state);
-}
-
-/**
- * @brief: Blinky LED Example
- * Configure GPIO B0_03 (PIN 13) for output, ALT 5 according to p.511 */
-void
-blinky_led_example()
-{
-  IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
-  IOMUXC_MUX_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
-
-  // GPR27, Set it to Control
-  IOMUXC_GPR_GPR27 = 0xffffffff;
-  uint_fast8_t dir = 0x3;
-
-  /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO mode.
-   *  Each bit specifies the direction of a one-bit signal.
-   **/
-  // Set DPIO7 direction (position), in GDIR
-  set_gpio_gdir(GPIO7_DIRR, dir);
-
-  for (;;) {
-    volatile unsigned int i = 0x0;
-
-    // Set PIN 13 HIGH,
-    set_gpio_datar(GPIO7_DR_SET, dir);
-
-    // Poor man's delay
-    while (i < 0x10000) {
-      i++;
-    }
-
-    i = 0;
-
-    // Set PIN 13 LOW
-    clr_gpio_datar(GPIO7_DR_CLEAR, dir);
-
-    // Poor man's delay
-    while (i < 0x010000) {
-      i++;
-    }
-  }
-}
+blinky_led_example(){};
 
 #endif
