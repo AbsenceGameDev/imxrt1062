@@ -131,7 +131,8 @@ typedef enum
 typedef struct {
   uint8_t     bit_id;
   uint8_t     value;
-  vuint32_t * base_addr
+  vuint32_t * base_addr;
+  uint8_t     pin;
 } SStoredGPIO;
 
 void *

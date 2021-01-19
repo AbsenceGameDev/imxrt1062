@@ -20,12 +20,32 @@ inti_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
    **/
   IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
 
-  // GPR26 [GPIO1,GPIO6]
-  // GPR27 [GPIO2,GPIO7]
-  // GPR28 [GPIO3,GPIO8]
-  // GPR29 [GPIO4,GPIO9]
-  // GPR27, Set all MUX bits to GPIO7
-  IOMUXC_GPR_GPR27 = 0xffffffff;
+  switch (gpio_device.pin) {
+      // GPR26 [GPIO1,GPIO6]
+    case 0x1:
+    case 0x6:
+      //  Set all MUX bits to either GPIO1 or GPIO6
+      IOMUXC_GPR_GPR26 = 0xffffffff * (gpio_device.pin == 0x6);
+      break;
+      // GPR27 [GPIO2,GPIO7]
+    case 0x2:
+    case 0x7:
+      // Set all MUX bits to either GPIO2 or GPIO7
+      IOMUXC_GPR_GPR27 = 0xffffffff * (gpio_device.pin == 0x7);
+      break;
+      // GPR28 [GPIO3,GPIO8]
+    case 0x3:
+    case 0x8:
+      // Set all MUX bits to either GPIO3 or GPIO8
+      IOMUXC_GPR_GPR28 = 0xffffffff * (gpio_device.pin == 0x8);
+      break;
+      // GPR29 [GPIO4,GPIO9]
+    case 0x4:
+    case 0x9:
+      // Set all MUX bits to either GPIO4 or GPIO9
+      IOMUXC_GPR_GPR29 = 0xffffffff * (gpio_device.pin == 0x9);
+      break;
+  }
   uint_fast8_t dir = 0x3;
 };
 
