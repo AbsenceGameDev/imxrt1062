@@ -10,18 +10,54 @@ EAnalogState
 read_state_8t_DataPin(vuint8_t * pin_addr){};
 
 void
-handle_gpio(vuint32_t gpio_base_addr,
-            EBaseGPIO gpio_register,
-            uint8_t   direction_bit)
+inti_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
 {
-  vuint32_t * gpio_ptr = *(gpio_base_addr + gpio_register);
-  switch (gpio_register) {
-    case DR_SET:
-    case DR_CLEAR:
-    case DR_TOGGLE: *gpio_ptr = (0x1 << direction_bit); break;
-    case GDIR_DIR_REG: *gpio_ptr |= (0x1 << direction_bit); break;
-  }
+  // Set MUXmode, ALT5 = GPIO2_IO3
+  IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
+
+  /**
+   * @brief: Set DSE field (Drive Strenght Field)
+   **/
+  IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+
+  // GPR26 [GPIO1,GPIO6]
+  // GPR27 [GPIO2,GPIO7]
+  // GPR28 [GPIO3,GPIO8]
+  // GPR29 [GPIO4,GPIO9]
+  // GPR27, Set all MUX bits to GPIO7
+  IOMUXC_GPR_GPR27 = 0xffffffff;
+  uint_fast8_t dir = 0x3;
 };
+
+void *
+handle_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
+{
+  vuint32_t * gpio_ptr = *(gpio_device.base_addr + gpio_register);
+  switch (gpio_register) {
+
+    case GDIR_DIR_REG:
+      *gpio_ptr |= (0x1 << gpio_device.bit_id); // Set as OUTPUT
+      return NULL;
+    case PSR_PAD_STATUS_REG:
+      return 0x3 | ((*gpio_ptr) >> gpio_device.bit_id); // Read Only
+    case DR_SET: // WO
+    case DR_CLEAR: // WO
+    case DR_TOGGLE: // WO
+      *gpio_ptr = (0x1 << gpio_device.bit_id);
+      return NULL;
+    case ICR1_INTERRUPT_CONF_REG1: // regards GPIO [0,15]
+      *gpio_ptr = (0x1 << gpio_device.bit_id);
+      return NULL;
+    case ICR2_INTERRUPT_CONF_REG2: // regards GPIO [16,31]
+      *gpio_ptr = (0x1 << gpio_device.bit_id);
+      return NULL;
+    case IMR_INTERRUPT_MASK_REG: return NULL;
+    case ISR_INTERRUPT_STAT_REG: return NULL;
+  }
+  return NULL;
+};
+
+// E_ICRFIELDS_GPIO
 
 uint32_t
 read_gpio(vuint32_t gpio_base_addr, EBaseGPIO gpio_register)
@@ -94,7 +130,7 @@ void
 blinky_led_example()
 {
   IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
-  IOMUXC_MUX_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+  IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
 
   // GPR27, Set it to Control
   IOMUXC_GPR_GPR27 = 0xffffffff;
@@ -103,7 +139,7 @@ blinky_led_example()
   /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO mode.
    *  Each bit specifies the direction of a one-bit signal.
    **/
-  // Set DPIO7 direction (position), in GDIR
+  // Set DPIO7 direction (set as output = 1, input = 0), in GDIR
   set_gpio_gdir(GPIO7_DIRR, dir);
 
   for (;;) {
