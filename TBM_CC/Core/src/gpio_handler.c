@@ -1,32 +1,4 @@
 #include "gpio_handler.h"
-
-EAnalogState
-read_state_32t_DataPin(vuint32_t * pin_addr){};
-
-EAnalogState
-read_state_16t_DataPin(vuint16_t * pin_addr){};
-
-EAnalogState
-read_state_8t_DataPin(vuint8_t * pin_addr){};
-
-typedef union {
-  EBitMuxPad_SRE   slew_rate;
-  EBitMuxPad_DSE   drive_strength;
-  EBitMuxPad_SPEED speed;
-  EBitMuxPad_ODE   open_drain;
-  EBitMuxPad_PKE   pull_keep_enable;
-  EBitMuxPad_PUE   pull_keep_select;
-  EBitMuxPad_PUS   pull_up_down_conf;
-  EBitMuxPad_HYS   hysteresis_enable;
-  EMuxMode         selected_mux_mode;
-} UPadFields;
-
-typedef struct {
-  vuint32_t * mux_pad_addr;
-  vuint32_t * pad_pad_addr;
-  UPadFields  current_pad_type;
-} SPadContext;
-
 /**
  * TODO: Go through documentations to see what how the iomuxc pads are
  * configured, also check the bootdata.c, startup.c and imxrt1062.ld too see if
@@ -77,102 +49,140 @@ typedef struct {
  * read_cmp PSR, 32'hxxxxxxx5
  *
  **/
-inline void
-init_helper(vuint32_t *    SW_MUX,
-            vuint32_t *    SW_PAD,
-            EBitMuxPad_DSE DSE_OPT,
-            uint8_t        control_position)
-{
-  *(SW_MUX + control_position) = 0x5;
-
-  /** @brief: Set DSE field (Drive Strength Field) */
-  *(SW_PAD + control_position) = IOMUXC_PAD_DSE(DSE_OPT);
-}
-
 void
 init_gpio(SStoredGPIO    gpio_device,
           EBaseGPIO      gpio_register,
           EPadCR         pad_group,
-          uint8_t        control_position,
           EBitMuxPad_DSE DSE_OPT)
 {
-  switch (pad_position) {
+  switch (pad_group) {
     case GPIO_AD_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [0,15] (ctrl_postion + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_AD_B0_CR00,
                   IOMUXC_PAD_PAD_GPIO_AD_B0_CR00,
                   DSE_OPT,
-                  control_position);
+                  gpio_device.ctrl_position,
+                  gpio_device.io_type);
       break;
     case GPIO_AD_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [16,31] (ctrl_postion + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_AD_B1_CR00,
                   IOMUXC_PAD_PAD_GPIO_AD_B1_CR00,
                   DSE_OPT,
-                  control_position);
+                  gpio_device.ctrl_position,
+                  gpio_device.io_type);
       break;
     case GPIO_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [0,15] (ctrl_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_B0_CR00) + control_position) = 0x5;
+      *((&IOMUXC_MUX_PAD_GPIO_B0_CR00) + ctrl_position) = 0x5;
       init_helper(IOMUXC_MUX_PAD_GPIO_B0_CR00,
                   IOMUXC_PAD_PAD_GPIO_B0_CR00,
                   DSE_OPT,
-                  control_position);
+                  gpio_device.ctrl_position,
+                  gpio_device.io_type);
       break;
     case GPIO_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [16,31] (ctrl_postion + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_B1_CR00,
                   IOMUXC_PAD_PAD_GPIO_B1_CR00,
                   DSE_OPT,
-                  control_position);
+                  gpio_device.ctrl_position,
+                  gpio_device.io_type);
       break;
     case GPIO_SD_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [12,17] (ctrl_position + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_SD_B0_CR00,
                   IOMUXC_PAD_PAD_GPIO_SD_B0_CR00,
                   DSE_OPT,
-                  ctrl_position);
+                  gpio_device.ctrl_position,
+                  gpio_device.io_type);
       break;
     case GPIO_SD_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [0,11] (ctrl_position + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_SD_B1_CR00,
                   IOMUXC_PAD_PAD_GPIO_SD_B1_CR00,
                   DSE_OPT,
-                  ctrl_position);
+                  gpio_device.ctrl_position,
+                  gpio_device.io_type);
+      break;
+  }
+  set_gpr_gdir(&gpio_device);
+
+  // Setting gpio direction for either output or input
+  switch (gpio_device.pin) {
+    case 0x1:
+      *GPIO1_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x2:
+      *GPIO2_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x3:
+      *GPIO3_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x4:
+      *GPIO4_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x5:
+      *GPIO5_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x6:
+      *GPIO6_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x7:
+      *GPIO7_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x8:
+      *GPIO8_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      break;
+    case 0x9:
+      *GPIO9_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
       break;
   }
 
-  /**
-   * @brief: Set all MUX bits in the correct General Purpose Register (GPR)
-   **/
-  switch (gpio_device.pin) {
+  uint_fast8_t dir = 0x3;
+};
+
+/**
+ * @brief: Set all MUX bits in the correct General Purpose Register (GPR)
+ **/
+void
+set_gpr_gdir(SStoredGPIO * gpio_device)
+{
+  switch (gpio_device->pin) {
       // GPR26 [GPIO1,GPIO6]
-    case 0x1:
     case 0x6:
+    case 0x1:
       //  Set all MUX bits to either GPIO1 or GPIO6
-      IOMUXC_GPR_GPR26 = 0xffffffff * (gpio_device.pin == 0x6);
+      IOMUXC_GPR_GPR26 = 0xffffffff * (gpio_device->pin == 0x6);
       break;
       // GPR27 [GPIO2,GPIO7]
     case 0x2:
     case 0x7:
       // Set all MUX bits to either GPIO2 or GPIO7
-      IOMUXC_GPR_GPR27 = 0xffffffff * (gpio_device.pin == 0x7);
+      IOMUXC_GPR_GPR27 = 0xffffffff * (gpio_device->pin == 0x7);
       break;
       // GPR28 [GPIO3,GPIO8]
     case 0x3:
     case 0x8:
       // Set all MUX bits to either GPIO3 or GPIO8
-      IOMUXC_GPR_GPR28 = 0xffffffff * (gpio_device.pin == 0x8);
+      IOMUXC_GPR_GPR28 = 0xffffffff * (gpio_device->pin == 0x8);
       break;
       // GPR29 [GPIO4,GPIO9]
     case 0x4:
     case 0x9:
       // Set all MUX bits to either GPIO4 or GPIO9
-      IOMUXC_GPR_GPR29 = 0xffffffff * (gpio_device.pin == 0x9);
+      IOMUXC_GPR_GPR29 = 0xffffffff * (gpio_device->pin == 0x9);
       break;
   }
-  uint_fast8_t dir = 0x3;
-};
+}
+
+void
+set_gpio_gdir(vuint32_t *  gpio_gdir_addr,
+              uint_fast8_t direction_bit,
+              ETypeIO      io_type)
+{
+  *gpio_gdir_addr |= ((0x1 * io_type) << direction_bit);
+}
 
 void *
 handle_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
@@ -226,12 +236,6 @@ void
 set_gpio_muxmode(vuint32_t * gpio_addr, EMuxModes mux_mode)
 {
   *gpio_addr = mux_mode;
-}
-
-void
-set_gpio_gdir(vuint32_t * gpio_gdir_addr, uint_fast8_t direction_bit)
-{
-  *gpio_gdir_addr |= (0x1 << direction_bit);
 }
 
 void
@@ -299,8 +303,9 @@ blinky_led_example()
   /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO mode.
    *  Each bit specifies the direction of a one-bit signal.
    **/
+
   // Set DPIO7 direction (set as output = 1, input = 0), in GDIR
-  set_gpio_gdir(GPIO7_DIRR, dir);
+  set_gpio_gdir(GPIO7_DIRR, dir, GDIR_OUT);
 
   for (;;) {
     volatile unsigned int i = 0x0;
