@@ -26,28 +26,112 @@ typedef struct {
   vuint32_t * pad_pad_addr;
   UPadFields  current_pad_type;
 } SPadContext;
+
+/**
+ * TODO: Go through documentations to see what how the iomuxc pads are
+ * configured, also check the bootdata.c, startup.c and imxrt1062.ld too see if
+ * the iomux pads are configured there
+ *
+ * @brief: The imxrt1062 has 9 GPIOs, each of them has 32 channels? Not sure
+ * will have to read more in the reference manual
+ *
+ * High-speed GPIOs exist in this device:
+ * •  GPIO 1-5 are standard-speed GPIOs that run off the IPG_CLK_ROOT,
+ *    while GPIO 6-9 are high-speed GPIOs that run at the AHB_CLK_ROOT freq.
+ *    See the table "System Clocks, Gating, and Override" in CCM chapter.
+ *
+ * •  Regular GPIO and high speed GPIO are paired
+ *    (GPIO1 and GPIO6 share the same pins, GPIO2 and GPIO7 share, etc).
+ *    The IOMUXC_GPR_GPR26-29 registers areused to determine if the regular or
+ *    high-speed GPIO module is used for the GPIO pins on a given port.
+ *
+ * NOTE: / TODO:
+ *  Read through chapter 10-12 tomorrow, everything from overview to functioncal
+ *  descriptions. Need to understand how they work now that I have a small
+ *  understanding of what they are
+ *
+ * NOTE: The programming sequence for driving output signals should be:
+ *
+ * 1.  Configure IOMUX to select GPIO mode (Via IOMUXC), also enable SION if
+ *     need to read loopback pad value through PSR
+ * 2.  Configure GPIO direction register to output (GPIO_GDIR[GDIR] set to 1b).
+ * 3.  Write value to data register (GPIO_DR).
+ *
+ * A pseudocode description to drive 4'b0101 on [output3:output0] is as follows:
+ * // SET PADS TO GPIO MODE VIA IOMUX.
+ * write sw_mux_ctl_pad_<output[0-3]>.mux_mode, <GPIO_MUX_MODE>
+ *
+ * // Enable loopback so we can capture pad value into PSR in output mode
+ * write sw_mux_ctl_pad_<output[0-3]>.sion, 1
+ *
+ * // SET GDIR=1 TO OUTPUT BITS.
+ * write GDIR[31:4,output3_bit,output2_bit, output1_bit, output0_bit,]
+ *32'hxxxxxxxF
+ *
+ * // WRITE OUTPUT VALUE=4’b0101 TO DR.
+ * write DR, 32'hxxxxxxx5
+ *
+ * // READ OUTPUT VALUE FROM PSR ONLY.
+ * read_cmp PSR, 32'hxxxxxxx5
+ *
+ **/
+
 void
-init_gpio(SStoredGPIO gpio_device,
-          EBaseGPIO   gpio_register,
-          EPadCR      pad_group,
-          uint8_t     pad_position)
+init_gpio(SStoredGPIO    gpio_device,
+          EBaseGPIO      gpio_register,
+          EPadCR         pad_group,
+          uint8_t        pad_position,
+          EBitMuxPad_DSE DSE_OPT)
 {
   switch (pad_position) {
-    case GPIO_AD_B0: break;
-    case GPIO_AD_B1: break;
-    case GPIO_B0:
-      // Set MUXmode, ALT5 = GPIO2_IO3
-      *((&IOMUXC_PAD_PAD_GPIO_B0_CR00) + pad_position) = 0x5;
+    case GPIO_AD_B0:
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [0,15] = pad_postion + 1) */
+      *((&IOMUXC_MUX_PAD_GPIO_AD_B0_CR00) + pad_position) = 0x5;
 
-      /**
-       * @brief: Set DSE field (Drive Strenght Field)
-       **/
-      *((&IOMUXC_PAD_PAD_GPIO_B0_CR00) + pad_position) =
-          IOMUXC_PAD_DSE(DSE_7_R0_7);
+      /** @brief: Set DSE field (Drive Strength Field) */
+      *((&IOMUXC_PAD_PAD_GPIO_AD_B0_CR00) + pad_position) =
+          IOMUXC_PAD_DSE(DSE_OPT);
       break;
-    case GPIO_B1: break;
-    case GPIO_SD_B0: break;
-    case GPIO_SD_B1: break;
+    case GPIO_AD_B1:
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [16,31] = pad_postion + 1) */
+      *((&IOMUXC_MUX_PAD_GPIO_AD_B1_CR00) + pad_position) = 0x5;
+
+      /** @brief: Set DSE field (Drive Strength Field) */
+      *((&IOMUXC_PAD_PAD_GPIO_AD_B1_CR00) + pad_position) =
+          IOMUXC_PAD_DSE(DSE_OPT);
+      break;
+    case GPIO_B0:
+      /** @brief: Set MUXmode, ALT5 = GPIO2_IOx (x = [0,15] = pad_postion + 1) */
+      *((&IOMUXC_MUX_PAD_GPIO_B0_CR00) + pad_position) = 0x5;
+
+      /** @brief: Set DSE field (Drive Strength Field) */
+      *((&IOMUXC_PAD_PAD_GPIO_B0_CR00) + pad_position) =
+          IOMUXC_PAD_DSE(DSE_OPT);
+      break;
+    case GPIO_B1:
+      /** @brief: Set MUXmode, ALT5 = GPIO2_IOx (x = [16,31] = pad_postion + 1) */
+      *((&IOMUXC_MUX_PAD_GPIO_B1_CR00) + pad_position) = 0x5;
+
+      /** @brief: Set DSE field (Drive Strength Field) */
+      *((&IOMUXC_PAD_PAD_GPIO_B1_CR00) + pad_position) =
+          IOMUXC_PAD_DSE(DSE_OPT);
+      break;
+    case GPIO_SD_B0:
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [12,17] = pad_postion + 1) */
+      *((&IOMUXC_MUX_PAD_GPIO_SD_B0_CR00) + pad_position) = 0x5;
+
+      /** @brief: Set DSE field (Drive Strength Field) */
+      *((&IOMUXC_PAD_PAD_GPIO_SD_B0_CR00) + pad_position) =
+          IOMUXC_PAD_DSE(DSE_OPT);
+      break;
+    case GPIO_SD_B1:
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [0,11] = pad_postion + 1) */
+      *((&IOMUXC_MUX_PAD_GPIO_SD_B1_CR00) + pad_position) = 0x5;
+
+      /** @brief: Set DSE field (Drive Strength Field) */
+      *((&IOMUXC_PAD_PAD_GPIO_SD_B1_CR00) + pad_position) =
+          IOMUXC_PAD_DSE(DSE_OPT);
+      break;
   }
 
   /**
@@ -199,6 +283,9 @@ blinky_led_example()
 
   // GPR27, Set it to Control
   IOMUXC_GPR_GPR27 = 0xffffffff;
+
+  // Seems like the dir offset is related to the control registers in the iomuxc
+  // above, will have to look into it more tomorrow
   uint_fast8_t dir = 0x3;
 
   /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO mode.
