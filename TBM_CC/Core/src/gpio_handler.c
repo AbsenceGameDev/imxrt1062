@@ -50,7 +50,7 @@
  *
  **/
 void
-init_gpio(SStoredGPIO    gpio_device,
+init_gpio(SStoredGPIO *  gpio_device,
           EBaseGPIO      gpio_register,
           EPadCR         pad_group,
           EBitMuxPad_DSE DSE_OPT)
@@ -61,16 +61,16 @@ init_gpio(SStoredGPIO    gpio_device,
       init_helper(IOMUXC_MUX_PAD_GPIO_AD_B0_CR00,
                   IOMUXC_PAD_PAD_GPIO_AD_B0_CR00,
                   DSE_OPT,
-                  gpio_device.ctrl_position,
-                  gpio_device.io_type);
+                  gpio_device->ctrl_position,
+                  gpio_device->io_type);
       break;
     case GPIO_AD_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [16,31] (ctrl_postion + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_AD_B1_CR00,
                   IOMUXC_PAD_PAD_GPIO_AD_B1_CR00,
                   DSE_OPT,
-                  gpio_device.ctrl_position,
-                  gpio_device.io_type);
+                  gpio_device->ctrl_position,
+                  gpio_device->io_type);
       break;
     case GPIO_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [0,15] (ctrl_postion + 1) */
@@ -78,64 +78,73 @@ init_gpio(SStoredGPIO    gpio_device,
       init_helper(IOMUXC_MUX_PAD_GPIO_B0_CR00,
                   IOMUXC_PAD_PAD_GPIO_B0_CR00,
                   DSE_OPT,
-                  gpio_device.ctrl_position,
-                  gpio_device.io_type);
+                  gpio_device->ctrl_position,
+                  gpio_device->io_type);
       break;
     case GPIO_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [16,31] (ctrl_postion + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_B1_CR00,
                   IOMUXC_PAD_PAD_GPIO_B1_CR00,
                   DSE_OPT,
-                  gpio_device.ctrl_position,
-                  gpio_device.io_type);
+                  gpio_device->ctrl_position,
+                  gpio_device->io_type);
       break;
     case GPIO_SD_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [12,17] (ctrl_position + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_SD_B0_CR00,
                   IOMUXC_PAD_PAD_GPIO_SD_B0_CR00,
                   DSE_OPT,
-                  gpio_device.ctrl_position,
-                  gpio_device.io_type);
+                  gpio_device->ctrl_position,
+                  gpio_device->io_type);
       break;
     case GPIO_SD_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [0,11] (ctrl_position + 1) */
       init_helper(IOMUXC_MUX_PAD_GPIO_SD_B1_CR00,
                   IOMUXC_PAD_PAD_GPIO_SD_B1_CR00,
                   DSE_OPT,
-                  gpio_device.ctrl_position,
-                  gpio_device.io_type);
+                  gpio_device->ctrl_position,
+                  gpio_device->io_type);
       break;
   }
-  set_gpr(&gpio_device);
+  set_gpr(gpio_device);
 
   // Setting gpio direction for either output or input
-  switch (gpio_device.pin) {
+  switch (gpio_device->pin) {
     case 0x1:
-      *GPIO1_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO1_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x2:
-      *GPIO2_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO2_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x3:
-      *GPIO3_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO3_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x4:
-      *GPIO4_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO4_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x5:
-      *GPIO5_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO5_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x6:
-      *GPIO6_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO6_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x7:
-      *GPIO7_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO7_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x8:
-      *GPIO8_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO8_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
     case 0x9:
-      *GPIO9_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
+      *GPIO9_DIRR |=
+          ((0x1 * gpio_device->io_type) << gpio_device->ctrl_position);
       break;
   }
   uint_fast8_t dir = 0x3;
@@ -214,26 +223,26 @@ set_gpio_gdir(vuint32_t * gpio_gdir_addr,
 };
 
 void *
-handle_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
+handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register)
 {
-  vuint32_t * gpio_ptr = *(gpio_device.base_addr + gpio_register);
+  vuint32_t * gpio_ptr = *(gpio_device->base_addr + gpio_register);
   switch (gpio_register) {
 
     case GDIR_DIR_REG:
-      *gpio_ptr |= (0x1 << gpio_device.bit_id); // Set as OUTPUT
+      *gpio_ptr |= (0x1 << gpio_device->bit_id); // Set as OUTPUT
       return NULL;
     case PSR_PAD_STATUS_REG:
-      return 0x3 | ((*gpio_ptr) >> gpio_device.bit_id); // Read Only
+      return 0x3 | ((*gpio_ptr) >> gpio_device->bit_id); // Read Only
     case DR_SET: // WO
     case DR_CLEAR: // WO
     case DR_TOGGLE: // WO
-      *gpio_ptr = (0x1 << gpio_device.bit_id);
+      *gpio_ptr = (0x1 << gpio_device->bit_id);
       return NULL;
     case ICR1_INTERRUPT_CONF_REG1: // regards GPIO [0,15]
-      *gpio_ptr = (0x1 << gpio_device.bit_id);
+      *gpio_ptr = (0x1 << gpio_device->bit_id);
       return NULL;
     case ICR2_INTERRUPT_CONF_REG2: // regards GPIO [16,31]
-      *gpio_ptr = (0x1 << gpio_device.bit_id);
+      *gpio_ptr = (0x1 << gpio_device->bit_id);
       return NULL;
     case IMR_INTERRUPT_MASK_REG: return NULL;
     case ISR_INTERRUPT_STAT_REG: return NULL;
