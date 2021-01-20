@@ -50,6 +50,8 @@ typedef struct {
  *  descriptions. Need to understand how they work now that I have a small
  *  understanding of what they are
  *
+ * Maybe change name of pad_position to control_position?
+ *
  * NOTE: The programming sequence for driving output signals should be:
  *
  * 1.  Configure IOMUX to select GPIO mode (Via IOMUXC), also enable SION if
@@ -75,62 +77,68 @@ typedef struct {
  * read_cmp PSR, 32'hxxxxxxx5
  *
  **/
+inline void
+init_helper(vuint32_t *    SW_MUX,
+            vuint32_t *    SW_PAD,
+            EBitMuxPad_DSE DSE_OPT,
+            uint8_t        control_position)
+{
+  *(SW_MUX + control_position) = 0x5;
+
+  /** @brief: Set DSE field (Drive Strength Field) */
+  *(SW_PAD + control_position) = IOMUXC_PAD_DSE(DSE_OPT);
+}
 
 void
 init_gpio(SStoredGPIO    gpio_device,
           EBaseGPIO      gpio_register,
           EPadCR         pad_group,
-          uint8_t        pad_position,
+          uint8_t        control_position,
           EBitMuxPad_DSE DSE_OPT)
 {
   switch (pad_position) {
     case GPIO_AD_B0:
-      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [0,15] = pad_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_AD_B0_CR00) + pad_position) = 0x5;
-
-      /** @brief: Set DSE field (Drive Strength Field) */
-      *((&IOMUXC_PAD_PAD_GPIO_AD_B0_CR00) + pad_position) =
-          IOMUXC_PAD_DSE(DSE_OPT);
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [0,15] (ctrl_postion + 1) */
+      init_helper(IOMUXC_MUX_PAD_GPIO_AD_B0_CR00,
+                  IOMUXC_PAD_PAD_GPIO_AD_B0_CR00,
+                  DSE_OPT,
+                  control_position);
       break;
     case GPIO_AD_B1:
-      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [16,31] = pad_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_AD_B1_CR00) + pad_position) = 0x5;
-
-      /** @brief: Set DSE field (Drive Strength Field) */
-      *((&IOMUXC_PAD_PAD_GPIO_AD_B1_CR00) + pad_position) =
-          IOMUXC_PAD_DSE(DSE_OPT);
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [16,31] (ctrl_postion + 1) */
+      init_helper(IOMUXC_MUX_PAD_GPIO_AD_B1_CR00,
+                  IOMUXC_PAD_PAD_GPIO_AD_B1_CR00,
+                  DSE_OPT,
+                  control_position);
       break;
     case GPIO_B0:
-      /** @brief: Set MUXmode, ALT5 = GPIO2_IOx (x = [0,15] = pad_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_B0_CR00) + pad_position) = 0x5;
-
-      /** @brief: Set DSE field (Drive Strength Field) */
-      *((&IOMUXC_PAD_PAD_GPIO_B0_CR00) + pad_position) =
-          IOMUXC_PAD_DSE(DSE_OPT);
+      /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [0,15] (ctrl_postion + 1) */
+      *((&IOMUXC_MUX_PAD_GPIO_B0_CR00) + control_position) = 0x5;
+      init_helper(IOMUXC_MUX_PAD_GPIO_B0_CR00,
+                  IOMUXC_PAD_PAD_GPIO_B0_CR00,
+                  DSE_OPT,
+                  control_position);
       break;
     case GPIO_B1:
-      /** @brief: Set MUXmode, ALT5 = GPIO2_IOx (x = [16,31] = pad_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_B1_CR00) + pad_position) = 0x5;
-
-      /** @brief: Set DSE field (Drive Strength Field) */
-      *((&IOMUXC_PAD_PAD_GPIO_B1_CR00) + pad_position) =
-          IOMUXC_PAD_DSE(DSE_OPT);
+      /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [16,31] (ctrl_postion + 1) */
+      init_helper(IOMUXC_MUX_PAD_GPIO_B1_CR00,
+                  IOMUXC_PAD_PAD_GPIO_B1_CR00,
+                  DSE_OPT,
+                  control_position);
       break;
     case GPIO_SD_B0:
-      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [12,17] = pad_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_SD_B0_CR00) + pad_position) = 0x5;
-
-      /** @brief: Set DSE field (Drive Strength Field) */
-      *((&IOMUXC_PAD_PAD_GPIO_SD_B0_CR00) + pad_position) =
-          IOMUXC_PAD_DSE(DSE_OPT);
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [12,17] (ctrl_position + 1) */
+      init_helper(IOMUXC_MUX_PAD_GPIO_SD_B0_CR00,
+                  IOMUXC_PAD_PAD_GPIO_SD_B0_CR00,
+                  DSE_OPT,
+                  ctrl_position);
       break;
     case GPIO_SD_B1:
-      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx (x = [0,11] = pad_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_SD_B1_CR00) + pad_position) = 0x5;
-
-      /** @brief: Set DSE field (Drive Strength Field) */
-      *((&IOMUXC_PAD_PAD_GPIO_SD_B1_CR00) + pad_position) =
-          IOMUXC_PAD_DSE(DSE_OPT);
+      /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [0,11] (ctrl_position + 1) */
+      init_helper(IOMUXC_MUX_PAD_GPIO_SD_B1_CR00,
+                  IOMUXC_PAD_PAD_GPIO_SD_B1_CR00,
+                  DSE_OPT,
+                  ctrl_position);
       break;
   }
 
