@@ -194,7 +194,7 @@ typedef struct {
   uint8_t              ctrl_position;
 } SStoredGPIO;
 
-inline void
+static inline void
 init_helper(vuint32_t *    SW_MUX,
             vuint32_t *    SW_PAD,
             EBitMuxPad_DSE DSE_OPT,
@@ -233,9 +233,9 @@ read_gpio(vuint32_t gpio_base_addr, EBaseGPIO gpio_register);
 void
 set_gpio_muxmode(vuint32_t * gpio_addr, EMuxModes mux_mode);
 void
-set_gpio_gdir(vuint32_t *  gpio_gdir_addr,
-              uint_fast8_t direction_bit,
-              ETypeIO      io_type);
+set_gpio_gdir(vuint32_t * gpio_gdir_addr,
+              ETypeIO     io_type,
+              uint8_t     direction_bit);
 void
 set_gpio_datar(vuint32_t * gpio_dr_set_addr, uint_fast8_t direction_bit);
 void

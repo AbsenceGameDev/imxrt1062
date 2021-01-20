@@ -106,7 +106,7 @@ init_gpio(SStoredGPIO    gpio_device,
                   gpio_device.io_type);
       break;
   }
-  set_gpr_gdir(&gpio_device);
+  set_gpr(&gpio_device);
 
   // Setting gpio direction for either output or input
   switch (gpio_device.pin) {
@@ -138,7 +138,6 @@ init_gpio(SStoredGPIO    gpio_device,
       *GPIO9_DIRR |= ((0x1 * gpio_device.io_type) << gpio_device.ctrl_position);
       break;
   }
-
   uint_fast8_t dir = 0x3;
 };
 
@@ -148,41 +147,71 @@ init_gpio(SStoredGPIO    gpio_device,
 void
 set_gpr_gdir(SStoredGPIO * gpio_device)
 {
+  uint8_t     LOW_HIGH = 0x0; // 0001 low, 0000 high
+  vuint32_t * gdir_addr;
   switch (gpio_device->pin) {
       // GPR26 [GPIO1,GPIO6]
+    case 0x1: LOW_HIGH |= 0x1;
     case 0x6:
-    case 0x1:
       //  Set all MUX bits to either GPIO1 or GPIO6
       IOMUXC_GPR_GPR26 = 0xffffffff * (gpio_device->pin == 0x6);
+      if (LOW_HIGH == 0x1) {
+        gdir_addr = GPIO1_DIRR;
+      } else {
+        gdir_addr = GPIO6_DIRR;
+      }
+      set_gpio_gdir(
+          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
       break;
       // GPR27 [GPIO2,GPIO7]
-    case 0x2:
+    case 0x2: LOW_HIGH |= 0x1;
     case 0x7:
       // Set all MUX bits to either GPIO2 or GPIO7
       IOMUXC_GPR_GPR27 = 0xffffffff * (gpio_device->pin == 0x7);
+      if (LOW_HIGH == 0x1) {
+        gdir_addr = GPIO2_DIRR;
+      } else {
+        gdir_addr = GPIO7_DIRR;
+      }
+      set_gpio_gdir(
+          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
       break;
       // GPR28 [GPIO3,GPIO8]
-    case 0x3:
+    case 0x3: LOW_HIGH |= 0x1;
     case 0x8:
       // Set all MUX bits to either GPIO3 or GPIO8
       IOMUXC_GPR_GPR28 = 0xffffffff * (gpio_device->pin == 0x8);
+      if (LOW_HIGH == 0x1) {
+        gdir_addr = GPIO3_DIRR;
+      } else {
+        gdir_addr = GPIO8_DIRR;
+      }
+      set_gpio_gdir(
+          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
       break;
       // GPR29 [GPIO4,GPIO9]
-    case 0x4:
+    case 0x4: LOW_HIGH |= 0x1;
     case 0x9:
       // Set all MUX bits to either GPIO4 or GPIO9
       IOMUXC_GPR_GPR29 = 0xffffffff * (gpio_device->pin == 0x9);
+      if (LOW_HIGH == 0x1) {
+        gdir_addr = GPIO4_DIRR;
+      } else {
+        gdir_addr = GPIO9_DIRR;
+      }
+      set_gpio_gdir(
+          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
       break;
   }
 }
 
 void
-set_gpio_gdir(vuint32_t *  gpio_gdir_addr,
-              uint_fast8_t direction_bit,
-              ETypeIO      io_type)
+set_gpio_gdir(vuint32_t * gpio_gdir_addr,
+              ETypeIO     io_type,
+              uint8_t     direction_bit)
 {
   *gpio_gdir_addr |= ((0x1 * io_type) << direction_bit);
-}
+};
 
 void *
 handle_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register)
@@ -305,7 +334,7 @@ blinky_led_example()
    **/
 
   // Set DPIO7 direction (set as output = 1, input = 0), in GDIR
-  set_gpio_gdir(GPIO7_DIRR, dir, GDIR_OUT);
+  set_gpio_gdir(GPIO7_DIRR, GDIR_OUT, dir);
 
   for (;;) {
     volatile unsigned int i = 0x0;
