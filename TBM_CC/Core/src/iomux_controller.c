@@ -8,7 +8,13 @@ init_device_muxmode(SStoredMUXDevice * mux_device,
                     uint8_t            ctrl_pos,
                     EMuxMode           mux_mode)
 {
-  /** @brief: Set MUXmode, ALT5 = GPIO */
+  if (mux_device == NULL) {
+    mux_device = (mux_device *)mem_alloc(MUXDEVICE_BYTESIZE);
+    if (mux_device == NULL) {
+      return;
+    }
+  }
+  /** @brief: Set MUXmode */
   *((mux_device->mux_pad_context.mux_pad_addr = SW_MUX) +
     (mux_device->ctrl_pos = ctrl_pos)) = (mux_device->mux_mode = mux_mode);
 

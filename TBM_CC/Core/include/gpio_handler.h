@@ -61,6 +61,7 @@ typedef enum
   GDIR_OUT
 } ETypeIO;
 
+// volatile unsigned int *myPointer = (volatile unsigned int *)0x12345678;
 typedef struct {
   uint8_t              bit_id;
   uint8_t              value;
@@ -68,26 +69,8 @@ typedef struct {
   static const uint8_t pin;
   EBaseGPIO            offsets;
   ETypeIO              io_type;
-  uint8_t              ctrl_pos;
-  SPadContext          mux_pad_context;
-} SStoredGPIO;
-
-static inline void
-init_gpio_helper(SStoredGPIO *  gpio_device,
-                 vuint32_t *    SW_MUX,
-                 vuint32_t *    SW_PAD,
-                 EBitMuxPad_DSE DSE_OPT,
-                 uint8_t        ctrl_pos,
-                 ETypeIO        io_type)
-{
-  /** @brief: Set MUXmode, ALT5 = GPIO */
-  *((gpio_device->mux_pad_context.mux_pad_addr = SW_MUX) +
-    (gpio_device.ctrl_pos = ctrl_pos)) = 0x5;
-
-  /** @brief: Set DSE field (Drive Strength Field) */
-  *((gpio_device->mux_pad_context.pad_pad_addr = SW_PAD) + ctrl_pos) =
-      IOMUXC_PAD_DSE(DSE_OPT);
-}
+  SStoredMUXDevice *   base_mux_device;
+} SStoredGPIO = {.base_mux_device.mux_mode = ALT5_GPIOx_IOx};
 
 void
 init_gpio(SStoredGPIO *  gpio_device,

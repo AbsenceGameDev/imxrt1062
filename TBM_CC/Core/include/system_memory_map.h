@@ -7402,9 +7402,18 @@ typedef enum DMA_CH_MODE
 #define TSC_DEBUG_MODE TSC_BASE._0x70
 #define TSC_DEBUG_MODE2 TSC_BASE._0x80
 
-void
-DMAMUX_init(DMA_REQUESTS_MUX_CHANNELS CH, uint8_t DMA_SRC)
-{
-}
+/**
+ * TODO: Placeholder address values, will need to check the techincal reference
+ * manual again to find a suitable start and end address where I can allocate
+ * memory freely.
+ * Also, decide upon if random access allocation will be needed later on
+ **/
+#define MEM_START (0x00000000) // Placeholder, cheack above TODO
+#define MEM_END (0xffffffff) // Placeholder, cheack above TODO
+volatile void * free_stack_ptr = MEM_START;
+
+/** TODO: Actually write the mem_alloc function */
+void *
+mem_alloc(uint16_t obj_size);
 
 #endif // SYSTEM_MEMORY_MAP_H

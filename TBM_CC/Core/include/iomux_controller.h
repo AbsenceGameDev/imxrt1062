@@ -5,14 +5,14 @@
 
 typedef enum
 {
-  ALT0 = 0x0, // LCD_DATAx
-  ALT1 = 0x1, // QTIMERx_TIMERx
-  ALT2 = 0x2, // FLEXPWMx_PWMBx
-  ALT3 = 0x3, // ARM_TRACEx
-  ALT4 = 0x4, // FLEXIOx_FLEXIOx
-  ALT5 = 0x5, // GPIOx_IOx
-  ALT6 = 0x6, // SRC_BOOT_CFGx
-  ALT8 = 0x8 // ENET2_TX_ER
+  ALT0_LCD_DATAx = 0x0, // LCD_DATAx
+  ALT1_QTIMERx_TIMERx = 0x1, // QTIMERx_TIMERx
+  ALT2_FLEXPWMx_PWMBx = 0x2, // FLEXPWMx_PWMBx
+  ALT3_ARM_TRACEx = 0x3, // ARM_TRACEx
+  ALT4_FLEXIOx_FLEXIOx = 0x4, // FLEXIOx_FLEXIOx
+  ALT5_GPIOx_IOx = 0x5, // GPIOx_IOx
+  ALT6_SRC_BOOT_CFGx = 0x6, // SRC_BOOT_CFGx
+  ALT8_ENET = 0x8 // ENET2_TX_ER
 } EMuxMode;
 
 typedef enum
@@ -130,11 +130,14 @@ typedef struct {
 } SPadContext;
 
 typedef struct {
-  SPadContext    mux_pad_context;
-  EMuxMode       mux_mode;
-  EBitMuxPad_DSE DSE_OPT;
-  uint8_t        ctrl_pos;
+  SPadContext mux_pad_context;
+  EMuxMode    mux_mode;
+  uint8_t     ctrl_pos;
 } SStoredMUXDevice;
+
+// 32bit + 32bit + 24bit
+// 11 bytes
+#define MUXDEVICE_BYTESIZE 0xc // an extra byte for good measure
 
 void
 init_device_muxmode(SStoredMUXDevice * mux_device,
