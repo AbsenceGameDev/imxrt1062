@@ -3698,13 +3698,16 @@ typedef enum DMA_CH_MODE
 #include "flexspi_addr.h"
 
 /**
- * @brief: ARM-Cortex M7 Memory Map/Register, 29.4, p.1744
+ * @brief: ARM-Cortex M7 NIC-301 Memory Map/Register, 29.4, p.1744
  * The bus system is composed of five instances:
  * SIM_M7, SIM_PER, SIM_M,SIM_MAIN and SIM_EMS.
  * Three of them have GPV registers which are
  * helpful for busarbitration and performance.
  *
- * These registers are are NOT aimplemented on chip:
+ * NOTE: This chip supports up to 16 interrupt priority levels,
+ * i.e. itimplements bits [7:4] of each NVIC Interrupt Priority Register
+ *
+ * These registers are NOT implemented on chip:
  * IB registers. Address region control registers.
  *
  * These are the available registers:
@@ -7403,14 +7406,35 @@ typedef enum DMA_CH_MODE
 #define TSC_DEBUG_MODE2 TSC_BASE._0x80
 
 /**
- * TODO: Placeholder address values, will need to check the techincal reference
- * manual again to find a suitable start and end address where I can allocate
- * memory freely.
- * Also, decide upon if random access allocation will be needed later on
+ * TODO: Configure OCRAM for READ and WRITE access, chapter 30.3 - 30.5
+ *
+ * NOTE: Stack is always in RAM. There is a stack pointer that is kept in a
+ * register in CPU that points to the top of stack, i.e., the address of the
+ * location at the top of stack.
+ *
+ * 30.4 Advanced Features:
+ * This section describes some advanced features designed to avoid timing issues
+ * when the on-chip RAM is working at high frequency.
+ * All of the features can be disabled/enabled by programming the corresponding
+ * fields of the General Purpose Register (IOMUXC.GPR3) bits [3:0] in the IOMUXC
+ *
+ * For the normal OCRAM,
+ * Read Data Wait Atate is configurable via IOMUXC.GPR3[0]
+ * Read Address Pipeline is configurable via IOMUXC.GPR3[1].
+ * Write Data Pipeline is configurable via IOMUXC.GPR3[2]
+ * Write Address Pipeline is configurable via IOMUXC.GPR3[3]
+ *
+ * NOTE: There are no programmable registers in this block; however, OCRAM
+ * configurable bits can be found in the IOMUX Controller (IOMUXC) general
+ * purpose registers found here:
+ * TrustZone bits: IOMUXC_GPR10
+ *
+ *
  **/
-#define MEM_START (0x00000000) // Placeholder, cheack above TODO
-#define MEM_END (0xffffffff) // Placeholder, cheack above TODO
-volatile void * free_stack_ptr = MEM_START;
+// OCRAM DTCM (Tightly Couple Memory, will use for heap space)
+#define MEM_START (SYSMEM_OCRAM_FLEX_E - 0x00020000)
+#define MEM_END SYSMEM_OCRAM_FLEX_E // reserving 128kb for mem_alloc
+volatile void * free_heap_ptr = (volatile void *)MEM_START;
 
 /** TODO: Actually write the mem_alloc function */
 void *
