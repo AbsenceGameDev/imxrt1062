@@ -658,6 +658,10 @@ typedef enum
 #define MAP_32BIT_REGISTER(ADDRESS) (*(imcrt_32t_offset * ADDRESS)
 #define _OFFSET(A, B) (A + B)
 
+#define FLEXRAM_ITCM_EN(n) ((uint32_t)(n & 0x1))
+#define FLEXRAM_DTCM_EN(n) ((uint32_t)((n & 0x1) << 1))
+#define FLEXRAM_BANK_CFG_SEL(n) ((uint32_t)((n & 0x1) << 2))
+
 #define IOMUXC_PAD_SRE ((uint32_t)(1 << 0))
 #define IOMUXC_PAD_DSE(n) ((uint32_t)(((n)&0x07) << 3))
 #define IOMUXC_PAD_SPEED(n) ((uint32_t)(((n)&0x03) << 6))

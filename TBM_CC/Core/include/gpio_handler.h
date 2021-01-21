@@ -61,7 +61,7 @@ typedef enum
   GDIR_OUT
 } ETypeIO;
 
-// volatile unsigned int *myPointer = (volatile unsigned int *)0x12345678;
+// volatile void *void_loc = (volatile void *)0x12345678;
 typedef struct {
   uint8_t              bit_id;
   uint8_t              value;

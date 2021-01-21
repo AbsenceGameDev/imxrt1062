@@ -7405,39 +7405,4 @@ typedef enum DMA_CH_MODE
 #define TSC_DEBUG_MODE TSC_BASE._0x70
 #define TSC_DEBUG_MODE2 TSC_BASE._0x80
 
-/**
- * TODO: Configure OCRAM for READ and WRITE access, chapter 30.3 - 30.5
- *
- * NOTE: Stack is always in RAM. There is a stack pointer that is kept in a
- * register in CPU that points to the top of stack, i.e., the address of the
- * location at the top of stack.
- *
- * 30.4 Advanced Features:
- * This section describes some advanced features designed to avoid timing issues
- * when the on-chip RAM is working at high frequency.
- * All of the features can be disabled/enabled by programming the corresponding
- * fields of the General Purpose Register (IOMUXC.GPR3) bits [3:0] in the IOMUXC
- *
- * For the normal OCRAM,
- * Read Data Wait Atate is configurable via IOMUXC.GPR3[0]
- * Read Address Pipeline is configurable via IOMUXC.GPR3[1].
- * Write Data Pipeline is configurable via IOMUXC.GPR3[2]
- * Write Address Pipeline is configurable via IOMUXC.GPR3[3]
- *
- * NOTE: There are no programmable registers in this block; however, OCRAM
- * configurable bits can be found in the IOMUX Controller (IOMUXC) general
- * purpose registers found here:
- * TrustZone bits: IOMUXC_GPR10
- *
- *
- **/
-// OCRAM DTCM (Tightly Couple Memory, will use for heap space)
-#define MEM_START (SYSMEM_OCRAM_FLEX_E - 0x00020000)
-#define MEM_END SYSMEM_OCRAM_FLEX_E // reserving 128kb for mem_alloc
-volatile void * free_heap_ptr = (volatile void *)MEM_START;
-
-/** TODO: Actually write the mem_alloc function */
-void *
-mem_alloc(uint16_t obj_size);
-
 #endif // SYSTEM_MEMORY_MAP_H

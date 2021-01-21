@@ -1,7 +1,9 @@
 #ifndef IOMUX_CONTROLLER_H
 #define IOMUX_CONTROLLER_H
 
+#include "system_heap.h"
 #include "system_memory_map.h"
+
 
 typedef enum
 {
