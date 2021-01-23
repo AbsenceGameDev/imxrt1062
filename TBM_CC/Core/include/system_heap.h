@@ -3,6 +3,7 @@
 
 #include "system_memory_map.h"
 
+#define NULL_ADDR (volatile void * 0x0)
 /**
  * The common operations involving heaps are:
  *
@@ -208,6 +209,10 @@ set_heap_regions();
 
 /** @brief Heap creation funcs. */
 
+/** @brief Generates 32kb heap groups based on the FLEXRAM Config */
+heap_group *
+generate_heap_groups();
+
 /** @brief create-heap: create an empty heap */
 heap_group *
 create_heap(uint16_t heap_byte_size);
@@ -238,9 +243,10 @@ meld(heap_block * heap_a, heap_block * heap_b);
 #define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 = ((x & 0x1) << 8)
 
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
-#define MEM_START (SYSMEM_OCRAM_FLEX_S - 0x00040000)
+#define MEM_START SYSMEM_OCRAM_FLEX_S // S - 0x00040000)
 #define MEM_END SYSMEM_OCRAM_FLEX_E // reserving 128kb for mem_alloc
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
+#define MEM_OFFS(x) (MEM_START + x)
 
 /** TODO: Actually write the mem_alloc function */
 void *
