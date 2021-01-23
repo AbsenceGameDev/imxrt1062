@@ -22,6 +22,21 @@
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
 #define MEM_OFFS(x) (MEM_START + x)
 
+// Split the into N amounts of 32KB segments,
+// N is based on the totalt sice
+#define __gen_heap_group_in_region(start_addr_heap, end_addr_heap, heapg_head) \
+  heap_group * heapg_head = (heap_group *)start_addr_heap;                     \
+  heapg_head->prev = (head_group *)NULL_ADDR;                                  \
+  uint32_t KBSize = (end_addr_heap - start_addr_heap) / 0x400;                 \
+  KBSize /= 32;                                                                \
+  for (uint8_t i = 1; i < KBSize; i++) {                                       \
+    heapg_head->next = heapg_head + 0x8000;                                    \
+    heapg_head += (0x8000 * i);                                                \
+    heapg_head->free_size = 0x8000;                                            \
+    heapg_head->total_size = 0x8000;                                           \
+    heapg_head->prev = (heapg_head - 0x8000);                                  \
+  }
+
 /**
  * The common operations involving heaps are:
  *
