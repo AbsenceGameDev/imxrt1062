@@ -50,34 +50,46 @@ ram_bank_presets(ERAMBankConf requested_config)
   return (IOMUXC_GPR_GPR17 = requested_config);
 }
 
-heap_region
-allocate_heap_mem()
+void
+set_heap_regions()
 {
   // Read the currently set rambank config.
   ERAMBankConf ram_bank_conf = (ERAMBankConf)IOMUXC_GPR_GPR17;
   switch (ram_bank_conf) {
     case FLEXRAM_O00_I50_D50:
-      return {(volatile void * 0x0),
-              (volatile void * 0x0),
-              (volatile void * 0x0),
-              (volatile void * 0x0)};
+      designated_heap = {(volatile void * 0x0),
+                         (volatile void * 0x0),
+                         (volatile void * 0x0),
+                         (volatile void * 0x0)};
+      return;
     case FLEXRAM_O50_I25_D25:
     case FLEXRAM_O50_I50_D00:
     case FLEXRAM_O50_I00_D50:
-      return {(volatile void * MEM_START),
-              (volatile void *(MEM_START + 0x00040000)),
-              (volatile void *(MEM_START + 0x00080000)),
-              (volatile void *(MEM_START + 0x000c0000))};
+      designated_heap = {(volatile void * MEM_START),
+                         (volatile void *(MEM_START + 0x00040000)),
+                         (volatile void *(MEM_START + 0x00080000)),
+                         (volatile void *(MEM_START + 0x000c0000))};
+      return;
     case FLEXRAM_OCRAM_ONLY:
-      return {(volatile void * MEM_START),
-              (volatile void *(MEM_START + 0x00040000)),
-              (volatile void * 0x0),
-              (volatile void * 0x0)};
+      designated_heap = {(volatile void * MEM_START),
+                         (volatile void *(MEM_START + 0x00040000)),
+                         (volatile void * 0x0),
+                         (volatile void * 0x0)};
+      return;
     case FLEXRAM_O25_I50_D25:
     case FLEXRAM_O25_I25_D50:
-      return {(volatile void *(MEM_START + 0x00040000)),
-              (volatile void *(MEM_START + 0x00060000)),
-              (volatile void * 0x0),
-              (volatile void * 0x0)};
+      designated_heap = {(volatile void *(MEM_START + 0x00040000)),
+                         (volatile void *(MEM_START + 0x00060000)),
+                         (volatile void * 0x0),
+                         (volatile void * 0x0)};
+      return;
   }
+}
+
+/** @brief create-heap: create an empty heap */
+heap_group *
+create_heap(uint16_t heap_byte_size)
+{
+  // Placeholder for tomorrow
+  return (heap_group *)(designated_heap.start_addr_heap);
 }

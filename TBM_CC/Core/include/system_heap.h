@@ -136,8 +136,8 @@ typedef enum
   FLEXRAM_O25_I50_D25 = 0xa5ffa5ff,
   FLEXRAM_O25_I25_D50 = 0xf5aaf5aa,
   FLEXRAM_O00_I50_D50 = 0xafafafaf,
-  FLEXRAM_O50_I50_D00 = 0xf5f5f5f5,
-  FLEXRAM_O50_I00_D50 = 0xa5a5a5a5
+  FLEXRAM_O50_I50_D00 = 0xff55ff55,
+  FLEXRAM_O50_I00_D50 = 0xaa55aa55
 } ERAMBankConf;
 
 typedef struct {
@@ -146,6 +146,25 @@ typedef struct {
   volatile void * frag_start_addr_heap;
   volatile void * frag_end_addr_heap;
 } heap_region;
+heap_region designated_heap;
+
+typedef uint8_t heap_group_t;
+
+typedef struct {
+  heap_group * prev;
+  heap_group * next;
+  heap_group_t group;
+  size_t       total_size;
+  size_t       free_size;
+  size_t       block_count;
+} heap_group;
+
+typedef struct {
+  heap_block * prev;
+  heap_block * next;
+  size_t       data_size;
+  uint8_t      freed;
+} heap_block;
 
 typedef enum
 {
@@ -184,8 +203,28 @@ ram_bank_presets(ERAMBankConf requested_config);
  * @brief Allocates an address region for heap based on the RAM Bank configs.
  * @return returns a struct which holds the now reserved heap region
  **/
-heap_region
-allocate_heap_mem();
+void
+set_heap_regions();
+
+/** @brief Heap creation funcs. */
+
+/** @brief create-heap: create an empty heap */
+heap_group *
+create_heap(uint16_t heap_byte_size);
+
+/** @brief heapify: create a heap out of given array of elements */
+heap_group *
+heapify(void * context);
+
+/** @brief merge (union): joining two heaps to form a valid new heap containing
+ * all the elements of both, preserving the original heaps. */
+heap_group *
+merge(heap_block * heap_a, heap_block * heap_b);
+
+/** @brief meld: joining two heaps to form a valid new heap containing all the
+ *      elements of both, destroying the original heaps. */
+heap_group *
+meld(heap_block * heap_a, heap_block * heap_b);
 
 /**
  * @brief: OCRAM TrustZone (TZ) enable macro.
