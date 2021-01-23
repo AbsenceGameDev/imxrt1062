@@ -96,7 +96,6 @@ set_heap_regions()
     heapg_head->total_size = 0x8000;                                           \
     heapg_head->prev = (heapg_head - 0x8000);                                  \
   }
-// Placeholder for tomorrow
 
 /** @brief create-heap: create an empty heap */
 heap_group *

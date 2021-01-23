@@ -4,6 +4,24 @@
 #include "system_memory_map.h"
 
 #define NULL_ADDR (volatile void * 0x0)
+
+/**
+ * @brief: OCRAM TrustZone (TZ) enable macro.
+ *
+ * 0x0: The TrustZone feature is disabled. Entire OCRAM space is available for
+ * all access types (secure/non-secure/user/supervisor).
+ *
+ * 0x1: The TrustZone feature is enabled. Access to address in the range
+ * specified by[ENDADDR : STARTADDR] follows the execution mode access policy
+ * described in CSU chapter */
+#define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 = ((x & 0x1) << 8)
+
+// OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
+#define MEM_START SYSMEM_OCRAM_FLEX_S // S - 0x00040000)
+#define MEM_END SYSMEM_OCRAM_FLEX_E // reserving 128kb for mem_alloc
+volatile void * free_heap_ptr = (volatile void *)MEM_START;
+#define MEM_OFFS(x) (MEM_START + x)
+
 /**
  * The common operations involving heaps are:
  *
@@ -230,23 +248,6 @@ merge(heap_block * heap_a, heap_block * heap_b);
  *      elements of both, destroying the original heaps. */
 heap_group *
 meld(heap_block * heap_a, heap_block * heap_b);
-
-/**
- * @brief: OCRAM TrustZone (TZ) enable macro.
- *
- * 0x0: The TrustZone feature is disabled. Entire OCRAM space is available for
- * all access types (secure/non-secure/user/supervisor).
- *
- * 0x1: The TrustZone feature is enabled. Access to address in the range
- * specified by[ENDADDR : STARTADDR] follows the execution mode access policy
- * described in CSU chapter */
-#define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 = ((x & 0x1) << 8)
-
-// OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
-#define MEM_START SYSMEM_OCRAM_FLEX_S // S - 0x00040000)
-#define MEM_END SYSMEM_OCRAM_FLEX_E // reserving 128kb for mem_alloc
-volatile void * free_heap_ptr = (volatile void *)MEM_START;
-#define MEM_OFFS(x) (MEM_START + x)
 
 /** TODO: Actually write the mem_alloc function */
 void *
