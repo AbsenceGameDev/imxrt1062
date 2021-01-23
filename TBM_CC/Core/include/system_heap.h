@@ -118,16 +118,34 @@
  * |======================|===================================================|
  **/
 
+/**
+ * @brief RAM Bank presets enum. Each enum holds a value chosen to configure
+ * banks according to 11.4.18 at p.367 in IMXRT1060 processor ref. manual
+ * @param FLEXRAM_OCRAM_ONLY  0x55555555 / OCRAM 100%
+ * @param FLEXRAM_O50_I25_D25 0xaf55af55 / OCRAM 50%, ITCM 25%, DTCM 25%
+ * @param FLEXRAM_O25_I50_D25 0xa5ffa5ff / ITCM 50%, OCRAM 25%, DTCM 25%
+ * @param FLEXRAM_O25_I25_D50 0xf5aaf5aa / DTCM 50%, OCRAM 25%, ITCM 25%
+ * @param FLEXRAM_O00_I50_D50 0xafafafaf / DTCM 50%, ITCM 50%, OCRAM 00%
+ * @param FLEXRAM_O50_I50_D00 0xf5f5f5f5 / ITCM 50%, OCRAM 50%, DTCM 00%
+ * @param FLEXRAM_O50_I00_D50 0xa5a5a5a5 / DTCM 50%, OCRAM 50%, ITCM 00%
+ **/
 typedef enum
 {
-  FLEXRAM_OCRAM_ONLY = 0x55555555, // OCRAM 100%
-  FLEXRAM_OCRAM_MAIN = 0xaf55af55, // OCRAM 50%, ITCM 25%, DTCM 25%
-  FLEXRAM_ITCM_MAIN = 0xa5ffa5ff, // ITCM 50%, OCRAM 25%, DTCM 25%
-  FLEXRAM_DTCM_MAIN = 0xf5aaf5aa, // DTCM 50%, OCRAM 25%, ITCM 25%
-  FLEXRAM_NO_OCRAM = 0xafafafaf, // DTCM 50%, ITCM 50%, OCRAM 00%
-  FLEXRAM_NO_DTCM = 0xf5f5f5f5, // ITCM 50%, OCRAM 50%, DTCM 00%
-  FLEXRAM_NO_ITCM = 0xa5a5a5a5 // DTCM 50%, OCRAM 50%, ITCM 00%
+  FLEXRAM_OCRAM_ONLY = 0x55555555,
+  FLEXRAM_O50_I25_D25 = 0xaf55af55,
+  FLEXRAM_O25_I50_D25 = 0xa5ffa5ff,
+  FLEXRAM_O25_I25_D50 = 0xf5aaf5aa,
+  FLEXRAM_O00_I50_D50 = 0xafafafaf,
+  FLEXRAM_O50_I50_D00 = 0xf5f5f5f5,
+  FLEXRAM_O50_I00_D50 = 0xa5a5a5a5
 } ERAMBankConf;
+
+typedef struct {
+  volatile void * start_addr_heap;
+  volatile void * end_addr_heap;
+  volatile void * frag_start_addr_heap;
+  volatile void * frag_end_addr_heap;
+} heap_region;
 
 typedef enum
 {
@@ -137,15 +155,51 @@ typedef enum
 
 typedef enum
 {
+  FALSE,
+  TRUE
+} _bool_;
+
+typedef enum
+{
   TCM_DISABLE,
   TCM_ENABLE
 } EInitTCM;
 
+typedef enum
+{
+  TZ_DISABLE = 0x0,
+  TZ_ENABLE = 0x1
+} ETrustZoneState;
+
+/**
+ * @brief RAM Bank presets function.
+ * NOTE: Set the rambanks before allocating heap
+ * @param [in] requested_config RAM Bank Preset enum.
+ * Refer to the ERAMBankConf enum for further documentation.
+ **/
 void
 ram_bank_presets(ERAMBankConf requested_config);
 
+/**
+ * @brief Allocates an address region for heap based on the RAM Bank configs.
+ * @return returns a struct which holds the now reserved heap region
+ **/
+heap_region
+allocate_heap_mem();
+
+/**
+ * @brief: OCRAM TrustZone (TZ) enable macro.
+ *
+ * 0x0: The TrustZone feature is disabled. Entire OCRAM space is available for
+ * all access types (secure/non-secure/user/supervisor).
+ *
+ * 0x1: The TrustZone feature is enabled. Access to address in the range
+ * specified by[ENDADDR : STARTADDR] follows the execution mode access policy
+ * described in CSU chapter */
+#define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 = ((x & 0x1) << 8)
+
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
-#define MEM_START (SYSMEM_OCRAM_FLEX_E - 0x00040000)
+#define MEM_START (SYSMEM_OCRAM_FLEX_S - 0x00040000)
 #define MEM_END SYSMEM_OCRAM_FLEX_E // reserving 128kb for mem_alloc
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
 

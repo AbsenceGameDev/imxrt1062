@@ -1,4 +1,4 @@
-#include "system_heap.h"
+#include "../include/system_heap.h"
 
 /** TODO:
  * 1. Make a memory-block structure.
@@ -28,11 +28,11 @@ ram_bank_presets(ERAMBankConf requested_config)
 
   // ENABLE DTCM and ITCM?
   switch (requested_config) {
-    case FLEXRAM_NO_DTCM:
+    case FLEXRAM_O50_I50_D00: // FLEXRAM_NO_DTCM
       IOMUXC_GPR_GPR16 |= FLEXRAM_DTCM_EN(TCM_DISABLE);
       IOMUXC_GPR_GPR16 |= FLEXRAM_ITCM_EN(TCM_ENABLE);
       break;
-    case FLEXRAM_NO_ITCM:
+    case FLEXRAM_O50_I00_D50: // FLEXRAM_NO_ITCM
       IOMUXC_GPR_GPR16 |= FLEXRAM_DTCM_EN(TCM_ENABLE);
       IOMUXC_GPR_GPR16 |= FLEXRAM_ITCM_EN(TCM_DISABLE);
       break;
@@ -44,5 +44,40 @@ ram_bank_presets(ERAMBankConf requested_config)
       IOMUXC_GPR_GPR16 |= FLEXRAM_ITCM_EN(TCM_ENABLE);
       break;
   }
-  IOMUXC_GPR_GPR17 = requested_config;
+  //  Set all OCRAM space available for all access types
+  //  (secure/non-secure/user/supervisor).
+  SET_OCRAM_TRUSZONE(TZ_DISABLE);
+  return (IOMUXC_GPR_GPR17 = requested_config);
+}
+
+heap_region
+allocate_heap_mem()
+{
+  // Read the currently set rambank config.
+  ERAMBankConf ram_bank_conf = (ERAMBankConf)IOMUXC_GPR_GPR17;
+  switch (ram_bank_conf) {
+    case FLEXRAM_O00_I50_D50:
+      return {(volatile void * 0x0),
+              (volatile void * 0x0),
+              (volatile void * 0x0),
+              (volatile void * 0x0)};
+    case FLEXRAM_O50_I25_D25:
+    case FLEXRAM_O50_I50_D00:
+    case FLEXRAM_O50_I00_D50:
+      return {(volatile void * MEM_START),
+              (volatile void *(MEM_START + 0x00040000)),
+              (volatile void *(MEM_START + 0x00080000)),
+              (volatile void *(MEM_START + 0x000c0000))};
+    case FLEXRAM_OCRAM_ONLY:
+      return {(volatile void * MEM_START),
+              (volatile void *(MEM_START + 0x00040000)),
+              (volatile void * 0x0),
+              (volatile void * 0x0)};
+    case FLEXRAM_O25_I50_D25:
+    case FLEXRAM_O25_I25_D50:
+      return {(volatile void *(MEM_START + 0x00040000)),
+              (volatile void *(MEM_START + 0x00060000)),
+              (volatile void * 0x0),
+              (volatile void * 0x0)};
+  }
 }
