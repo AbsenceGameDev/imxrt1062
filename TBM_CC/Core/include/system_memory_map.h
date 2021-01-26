@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#define HAB_API_VTABLE 0x0020_0300 // HAB API vector table addresses
+#define HAB_API_VTABLE 0x00200300 // HAB API vector table addresses
 
 // RESERVED ADDRESS-SPACE
 #define SYSMEM_RESRV12_E 0xFFFFFFFF // 511MB

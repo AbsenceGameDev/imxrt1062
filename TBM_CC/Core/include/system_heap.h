@@ -14,7 +14,7 @@
  * 0x1: The TrustZone feature is enabled. Access to address in the range
  * specified by[ENDADDR : STARTADDR] follows the execution mode access policy
  * described in CSU chapter */
-#define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 = ((x & 0x1) << 8)
+#define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 |= ((x & 0x1) << 8)
 
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
 #define MEM_START SYSMEM_OCRAM_FLEX_S // S - 0x00040000)
@@ -32,10 +32,15 @@ volatile void * free_heap_ptr = (volatile void *)MEM_START;
   for (uint8_t i = 1; i < KBSize; i++) {                                       \
     heapg_head->next = heapg_head + 0x8000;                                    \
     heapg_head += (0x8000 * i);                                                \
-    heapg_head->free_size = 0x8000;                                            \
-    heapg_head->total_size = 0x8000;                                           \
+    heapg_head->_size = 0x80008000;                                            \
     heapg_head->prev = (heapg_head - 0x8000);                                  \
   }
+
+#define __set_designated_heap(s_addr, e_addr, frag_s_addr, frag_e_addr)        \
+  designated_heap.start_addr_heap = (volatile void *)s_addr;                   \
+  designated_heap.end_addr_heap = (volatile void *)e_addr;                     \
+  designated_heap.frag_start_addr_heap = (volatile void *)frag_s_addr;         \
+  designated_heap.frag_end_addr_heap = (volatile void *)frag_e_addr;
 
 /**
  * The common operations involving heaps are:
@@ -160,8 +165,9 @@ volatile void * free_heap_ptr = (volatile void *)MEM_START;
  * @param FLEXRAM_O25_I50_D25 0xa5ffa5ff / ITCM 50%, OCRAM 25%, DTCM 25%
  * @param FLEXRAM_O25_I25_D50 0xf5aaf5aa / DTCM 50%, OCRAM 25%, ITCM 25%
  * @param FLEXRAM_O00_I50_D50 0xafafafaf / DTCM 50%, ITCM 50%, OCRAM 00%
- * @param FLEXRAM_O50_I50_D00 0xf5f5f5f5 / ITCM 50%, OCRAM 50%, DTCM 00%
- * @param FLEXRAM_O50_I00_D50 0xa5a5a5a5 / DTCM 50%, OCRAM 50%, ITCM 00%
+ * @param FLEXRAM_O50_I50_D00 0xff55ff55 / ITCM 50%, OCRAM 50%, DTCM 00%
+ * @param FLEXRAM_O50_I00_D50 0xaa55aa55 / DTCM 50%, OCRAM 50%, ITCM 00%
+ * @param FLEXRAM_NO_DEFAULT  0x0        / NO PRESET VALUE
  **/
 typedef enum
 {
@@ -171,7 +177,8 @@ typedef enum
   FLEXRAM_O25_I25_D50 = 0xf5aaf5aa,
   FLEXRAM_O00_I50_D50 = 0xafafafaf,
   FLEXRAM_O50_I50_D00 = 0xff55ff55,
-  FLEXRAM_O50_I00_D50 = 0xaa55aa55
+  FLEXRAM_O50_I00_D50 = 0xaa55aa55,
+  FLEXRAM_NO_DEFAULT = 0x0
 } ERAMBankConf;
 
 typedef struct {
@@ -183,34 +190,70 @@ typedef struct {
 heap_region designated_heap;
 
 typedef uint8_t heap_group_t;
-
+/**
+ * @brief Heap Group struct
+ * NOTE: Size of this struct is 17 Bytes (0x11 Bytes)
+ * NOTE: Start address of heap group will be the address of a given actual
+ * heap_group pointer, 1st heap_block starts offset 0x11 bytes
+ *
+ * @param prev  Pointer to previous heapgroup, NULL if current is Head.
+ * @param next Pointer to next heapgroup, NULL if current is End.
+ * @param group_id Integer ID for the heap_group
+ * @param _size 32-bit field: [0,15]: Total Size  [16,31]: Free Size
+ * @param _blocks 32-bit field: [0,15]: Used Blocks  [16,31]: Free Blocks
+ **/
 typedef struct {
-  heap_group * prev;
-  heap_group * next;
-  heap_group_t group;
-  size_t       total_size;
-  size_t       free_size;
-  size_t       block_count;
+  heap_group * prev; // 4 Bytes
+  heap_group * next; // 4 Bytes
+  heap_group_t group_id; // 1 Bytes
+  size_t       _size; // 4 Bytes
+  size_t       _blocks; // 4 Bytes
 } heap_group;
+#define HEAPGROUP_HEADER_SIZE 0x11
 
+/**
+ * @brief Macros for setting/changing vals in the 32-bit fields in heap_group.
+ * Overflow Should not be possible, so I will not make edgecases for it,
+ * K.I.S.S.
+ **/
+{
+#define SET_HEAP_TOTAL(sp, val) (sp = (sp & ~0xffff) | (val & 0xffff))
+#define ADD_HEAP_TOTAL(sp, add) (sp = (sp & ~0xffff) | ((sp & 0xffff) + add))
+#define SUB_HEAP_TOTAL(sp, sub) (sp = (sp & ~0xffff) | ((sp & 0xffff) - sub))
+#define SET_HEAP_FREE(sp, val) (sp = (sp & 0xffff) | (val & ~0xffff))
+#define ADD_HEAP_FREE(sp, add) (sp = (sp & 0xffff) | ((sp & ~0xffff) + add))
+#define SUB_HEAP_FREE(sp, sub) (sp = (sp & 0xffff) | ((sp & ~0xffff) - sub))
+}
+
+/**
+ * @brief Heap Block struct
+ * NOTE: Size of this struct is 14 Bytes (0xd Bytes)
+ * NOTE: Start address of heap block will be the address of a given actual
+ *       heap_block pointer, data of heap_block starts offset 0xd bytes
+ *
+ * @param prev  Pointer to previous heap_block, NULL if current is Head.
+ * @param next Pointer to next heap_block, NULL if current is End.
+ * @param data_size uint16_t, size of data block in bytes
+ * @param id_n_freed bit 0: Free, bit 1-3: Reserved, bit 4-7: group ID
+ *
+ **/
 typedef struct {
-  heap_block * prev;
-  heap_block * next;
-  size_t       data_size;
-  uint8_t      freed;
+  heap_block * prev; // 4 Bytes
+  heap_block * next; // 4 Bytes
+  uint16_t     data_size; // 4 Bytes
+  uint8_t      id_n_freed; // 1 Byte
 } heap_block;
+#define HEAPBLOCK_HEADER_SIZE 0xd
+#define CHECK_FREED(heapblock) (heapblock->id_n_freed & 0x1)
+#define SET_BLOCK_FREE(heapblock) (heapblock->id_n_freed & ~0x1) | 0x1
+#define SET_BLOCK_USED(heapblock) (heapblock->id_n_freed & ~0x1) | 0x0
+#define SET_GROUP_ID(id) (id & ~0x1) | (id & 0x1)
 
 typedef enum
 {
   FUSE_VAL_CONF,
   GPR17_BANK_CFG
 } EFlexSrcSelect;
-
-typedef enum
-{
-  FALSE,
-  TRUE
-} _bool_;
 
 typedef enum
 {
@@ -243,7 +286,7 @@ set_heap_regions();
 /** @brief Heap creation funcs. */
 
 /** @brief Generates 32kb heap groups based on the FLEXRAM Config */
-heap_group *
+void
 generate_heap_groups();
 
 /** @brief create-heap: create an empty heap */
@@ -267,5 +310,17 @@ meld(heap_block * heap_a, heap_block * heap_b);
 /** TODO: Actually write the mem_alloc function */
 void *
 mem_alloc(uint16_t obj_size);
+
+void
+__compactation__(heap_group * heapgroup);
+
+void
+__coalesce__(heap_block * heap_b);
+
+void
+__coalesce_front__(heap_block * heap_b);
+
+void
+__coalesce_back__(heap_block * heap_b);
 
 #endif // SYSTEM_HEAP_H
