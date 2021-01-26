@@ -209,7 +209,12 @@ typedef struct {
   size_t       _size; // 4 Bytes
   size_t       _blocks; // 4 Bytes
 } heap_group;
-#define HEAPGROUP_HEADER_SIZE 0x11
+#define HG_HEADER_SIZE 0x11
+
+typedef struct {
+  heap_block * heap_block_addr; // 4 Bytes
+  uint8_t *    heap_block_addr; // 4 Bytes
+} heap_tally;
 
 /**
  * @brief Macros for setting/changing vals in the 32-bit fields in heap_group.
@@ -223,6 +228,7 @@ typedef struct {
 #define SET_HEAP_FREE(sp, val) (sp = (sp & 0xffff) | (val & ~0xffff))
 #define ADD_HEAP_FREE(sp, add) (sp = (sp & 0xffff) | ((sp & ~0xffff) + add))
 #define SUB_HEAP_FREE(sp, sub) (sp = (sp & 0xffff) | ((sp & ~0xffff) - sub))
+#define READ_HEAP_FREE(sp) ((sp >> 0x10) & 0x10)
 }
 
 /**
@@ -243,11 +249,16 @@ typedef struct {
   uint16_t     data_size; // 4 Bytes
   uint8_t      id_n_freed; // 1 Byte
 } heap_block;
-#define HEAPBLOCK_HEADER_SIZE 0xd
-#define CHECK_FREED(heapblock) (heapblock->id_n_freed & 0x1)
+#define HB_HEADER_SIZE 0xd
+#define READ_BLOCK_FREE(heapblock) (heapblock->id_n_freed & 0x1)
 #define SET_BLOCK_FREE(heapblock) (heapblock->id_n_freed & ~0x1) | 0x1
 #define SET_BLOCK_USED(heapblock) (heapblock->id_n_freed & ~0x1) | 0x0
-#define SET_GROUP_ID(id) (id & ~0x1) | (id & 0x1)
+#define SET_GROUP_ID(idfreed, id) ((id << 0x4) & ~0x1) | (idfreed & 0x1)
+#define READ_GROUP_ID(idfreed) ((idfreed >> 0x4) & 0x4)
+#define BLOCK_END(hb_cptr) hb_cptr + hb_cptr->data_size + HB_HEADER_SIZE
+
+uint16_t g_free_blocks[0x10];
+uint16_t g_used_blocks[0x10];
 
 typedef enum
 {

@@ -107,71 +107,93 @@ void
 __compactation__(heap_group * heapgroup)
 {
   // iterate through block and compact it
-  heap_block * hb_cptr = (heap_block *)(heapgroup);
-  heap_block * hb_eptr = (heap_block *)(heapgroup);
+  heap_block * hb_sptr = (heap_block *)(heapgroup + HG_HEADER_SIZE);
+  heap_block * hb_cptr = (heap_block *)(heapgroup + HG_HEADER_SIZE);
+  heap_block * hb_eptr = (heap_block *)(heapgroup + 0x8000);
+  uint16_t free_blocks = READ_HEAP_FREE(heapgroup->_size); // maybe not needed
 
-  // Condition is if loop is at End of heap block
-  for (; (hb_cptr + hb_cptr->data_size) != hb_eptr;) {
-    if (hb_cptr->id_n_freed) {
-    }
+  // looping through the blocks
+  for (; (heap_block *)(BLOCK_END(hb_cptr)) != hb_eptr;) {
+    __coalesce_front__(hb_cptr);
+    hb_cptr += hb_cptr->data_size;
   }
+  //(READ_BLOCK_FREE(hb_cptr));
+
+  // handle last block after for loop
   return;
 }
 
 /**
  * @brief Free Block of memory
- * Placeholder, this won't work in practice, we should not change the pointers I
- * think, because we need to keep track of the free blocks aswell?
+ * Clearing data isn't actually needed
  **/
 void
 __remove_block__(heap_block * heapblock)
 {
-  heapblock->prev->next = heapblock->next;
-  heapblock->next->prev = heapblock->prev;
   heapblock->id_n_freed = SET_BLOCK_FREE(heapblock);
+  uint8_t group_id = READ_GROUP_ID(heapblock->id_n_freed);
+  g_free_blocks[group_id] += 1;
+  g_used_blocks[group_id] -= 1;
   return;
 }
 
 /**
  * @brief Coalesce Blocks of memory recursively, first frontwards from the end
  * to given block, then backwards from the given block to the start
+ *
+ * @todo Relink the coalesced block with the new 'prev' and 'next' pointers
  **/
+void
+__coalesce__(heap_block * heap_b)
 {
-  void __coalesce__(heap_block * heap_b)
-  {
-    if (CHECK_FREED(heap_b->next)) {
-      __coalesce_front__(heap_b);
-    }
-    if (CHECK_FREED(heap_b->prev)) {
-      __coalesce_back__(heap_b);
-    }
+  heap_block * new_next;
+  heap_block * new_prev;
+  if (READ_BLOCK_FREE(heap_b->next)) {
+    new_next = __coalesce_front__(heap_b);
   }
+  if (READ_BLOCK_FREE(heap_b->prev)) {
+    new_prev = __coalesce_back__(heap_b);
+  }
+}
 
-  /**
-   * @brief Coalesce Blocks of memory recursively, frontwards
-   **/
-  void __coalesce_front__(heap_block * heap_b)
-  {
-    if (CHECK_FREED(heap_b->next)) {
-      __coalesce_front__(heap_b->next);
-      heap_b->data_size += heap_b->next->data_size;
-      heap_b->next->data_size = 0x0;
-    }
-    return;
+/**
+ * @brief Coalesce Blocks of memory recursively, frontwards
+ * @param heap_b pointer to block to coalesce forward to
+ * @return Returns a pointer to the 'next' pointer
+ **/
+heap_block *
+__coalesce_front__(heap_block * heap_b)
+{
+  if (heap_b->next == (heap_block *)NULL) {
+    return (heap_block *)NULL;
   }
+  heap_block * next_cpy = heap_b->next;
+  if (READ_BLOCK_FREE(heap_b->next)) {
+    next_cpy = __coalesce_front__(heap_b->next);
+    heap_b->data_size += heap_b->next->data_size;
+    heap_b->next->data_size = 0x0;
+  }
+  return next_cpy;
+}
 
-  /**
-   * @brief Coalesce Blocks of memory recursively, backwards
-   **/
-  void __coalesce_back__(heap_block * heap_b)
-  {
-    if (CHECK_FREED(heap_b->prev)) {
-      heap_b->prev->data_size += heap_b->data_size;
-      heap_b->data_size = 0x0;
-      __coalesce_back__(heap_b->prev);
-    }
-    return;
+/**
+ * @brief Coalesce Blocks of memory recursively, backwards
+ * @param heap_b pointer to block to coalesce backward from
+ * @return Returns a pointer to the 'prev' pointer
+ **/
+void
+__coalesce_back__(heap_block * heap_b)
+{
+  if (heap_b->prev == NULL) {
+    return (heap_block *)NULL;
   }
+  heap_block * prev_cpy = heap_b->prev;
+  if (READ_BLOCK_FREE(heap_b->prev)) {
+    heap_b->prev->data_size += heap_b->data_size;
+    heap_b->data_size = 0x0;
+    prev_cpy = __coalesce_back__(heap_b->prev);
+  }
+  return prev_cpy;
 }
 
 /**
