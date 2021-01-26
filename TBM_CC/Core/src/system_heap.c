@@ -143,29 +143,32 @@ __remove_block__(heap_block * heapblock)
  *
  * @todo Relink the coalesced block with the new 'prev' and 'next' pointers
  **/
-void
+heap_block *
 __coalesce__(heap_block * heap_b)
 {
   heap_block * new_next;
-  heap_block * new_prev;
+  heap_block * new_prev = heap_b;
   if (READ_BLOCK_FREE(heap_b->next)) {
     new_next = __coalesce_front__(heap_b);
   }
   if (READ_BLOCK_FREE(heap_b->prev)) {
     new_prev = __coalesce_back__(heap_b);
   }
+  return new_prev;
 }
 
 /**
  * @brief Coalesce Blocks of memory recursively, frontwards
- * @param heap_b pointer to block to coalesce forward to
- * @return Returns a pointer to the 'next' pointer
+ * @param heap_b pointer to block to coalesce forward from
  **/
-heap_block *
+void
 __coalesce_front__(heap_block * heap_b)
 {
   if (heap_b->next == (heap_block *)NULL) {
-    return (heap_block *)NULL;
+    if (READ_BLOCK_FREE(heap_b->prev)) {
+      heap_b->prev->next = heap_b->next;
+    }
+    return;
   }
   heap_block * next_cpy = heap_b->next;
   if (READ_BLOCK_FREE(heap_b->next)) {
@@ -173,7 +176,8 @@ __coalesce_front__(heap_block * heap_b)
     heap_b->data_size += heap_b->next->data_size;
     heap_b->next->data_size = 0x0;
   }
-  return next_cpy;
+  heap_b->prev->next = heap_b->next; // moving next pointer back
+  return;
 }
 
 /**
@@ -191,6 +195,7 @@ __coalesce_back__(heap_block * heap_b)
   if (READ_BLOCK_FREE(heap_b->prev)) {
     heap_b->prev->data_size += heap_b->data_size;
     heap_b->data_size = 0x0;
+    heap_b->prev->next = heap_b->next; // moving next pointer back
     prev_cpy = __coalesce_back__(heap_b->prev);
   }
   return prev_cpy;

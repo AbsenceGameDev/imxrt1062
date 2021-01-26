@@ -325,13 +325,13 @@ mem_alloc(uint16_t obj_size);
 void
 __compactation__(heap_group * heapgroup);
 
-void
+heap_block *
 __coalesce__(heap_block * heap_b);
 
 void
 __coalesce_front__(heap_block * heap_b);
 
-void
+heap_block *
 __coalesce_back__(heap_block * heap_b);
 
 #endif // SYSTEM_HEAP_H
