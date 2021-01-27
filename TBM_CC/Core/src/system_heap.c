@@ -96,26 +96,33 @@ generate_heap_groups(uint16_t heap_byte_size)
 }
 
 /**
- * typedef struct {
- * heap_block * prev;
- * heap_block * next;
- * size_t       data_size;
- * uint8_t      id_n_freed;
- * } heap_block;
+ * @brief To remove holes, squish blocks together
+ * Pretty naive method of copying, I might need to look into creating a virtual
+ * address manager instead of wasting processing power on copying bytes
+ * backwards in a long interation. Having virtual addresses I could get away
+ * with not actually copying data backwards when I perform compactations
  **/
 void
-__compactation__(heap_group * heapgroup)
+__compactation__(heap_group * heap_g)
 {
   // iterate through block and compact it
-  heap_block * hb_sptr = (heap_block *)(heapgroup + HG_HEADER_SIZE);
-  heap_block * hb_cptr = (heap_block *)(heapgroup + HG_HEADER_SIZE);
-  heap_block * hb_eptr = (heap_block *)(heapgroup + 0x8000);
-  uint16_t free_blocks = READ_HEAP_FREE(heapgroup->_size); // maybe not needed
-
+  heap_block * hb_sptr;
+  heap_block * hb_cptr = (heap_block *)(heap_g + HG_HEADER_SIZE);
+  heap_block * hb_eptr = (heap_block *)(heap_g + 0x8000);
+  uint16_t     free_blocks = READ_HEAP_FREE(heap_g->_size); // maybe not needed
+  uint16_t     datasize_cpy;
   // looping through the blocks
   for (; (heap_block *)(BLOCK_END(hb_cptr)) != hb_eptr;) {
-    __coalesce_front__(hb_cptr);
-    hb_cptr += hb_cptr->data_size;
+    /**If Free, swap it forward.  */
+    if (READ_BLOCK_FREE(hb_cptr)) {
+      if (!READ_BLOCK_FREE(hb_cptr->next)) {
+        data_swap_next(hb_cptr);
+      } else {
+        __coalesce_front__(hb_cptr);
+        data_swap_next(hb_cptr);
+      }
+    }
+    hb_cptr += hb_cptr->data_size; // Incremetning to next block
   }
   //(READ_BLOCK_FREE(hb_cptr));
 
@@ -128,12 +135,13 @@ __compactation__(heap_group * heapgroup)
  * Clearing data isn't actually needed
  **/
 void
-__remove_block__(heap_block * heapblock)
+__remove_block__(heap_block * heap_b)
 {
-  heapblock->id_n_freed = SET_BLOCK_FREE(heapblock);
-  uint8_t group_id = READ_GROUP_ID(heapblock->id_n_freed);
+  heap_b->id_n_freed = SET_BLOCK_FREE(heap_b);
+  uint8_t group_id = READ_BLOCK_GID(heap_b->id_n_freed);
   g_free_blocks[group_id] += 1;
   g_used_blocks[group_id] -= 1;
+  __coalesce__(heap_b);
   return;
 }
 
@@ -141,20 +149,19 @@ __remove_block__(heap_block * heapblock)
  * @brief Coalesce Blocks of memory recursively, first frontwards from the end
  * to given block, then backwards from the given block to the start
  *
- * @todo Relink the coalesced block with the new 'prev' and 'next' pointers
+ * NOTE: Relinking the coalesced block with new 'prev' and 'next' pointers
+ *       happens within the __coalesce__ internal functions __coalesce_front__
+ *       and __coalesce_back__
  **/
-heap_block *
+void
 __coalesce__(heap_block * heap_b)
 {
-  heap_block * new_next;
-  heap_block * new_prev = heap_b;
   if (READ_BLOCK_FREE(heap_b->next)) {
-    new_next = __coalesce_front__(heap_b);
+    __coalesce_front__(heap_b);
   }
   if (READ_BLOCK_FREE(heap_b->prev)) {
-    new_prev = __coalesce_back__(heap_b);
+    heap_b = __coalesce_back__(heap_b);
   }
-  return new_prev;
 }
 
 /**
@@ -165,18 +172,19 @@ void
 __coalesce_front__(heap_block * heap_b)
 {
   if (heap_b->next == (heap_block *)NULL) {
-    if (READ_BLOCK_FREE(heap_b->prev)) {
-      heap_b->prev->next = heap_b->next;
-    }
     return;
   }
-  heap_block * next_cpy = heap_b->next;
   if (READ_BLOCK_FREE(heap_b->next)) {
-    next_cpy = __coalesce_front__(heap_b->next);
+    __coalesce_front__(heap_b->next);
     heap_b->data_size += heap_b->next->data_size;
     heap_b->next->data_size = 0x0;
+    g_free_blocks[READ_BLOCK_GID(heap_b->id_n_freed)] -= 1;
+
+    /** Moving next pointer back to starting pointer
+     * Base, Next0, Next1, End,
+     * Next0->next = Next1->next (End), Base->next = Next0->next (End) */
+    heap_b->next = heap_b->next->next;
   }
-  heap_b->prev->next = heap_b->next; // moving next pointer back
   return;
 }
 
@@ -185,20 +193,53 @@ __coalesce_front__(heap_block * heap_b)
  * @param heap_b pointer to block to coalesce backward from
  * @return Returns a pointer to the 'prev' pointer
  **/
-void
+heap_block *
 __coalesce_back__(heap_block * heap_b)
 {
   if (heap_b->prev == NULL) {
     return (heap_block *)NULL;
   }
-  heap_block * prev_cpy = heap_b->prev;
+  heap_block * prev_cpy = heap_b;
   if (READ_BLOCK_FREE(heap_b->prev)) {
     heap_b->prev->data_size += heap_b->data_size;
     heap_b->data_size = 0x0;
     heap_b->prev->next = heap_b->next; // moving next pointer back
     prev_cpy = __coalesce_back__(heap_b->prev);
+    g_free_blocks[READ_BLOCK_GID(heap_b->id_n_freed)] -= 1;
   }
   return prev_cpy;
+}
+
+void
+data_swap_next(heap_block * heap_b)
+{
+  heap_block * hb_sptr;
+  uint16_t     datasize_cpy;
+  // Swapping data sizes
+  datasize_cpy = heap_b->data_size;
+  heap_b->data_size = heap_b->next->data_size;
+  heap_b->next->data_size = datasize_cpy;
+
+  // Move data
+  vuint8_t * next_data = (vuint8_t *)(heap_b->next + HG_HEADER_SIZE);
+  vuint8_t * curr_data = (vuint8_t *)(heap_b + HG_HEADER_SIZE);
+  vuint8_t * next_data_end =
+      (vuint8_t *)(heap_b->next + HG_HEADER_SIZE + heap_b->next->data_size);
+  for (; next_data != next_data_end;) {
+    *curr_data = *next_data;
+    curr_data += 1;
+    next_data += 1;
+  }
+
+  // Swapping prev ptrs
+  hb_sptr = heap_b->prev;
+  heap_b->prev = heap_b->next->prev;
+  heap_b->next->prev = hb_sptr;
+
+  // Swapping next ptrs
+  hb_sptr = hb_cptr->next;
+  heap_b->next = hb_cptr->next->next;
+  heap_b->next->next = hb_sptr;
 }
 
 /**

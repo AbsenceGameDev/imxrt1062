@@ -7405,4 +7405,12 @@ typedef enum DMA_CH_MODE
 #define TSC_DEBUG_MODE TSC_BASE._0x70
 #define TSC_DEBUG_MODE2 TSC_BASE._0x80
 
+/**
+ * @brief Configure MPU (Memory Protection Unit) based on armv7m docs
+ * NOTE:
+ * A3.5(p.78), A3.6(p.87) & A3.7(p.89) in Resources/.../DDI0403E_d_armv7m_arm.pdf
+ **/
+void
+configure_mpu();
+
 #endif // SYSTEM_MEMORY_MAP_H

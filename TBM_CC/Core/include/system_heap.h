@@ -254,7 +254,7 @@ typedef struct {
 #define SET_BLOCK_FREE(heapblock) (heapblock->id_n_freed & ~0x1) | 0x1
 #define SET_BLOCK_USED(heapblock) (heapblock->id_n_freed & ~0x1) | 0x0
 #define SET_GROUP_ID(idfreed, id) ((id << 0x4) & ~0x1) | (idfreed & 0x1)
-#define READ_GROUP_ID(idfreed) ((idfreed >> 0x4) & 0x4)
+#define READ_BLOCK_GID(idfreed) ((idfreed >> 0x4) & 0x4)
 #define BLOCK_END(hb_cptr) hb_cptr + hb_cptr->data_size + HB_HEADER_SIZE
 
 uint16_t g_free_blocks[0x10];
@@ -311,26 +311,50 @@ heapify(void * context);
 /** @brief merge (union): joining two heaps to form a valid new heap containing
  * all the elements of both, preserving the original heaps. */
 heap_group *
-merge(heap_block * heap_a, heap_block * heap_b);
+merge(heap_block * heap_ba, heap_block * heap_bb);
 
 /** @brief meld: joining two heaps to form a valid new heap containing all the
  *      elements of both, destroying the original heaps. */
 heap_group *
-meld(heap_block * heap_a, heap_block * heap_b);
+meld(heap_block * heap_ba, heap_block * heap_bb);
 
 /** TODO: Actually write the mem_alloc function */
 void *
 mem_alloc(uint16_t obj_size);
 
 void
-__compactation__(heap_group * heapgroup);
+__compactation__(heap_group * heap_g);
 
+/**
+ * @brief Free Block of memory
+ * Clearing data isn't actually needed
+ **/
+void
+__remove_block__(heap_block * heap_b);
+
+/**
+ * @brief Coalesce Blocks of memory recursively, first frontwards from the end
+ * to given block, then backwards from the given block to the start
+ *
+ * NOTE: Relinking the coalesced block with new 'prev' and 'next' pointers
+ *       happens within the __coalesce__ internal functions __coalesce_front__
+ *       and __coalesce_back__
+ **/
 heap_block *
 __coalesce__(heap_block * heap_b);
 
+/**
+ * @brief Coalesce Blocks of memory recursively, frontwards
+ * @param heap_b pointer to block to coalesce forward from
+ **/
 void
 __coalesce_front__(heap_block * heap_b);
 
+/**
+ * @brief Coalesce Blocks of memory recursively, backwards
+ * @param heap_b pointer to block to coalesce backward from
+ * @return Returns a pointer to the 'prev' pointer
+ **/
 heap_block *
 __coalesce_back__(heap_block * heap_b);
 
