@@ -116,35 +116,19 @@ init_gpio(SStoredGPIO *  gpio_device,
   set_gpr(gpio_device);
 
   // Setting gpio direction for either output or input
+  vuint32_t * redirector = GPIO1_DIRR; // default
   switch (gpio_device->pin) {
-    case 0x1:
-      *GPIO1_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x2:
-      *GPIO2_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x3:
-      *GPIO3_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x4:
-      *GPIO4_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x5:
-      *GPIO5_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x6:
-      *GPIO6_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x7:
-      *GPIO7_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x8:
-      *GPIO8_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
-    case 0x9:
-      *GPIO9_DIRR |= ((0x1 * gpio_device->io_type) << gpio_device->ctrl_pos);
-      break;
+    case 0x1: redirector = *GPIO1_DIRR; break;
+    case 0x2: redirector = *GPIO2_DIRR; break;
+    case 0x3: redirector = *GPIO3_DIRR; break;
+    case 0x4: redirector = *GPIO4_DIRR; break;
+    case 0x5: redirector = *GPIO5_DIRR; break;
+    case 0x6: redirector = *GPIO6_DIRR; break;
+    case 0x7: redirector = *GPIO7_DIRR; break;
+    case 0x8: redirector = *GPIO8_DIRR; break;
+    case 0x9: redirector = *GPIO9_DIRR; break;
   }
+  (*redirector) |= ((0x1 * gpio_device->io_type) << ctrl_pos);
   uint_fast8_t dir = 0x3;
 };
 

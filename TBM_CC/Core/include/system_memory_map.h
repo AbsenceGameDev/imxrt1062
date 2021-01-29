@@ -7408,6 +7408,7 @@ typedef enum DMA_CH_MODE
 /**
  * @brief Configure MPU (Memory Protection Unit) based on armv7m docs
  * NOTE:
+ * 4.1(p.56) & 6.x(p.99) in  Resources/.../DDI0489B_cortex_m7_trm.pdf
  * A3.5(p.78), A3.6(p.87) & A3.7(p.89) in Resources/.../DDI0403E_d_armv7m_arm.pdf
  **/
 void

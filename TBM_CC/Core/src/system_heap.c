@@ -1,7 +1,7 @@
 #include "../include/system_heap.h"
 
 /** TODO:
- * 1. Make a memory-block structure.
+ * 1. Make a memory-block structure. (done)
  * 2. Use the memory block structure within mem_alloc()
  * 3. Use list of unavailable memory blocks while also keeping
  *    track of the current largest available memory block.
@@ -13,13 +13,27 @@
  *
  * */
 void *
-mem_alloc(uint16_t obj_size)
+malloc(uint16_t obj_size)
 {
-  uint8_t is_enough_space =
-      (!((obj_size < 1) || ((free_heap_ptr + (vuint8_t *)obj_size) > MEM_END)));
-  (free_heap_ptr += obj_size * is_enough_space);
-  return (void *)(((vuint8_t *)free_heap_ptr - (vuint8_t *)obj_size) *
-                  is_enough_space);
+  uint8_t mem_not_found = 0x1;
+  heapg_current = heapg_head;
+  void * free_block_ptr = NULL;
+
+  for (; mem_not_found || (heapg_current != (heap_group *)NULL);) {
+    if (HG_READ_FREE_BLOCKS((heapg_current = heapg_head)->_blocks) > 0) {
+      free_block_ptr = __find_mem__(heapg_current, obj_size);
+      mem_not_found = (free_block_ptr == (heap_block *)NULL);
+    }
+    heapg_current = heapg_current->next;
+  }
+  return free_block_ptr;
+}
+
+void
+free(void * ptr)
+{
+  __remove_block__((vuint8_t *)((vuint8_t *)(ptr)) - HB_HEADER_SIZE);
+  ptr = NULL;
 }
 
 void
@@ -85,14 +99,49 @@ generate_heap_groups(uint16_t heap_byte_size)
 {
   if (designated_heap.start_addr_heap != NULL_ADDR) {
     __gen_heap_group_in_region(designated_heap.start_addr_heap,
-                               designated_heap.end_addr_heap,
-                               heapg_head);
+                               designated_heap.end_addr_heap);
   }
   if (designated_heap.frag_start_addr_heap != NULL_ADDR) {
     __gen_heap_group_in_region(designated_heap.frag_start_addr_heap,
-                               designated_heap.frag_end_addr_heap,
-                               heapg2_head);
+                               designated_heap.frag_end_addr_heap);
   }
+}
+
+void *
+__find_mem__(heap_group * heap_g, uint16_t size)
+{
+  heap_block * cu_b = HG_HEAD_BLOCK(heap_g); // Point to first block
+  heap_block * new_b;
+  heap_block * end_b = HBHG_INCR_ADDR(heap_g, READ_HEAP_TOTAL(heap_g));
+
+  for (; (READ_HEAP_FREE(cu_b)) || (cu_b != (heap_block *)NULL);
+       cu_b = cu_b->next;) {
+    vuint16_t * size_ptr = &(cu_b->data_size);
+    if (*size_ptr == size) {
+      // if size is exactly what is left; decrement one in _blocks [free]
+      HG_DECR_FREE_BLOCKS(heap_g->_blocks);
+      // add one new used block
+      HG_INCR_USED_BLOCKS(heap_g->_blocks);
+      SET_BLOCK_USED(cu_b);
+      return VOID_INCR_ADDR(cu_b, HB_HEADER_SIZE);
+    }
+
+    if (*size_ptr > size) {
+      // "cut" block to appropriate size
+      *size_ptr = size;
+
+      // "make" new free block
+      new_b = HBHG_INCR_ADDR(cu_b, HB_HEADER_SIZE + (*size_ptr));
+      new_b->prev = cu_b;
+      new_b->next = cu_b->next;
+      cu_b->next = new_b;
+
+      // add one new used block
+      HG_INCR_USED_BLOCKS(heap_g->_blocks);
+      return VOID_INCR_ADDR(cu_b, HB_HEADER_SIZE);
+    }
+  }
+  return NULL;
 }
 
 /**
@@ -106,27 +155,17 @@ void
 __compactation__(heap_group * heap_g)
 {
   // iterate through block and compact it
-  heap_block * hb_sptr;
   heap_block * hb_cptr = (heap_block *)(heap_g + HG_HEADER_SIZE);
   heap_block * hb_eptr = (heap_block *)(heap_g + 0x8000);
-  uint16_t     free_blocks = READ_HEAP_FREE(heap_g->_size); // maybe not needed
-  uint16_t     datasize_cpy;
   // looping through the blocks
   for (; (heap_block *)(BLOCK_END(hb_cptr)) != hb_eptr;) {
     /**If Free, swap it forward.  */
     if (READ_BLOCK_FREE(hb_cptr)) {
-      if (!READ_BLOCK_FREE(hb_cptr->next)) {
-        data_swap_next(hb_cptr);
-      } else {
-        __coalesce_front__(hb_cptr);
-        data_swap_next(hb_cptr);
-      }
+      __coalesce_front__(hb_cptr);
+      data_swap_next(hb_cptr);
     }
     hb_cptr += hb_cptr->data_size; // Incremetning to next block
   }
-  //(READ_BLOCK_FREE(hb_cptr));
-
-  // handle last block after for loop
   return;
 }
 

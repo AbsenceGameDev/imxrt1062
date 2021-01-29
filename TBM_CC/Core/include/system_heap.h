@@ -15,6 +15,8 @@
  * specified by[ENDADDR : STARTADDR] follows the execution mode access policy
  * described in CSU chapter */
 #define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 |= ((x & 0x1) << 8)
+#define HG_HEAD_BLOCK(heapg)                                                   \
+  (heap_block *)(((vuint8_t *)heapg) + HB_HEADER_SIZE)
 
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
 #define MEM_START SYSMEM_OCRAM_FLEX_S // S - 0x00040000)
@@ -22,19 +24,38 @@
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
 #define MEM_OFFS(x) (MEM_START + x)
 
+heap_group * heapg_head;
+heap_group * heapg_current;
+heap_block * heapb_current;
+
 // Split the into N amounts of 32KB segments,
 // N is based on the totalt sice
-#define __gen_heap_group_in_region(start_addr_heap, end_addr_heap, heapg_head) \
-  heap_group * heapg_head = (heap_group *)start_addr_heap;                     \
-  heapg_head->prev = (head_group *)NULL_ADDR;                                  \
-  uint32_t KBSize = (end_addr_heap - start_addr_heap) / 0x400;                 \
+#define __gen_heap_group_in_region(start_addr_heap, end_addr_heap)             \
+  heapg_head = (heap_group *)start_addr_heap;                                  \
+  heap_group * current_heap = (heap_group *)start_addr_heap;                   \
+  heapg_head->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);      \
+  heapg_head->prev = (head_group *)NULL;                                       \
+  heapg_head->_size = 0x80008000;                                              \
+  heapg_head->_blocks = 0x00000001;                                            \
+  heapb_current = HGHG_INCR_ADDR(heapg_head, HG_HEADER_SIZE);                  \
+  heapb_current->data_size = MAX_HB_DATA_SIZE;                                 \
+  heapb_current->prev = (heap_block *)NULL;                                    \
+  heapb_current->next = (heap_block *)NULL;                                    \
+                                                                               \
+  uint32_t KBSize = ((end_addr_heap - start_addr_heap) + 0x3ff) / 0x400;       \
   KBSize /= 32;                                                                \
-  for (uint8_t i = 1; i < KBSize; i++) {                                       \
-    heapg_head->next = heapg_head + 0x8000;                                    \
-    heapg_head += (0x8000 * i);                                                \
-    heapg_head->_size = 0x80008000;                                            \
-    heapg_head->prev = (heapg_head - 0x8000);                                  \
-  }
+                                                                               \
+  for (uint8_t i = 0; i < KBSize; i++) {                                       \
+    current_heap = current_heap->next;                                         \
+    heapb_current = HGHG_INCR_ADDR(current_heap, HG_HEADER_SIZE);              \
+    heapb_current->prev = (heap_block *)NULL;                                  \
+    heapb_current->next = (heap_block *)NULL;                                  \
+    current_heap->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);  \
+    current_heap->prev = (current_heap - 0x8000);                              \
+    current_heap->_size = 0x80008000;                                          \
+    current_heap->_blocks = 0x00000001;                                        \
+  }                                                                            \
+  current_heap->next = (heap_group *)NULL
 
 #define __set_designated_heap(s_addr, e_addr, frag_s_addr, frag_e_addr)        \
   designated_heap.start_addr_heap = (volatile void *)s_addr;                   \
@@ -168,6 +189,13 @@ volatile void * free_heap_ptr = (volatile void *)MEM_START;
  * @param FLEXRAM_O50_I50_D00 0xff55ff55 / ITCM 50%, OCRAM 50%, DTCM 00%
  * @param FLEXRAM_O50_I00_D50 0xaa55aa55 / DTCM 50%, OCRAM 50%, ITCM 00%
  * @param FLEXRAM_NO_DEFAULT  0x0        / NO PRESET VALUE
+ *
+ * @note
+ * DTCM - Tightly-Coupled Mem for Data:
+ *        For time critical data handling (stack, heap...)
+ *
+ * ITCM - Tightly-Coupled Mem for Instructions:
+ *        For time-critical routines
  **/
 typedef enum
 {
@@ -200,7 +228,7 @@ typedef uint8_t heap_group_t;
  * @param next Pointer to next heapgroup, NULL if current is End.
  * @param group_id Integer ID for the heap_group
  * @param _size 32-bit field: [0,15]: Total Size  [16,31]: Free Size
- * @param _blocks 32-bit field: [0,15]: Used Blocks  [16,31]: Free Blocks
+ * @param _blocks 32-bit field:  USED BLOCKS [0,15].  FREE BLOCKS [16,31].
  **/
 typedef struct {
   heap_group * prev; // 4 Bytes
@@ -228,12 +256,24 @@ typedef struct {
 #define SET_HEAP_FREE(sp, val) (sp = (sp & 0xffff) | (val & ~0xffff))
 #define ADD_HEAP_FREE(sp, add) (sp = (sp & 0xffff) | ((sp & ~0xffff) + add))
 #define SUB_HEAP_FREE(sp, sub) (sp = (sp & 0xffff) | ((sp & ~0xffff) - sub))
-#define READ_HEAP_FREE(sp) ((sp >> 0x10) & 0x10)
+#define READ_HEAP_FREE(heap_g) ((heap_g->_size >> 0x10) & 0x10)
+#define READ_HEAP_TOTAL(heap_g) (heap_g->_size & 0x10)
+
+#define HG_READ_USED_BLOCKS(_blocks) (_blocks >> 0x10) & 0x10)
+#define HG_READ_FREE_BLOCKS(_blocks) (_blocks & 0xf)
+
+#define HG_INCR_USED_BLOCKS(_blocks) (_blocks += 0x1)
+#define HG_INCR_FREE_BLOCKS(_blocks) (_blocks += (0x1 << 0x10))
+
+#define HG_DECR_USED_BLOCKS(_blocks) (_blocks -= 0x1)
+#define HG_DECR_FREE_BLOCKS(_blocks) (_blocks -= (0x1 << 0x10))
+
+#define HGHG_INCR_ADDR(heapg, n) (heap_group *)(((vuint8_t *)heapg) + n)
 }
 
 /**
  * @brief Heap Block struct
- * NOTE: Size of this struct is 14 Bytes (0xd Bytes)
+ * NOTE: Size of this struct is 11 Bytes (0xb Bytes)
  * NOTE: Start address of heap block will be the address of a given actual
  *       heap_block pointer, data of heap_block starts offset 0xd bytes
  *
@@ -246,16 +286,19 @@ typedef struct {
 typedef struct {
   heap_block * prev; // 4 Bytes
   heap_block * next; // 4 Bytes
-  uint16_t     data_size; // 4 Bytes
+  uint16_t     data_size; // 2 Bytes
   uint8_t      id_n_freed; // 1 Byte
 } heap_block;
-#define HB_HEADER_SIZE 0xd
+#define HB_HEADER_SIZE 0xb
 #define READ_BLOCK_FREE(heapblock) (heapblock->id_n_freed & 0x1)
 #define SET_BLOCK_FREE(heapblock) (heapblock->id_n_freed & ~0x1) | 0x1
 #define SET_BLOCK_USED(heapblock) (heapblock->id_n_freed & ~0x1) | 0x0
 #define SET_GROUP_ID(idfreed, id) ((id << 0x4) & ~0x1) | (idfreed & 0x1)
 #define READ_BLOCK_GID(idfreed) ((idfreed >> 0x4) & 0x4)
 #define BLOCK_END(hb_cptr) hb_cptr + hb_cptr->data_size + HB_HEADER_SIZE
+#define MAX_HB_DATA_SIZE (0x8000 - HB_HEADER_SIZE - HG_HEADER_SIZE)
+#define HBHG_INCR_ADDR(heapb, n) (heap_block *)(((vuint8_t *)heapb) + n)
+#define VOID_INCR_ADDR(voidb, n) (void *)(((vuint8_t *)heapb) + n)
 
 uint16_t g_free_blocks[0x10];
 uint16_t g_used_blocks[0x10];
@@ -277,6 +320,22 @@ typedef enum
   TZ_DISABLE = 0x0,
   TZ_ENABLE = 0x1
 } ETrustZoneState;
+
+/**
+ * @brief Memory Allocation
+ * @param obj_size  Size (in Bytes) of requested object.
+ * @return A void* with address of object. NULL if failed.
+ **/
+void *
+malloc(uint16_t obj_size);
+
+/**
+ * @brief Free a pointer
+ * calls __remove_block__ and sets the pointer to null
+ * @param ptr Pointer to free
+ * */
+void
+free(void * ptr);
 
 /**
  * @brief RAM Bank presets function.
@@ -318,9 +377,8 @@ merge(heap_block * heap_ba, heap_block * heap_bb);
 heap_group *
 meld(heap_block * heap_ba, heap_block * heap_bb);
 
-/** TODO: Actually write the mem_alloc function */
-void *
-mem_alloc(uint16_t obj_size);
+heap_block *
+__find_mem__(heap_group * heap_g, uint16_t size);
 
 void
 __compactation__(heap_group * heap_g);
