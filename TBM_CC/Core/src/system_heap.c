@@ -1,14 +1,12 @@
 #include "../include/system_heap.h"
 
 /** TODO:
- * 1. Make a memory-block structure. (done)
- * 2. Use the memory block structure within mem_alloc()
- * 3. Use list of unavailable memory blocks while also keeping
+ * 1. Use list of unavailable memory blocks while also keeping
  *    track of the current largest available memory block.
  *
- * 4. Possibly use a list of available memory blocks aswell
+ * 2. Possibly use a list of available memory blocks aswell
  *
- * 5. Look into faster memory mapping, maybe with a partial free list solution?
+ * 3. Look into faster memory mapping, maybe with a partial free list solution?
  *    https://en.wikipedia.org/wiki/Free_list
  *
  * */
@@ -22,7 +20,7 @@ malloc(uint16_t obj_size)
   for (; mem_not_found || (heapg_current != (heap_group *)NULL);) {
     if (HG_READ_FREE_BLOCKS((heapg_current = heapg_head)->_blocks) > 0) {
       free_block_ptr = __find_mem__(heapg_current, obj_size);
-      mem_not_found = (free_block_ptr == (heap_block *)NULL);
+      mem_not_found = (free_block_ptr == NULL);
     }
     heapg_current = heapg_current->next;
   }
@@ -32,7 +30,7 @@ malloc(uint16_t obj_size)
 void
 free(void * ptr)
 {
-  __remove_block__((vuint8_t *)((vuint8_t *)(ptr)) - HB_HEADER_SIZE);
+  __remove_block__((vuint8_t *)(((vuint8_t *)(ptr)) - HB_HEADER_SIZE));
   ptr = NULL;
 }
 
@@ -73,27 +71,27 @@ set_heap_regions()
   // Read the currently set rambank config.
   ERAMBankConf ram_bank_conf = (ERAMBankConf)IOMUXC_GPR_GPR17;
   switch (ram_bank_conf) {
-    case FLEXRAM_O00_I50_D50: __set_designated_heap(0x0, 0x0, 0x0, 0x0); return;
-    case FLEXRAM_O50_I25_D25:
-    case FLEXRAM_O50_I50_D00:
+    case FLEXRAM_O00_I50_D50:
+    case FLEXRAM_O25_I25_D50:
     case FLEXRAM_O50_I00_D50:
       __set_designated_heap(MEM_START,
+                            MEM_OFFS(0x00020000),
                             MEM_OFFS(0x00040000),
-                            MEM_OFFS(0x00080000),
-                            MEM_OFFS(0x000c0000));
+                            MEM_OFFS(0x00080000));
       return;
-    case FLEXRAM_OCRAM_ONLY:
+    case FLEXRAM_OCRAM_ONLY: // Slow heap
       __set_designated_heap(MEM_START, MEM_OFFS(0x00080000), 0x0, 0x0);
       return;
     case FLEXRAM_O25_I50_D25:
-    case FLEXRAM_O25_I25_D50:
+    case FLEXRAM_O50_I25_D25:
+    case FLEXRAM_O50_I50_D00:
       __set_designated_heap(
           MEM_OFFS(0x00040000), MEM_OFFS(0x00060000), 0x0, 0x0);
       return;
   }
 }
 
-/** @brief create-heap: create an empty heap */
+/** @brief generates empty heap groups */
 void
 generate_heap_groups(uint16_t heap_byte_size)
 {
@@ -107,6 +105,12 @@ generate_heap_groups(uint16_t heap_byte_size)
   }
 }
 
+/**
+ * @brief Tries to find free memory
+ * @param heap_g THe heap group to scan
+ * @param size the requested object size
+ * @return Returns either a NULL ptr or a valid pointer
+ **/
 void *
 __find_mem__(heap_group * heap_g, uint16_t size)
 {
@@ -119,10 +123,11 @@ __find_mem__(heap_group * heap_g, uint16_t size)
     vuint16_t * size_ptr = &(cu_b->data_size);
     if (*size_ptr == size) {
       // if size is exactly what is left; decrement one in _blocks [free]
-      HG_DECR_FREE_BLOCKS(heap_g->_blocks);
-      // add one new used block
-      HG_INCR_USED_BLOCKS(heap_g->_blocks);
-      SET_BLOCK_USED(cu_b);
+      g_free_blocks[heap_g->group_id--];
+      // Increment used blocks
+      g_used_blocks[heap_g->group_id]++;
+
+      cu_b->id_n_freed = SET_BLOCK_USED(cu_b);
       return VOID_INCR_ADDR(cu_b, HB_HEADER_SIZE);
     }
 
@@ -132,12 +137,14 @@ __find_mem__(heap_group * heap_g, uint16_t size)
 
       // "make" new free block
       new_b = HBHG_INCR_ADDR(cu_b, HB_HEADER_SIZE + (*size_ptr));
+      new_b->id_n_freed = cu_b->id_n_freed;
       new_b->prev = cu_b;
       new_b->next = cu_b->next;
       cu_b->next = new_b;
+      cu_b->id_n_freed = SET_BLOCK_USED(cu_b);
 
-      // add one new used block
-      HG_INCR_USED_BLOCKS(heap_g->_blocks);
+      // Increment used blocks
+      g_used_blocks[heap_g->group_id]++;
       return VOID_INCR_ADDR(cu_b, HB_HEADER_SIZE);
     }
   }
@@ -150,6 +157,8 @@ __find_mem__(heap_group * heap_g, uint16_t size)
  * address manager instead of wasting processing power on copying bytes
  * backwards in a long interation. Having virtual addresses I could get away
  * with not actually copying data backwards when I perform compactations
+ *
+ * @param heap_g Heap group to compact.
  **/
 void
 __compactation__(heap_group * heap_g)

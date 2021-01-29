@@ -19,8 +19,8 @@
   (heap_block *)(((vuint8_t *)heapg) + HB_HEADER_SIZE)
 
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
-#define MEM_START SYSMEM_OCRAM_FLEX_S // S - 0x00040000)
-#define MEM_END SYSMEM_OCRAM_FLEX_E // reserving 128kb for mem_alloc
+#define MEM_START SYSMEM_DTCM_S // S - 0x00040000)
+#define MEM_END SYSMEM_DTCM_E // reserving 128kb for mem_alloc
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
 #define MEM_OFFS(x) (MEM_START + x)
 
@@ -36,24 +36,29 @@ heap_block * heapb_current;
   heapg_head->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);      \
   heapg_head->prev = (head_group *)NULL;                                       \
   heapg_head->_size = 0x80008000;                                              \
-  heapg_head->_blocks = 0x00000001;                                            \
+  heapg_head->group_id = 0x0;                                                  \
   heapb_current = HGHG_INCR_ADDR(heapg_head, HG_HEADER_SIZE);                  \
   heapb_current->data_size = MAX_HB_DATA_SIZE;                                 \
   heapb_current->prev = (heap_block *)NULL;                                    \
   heapb_current->next = (heap_block *)NULL;                                    \
+  heapb_current->id_n_freed = SET_BLOCK_FREE(heapb_current);                   \
+  heapb_current->id_n_freed = SET_GROUP_ID(0x0);                               \
                                                                                \
   uint32_t KBSize = ((end_addr_heap - start_addr_heap) + 0x3ff) / 0x400;       \
-  KBSize /= 32;                                                                \
+  (--KBSize) /= 32;                                                            \
                                                                                \
   for (uint8_t i = 0; i < KBSize; i++) {                                       \
     current_heap = current_heap->next;                                         \
-    heapb_current = HGHG_INCR_ADDR(current_heap, HG_HEADER_SIZE);              \
-    heapb_current->prev = (heap_block *)NULL;                                  \
-    heapb_current->next = (heap_block *)NULL;                                  \
     current_heap->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);  \
     current_heap->prev = (current_heap - 0x8000);                              \
     current_heap->_size = 0x80008000;                                          \
-    current_heap->_blocks = 0x00000001;                                        \
+    current_heap->group_id = 0x1 + i;                                          \
+    heapb_current = HGHG_INCR_ADDR(current_heap, HG_HEADER_SIZE);              \
+    heapb_current->data_size = MAX_HB_DATA_SIZE;                               \
+    heapb_current->prev = (heap_block *)NULL;                                  \
+    heapb_current->next = (heap_block *)NULL;                                  \
+    heapb_current->id_n_freed = SET_BLOCK_FREE(heapb_current);                 \
+    heapb_current->id_n_freed = SET_GROUP_ID(0x1 + i);                         \
   }                                                                            \
   current_heap->next = (heap_group *)NULL
 
@@ -200,12 +205,12 @@ heap_block * heapb_current;
 typedef enum
 {
   FLEXRAM_OCRAM_ONLY = 0x55555555,
-  FLEXRAM_O50_I25_D25 = 0xaf55af55,
-  FLEXRAM_O25_I50_D25 = 0xa5ffa5ff,
+  FLEXRAM_O25_I50_D25 = 0xffa5ffa5,
   FLEXRAM_O25_I25_D50 = 0xf5aaf5aa,
-  FLEXRAM_O00_I50_D50 = 0xafafafaf,
-  FLEXRAM_O50_I50_D00 = 0xff55ff55,
-  FLEXRAM_O50_I00_D50 = 0xaa55aa55,
+  FLEXRAM_O00_I50_D50 = 0xffaaffaa,
+  FLEXRAM_O50_I00_D50 = 0x55aa55aa,
+  FLEXRAM_O50_I50_D00 = 0x55ff55ff,
+  FLEXRAM_O50_I25_D25 = 0x55af55af,
   FLEXRAM_NO_DEFAULT = 0x0
 } ERAMBankConf;
 
@@ -235,14 +240,8 @@ typedef struct {
   heap_group * next; // 4 Bytes
   heap_group_t group_id; // 1 Bytes
   size_t       _size; // 4 Bytes
-  size_t       _blocks; // 4 Bytes
 } heap_group;
 #define HG_HEADER_SIZE 0x11
-
-typedef struct {
-  heap_block * heap_block_addr; // 4 Bytes
-  uint8_t *    heap_block_addr; // 4 Bytes
-} heap_tally;
 
 /**
  * @brief Macros for setting/changing vals in the 32-bit fields in heap_group.
@@ -258,15 +257,6 @@ typedef struct {
 #define SUB_HEAP_FREE(sp, sub) (sp = (sp & 0xffff) | ((sp & ~0xffff) - sub))
 #define READ_HEAP_FREE(heap_g) ((heap_g->_size >> 0x10) & 0x10)
 #define READ_HEAP_TOTAL(heap_g) (heap_g->_size & 0x10)
-
-#define HG_READ_USED_BLOCKS(_blocks) (_blocks >> 0x10) & 0x10)
-#define HG_READ_FREE_BLOCKS(_blocks) (_blocks & 0xf)
-
-#define HG_INCR_USED_BLOCKS(_blocks) (_blocks += 0x1)
-#define HG_INCR_FREE_BLOCKS(_blocks) (_blocks += (0x1 << 0x10))
-
-#define HG_DECR_USED_BLOCKS(_blocks) (_blocks -= 0x1)
-#define HG_DECR_FREE_BLOCKS(_blocks) (_blocks -= (0x1 << 0x10))
 
 #define HGHG_INCR_ADDR(heapg, n) (heap_group *)(((vuint8_t *)heapg) + n)
 }
