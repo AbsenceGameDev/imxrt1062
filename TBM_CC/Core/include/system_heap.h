@@ -41,8 +41,8 @@ heap_block * heapb_current;
   heapb_current->data_size = MAX_HB_DATA_SIZE;                                 \
   heapb_current->prev = (heap_block *)NULL;                                    \
   heapb_current->next = (heap_block *)NULL;                                    \
-  heapb_current->id_n_freed = SET_BLOCK_FREE(heapb_current);                   \
-  heapb_current->id_n_freed = SET_GROUP_ID(0x0);                               \
+  SET_BLOCK_FREE(heapb_current);                                               \
+  SET_GROUP_ID(heapb_current->id_n_freed, 0x0);                                \
                                                                                \
   uint32_t KBSize = ((end_addr_heap - start_addr_heap) + 0x3ff) / 0x400;       \
   (--KBSize) /= 32;                                                            \
@@ -57,8 +57,8 @@ heap_block * heapb_current;
     heapb_current->data_size = MAX_HB_DATA_SIZE;                               \
     heapb_current->prev = (heap_block *)NULL;                                  \
     heapb_current->next = (heap_block *)NULL;                                  \
-    heapb_current->id_n_freed = SET_BLOCK_FREE(heapb_current);                 \
-    heapb_current->id_n_freed = SET_GROUP_ID(0x1 + i);                         \
+    SET_BLOCK_FREE(heapb_current);                                             \
+    SET_GROUP_ID(heapb_current->id_n_freed, 0x1 + i);                          \
   }                                                                            \
   current_heap->next = (heap_group *)NULL
 
@@ -281,9 +281,11 @@ typedef struct {
 } heap_block;
 #define HB_HEADER_SIZE 0xb
 #define READ_BLOCK_FREE(heapblock) (heapblock->id_n_freed & 0x1)
-#define SET_BLOCK_FREE(heapblock) (heapblock->id_n_freed & ~0x1) | 0x1
-#define SET_BLOCK_USED(heapblock) (heapblock->id_n_freed & ~0x1) | 0x0
-#define SET_GROUP_ID(idfreed, id) ((id << 0x4) & ~0x1) | (idfreed & 0x1)
+#define SET_BLOCK_FREE(heap_b)                                                 \
+  heap_b->id_n_freed = ((heap_b->id_n_freed & ~0x1) | 0x1)
+#define SET_BLOCK_USED(heap_b)                                                 \
+  heap_b->id_n_freed = ((heap_b->id_n_freed & ~0x1) | 0x0)
+#define SET_GROUP_ID(field, id) field = (((id << 0x4) & ~0x1) | (field & 0x1))
 #define READ_BLOCK_GID(idfreed) ((idfreed >> 0x4) & 0x4)
 #define BLOCK_END(hb_cptr) hb_cptr + hb_cptr->data_size + HB_HEADER_SIZE
 #define MAX_HB_DATA_SIZE (0x8000 - HB_HEADER_SIZE - HG_HEADER_SIZE)

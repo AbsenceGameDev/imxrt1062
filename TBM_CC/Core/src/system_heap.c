@@ -123,11 +123,11 @@ __find_mem__(heap_group * heap_g, uint16_t size)
     vuint16_t * size_ptr = &(cu_b->data_size);
     if (*size_ptr == size) {
       // if size is exactly what is left; decrement one in _blocks [free]
-      g_free_blocks[heap_g->group_id--];
+      g_free_blocks[heap_g->group_id]--;
       // Increment used blocks
       g_used_blocks[heap_g->group_id]++;
 
-      cu_b->id_n_freed = SET_BLOCK_USED(cu_b);
+      SET_BLOCK_USED(cu_b);
       return VOID_INCR_ADDR(cu_b, HB_HEADER_SIZE);
     }
 
@@ -137,11 +137,11 @@ __find_mem__(heap_group * heap_g, uint16_t size)
 
       // "make" new free block
       new_b = HBHG_INCR_ADDR(cu_b, HB_HEADER_SIZE + (*size_ptr));
-      new_b->id_n_freed = cu_b->id_n_freed;
+      new_b->id_n_freed = cu_b->id_n_freed; // Copy id and free bits
       new_b->prev = cu_b;
       new_b->next = cu_b->next;
       cu_b->next = new_b;
-      cu_b->id_n_freed = SET_BLOCK_USED(cu_b);
+      SET_BLOCK_USED(cu_b);
 
       // Increment used blocks
       g_used_blocks[heap_g->group_id]++;
@@ -185,7 +185,7 @@ __compactation__(heap_group * heap_g)
 void
 __remove_block__(heap_block * heap_b)
 {
-  heap_b->id_n_freed = SET_BLOCK_FREE(heap_b);
+  SET_BLOCK_FREE(heap_b);
   uint8_t group_id = READ_BLOCK_GID(heap_b->id_n_freed);
   g_free_blocks[group_id] += 1;
   g_used_blocks[group_id] -= 1;
