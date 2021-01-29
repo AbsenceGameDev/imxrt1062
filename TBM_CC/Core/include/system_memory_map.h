@@ -7408,9 +7408,293 @@ typedef enum DMA_CH_MODE
 /**
  * @brief Configure MPU (Memory Protection Unit) based on armv7m docs
  * NOTE:
- * 4.1(p.56) & 6.x(p.99) in  Resources/.../DDI0489B_cortex_m7_trm.pdf
- * A3.5(p.78), A3.6(p.87) & A3.7(p.89) in Resources/.../DDI0403E_d_armv7m_arm.pdf
+ * In Resources/./DDI0489B_cortex_m7_trm.pdf:
+ * 4.1(p.56), 5.x(p.61) & 6.x(p.99)
+ *
+ * In Resources/./DDI0403E_d_armv7m_arm.pdf:
+ * A3.5(p.78), A3.6(p.87), A3.7(p.89) & B3.5(p.632)
+ *
+ * B3.5.1(p.633):
+ * Relation of the MPU to the system memory map.
+ * When implemented, an MPU’s relation to the system memory map described in The
+ * system address map on B3 (p.592) is as follows:
+ * • MPU support provides control of access rights on physical addresses. It
+ *   does not perform address translation.
+ *
+ * • When the MPU is disabled or not present, the system adopts the default
+ *   system memory map listed in Table B3-1 on B3(p.592). When the MPU is
+ *   enabled, the enabled regions define the system address map with the
+ *   following provisos:
+ *   — Accesses to the Private Peripheral Bus (PPB) always use the
+ *     default system address map.
+ *
+ *   — Exception vector reads from the Vector Address Table always
+ *     use the default system address map.
+ *   — The MPU is restricted in how it can change the default memory map
+ *     attributes associated with System space, that is, for addresses
+ *     0xE0000000 and higher.
+ *     System space is always marked as XN, Execute Never.
+ *   — When the execution priority is less than 0, MPU_CTRL.HFNMIENA determines
+ *     whether memory accesses use the MPU or the default memory map attributes.
+ *     The execution priority is less than 0 if the processor is executing the
+ *     NMI or HardFault handler, or if FAULTMASK is set to 1.
+ *   — The default system memory map can be configured to provide a background
+ *     region for privileged accesses.
+ *   — Accesses with an address match in more than one region use the highest
+ *     matching region number for the access attributes.
+ *   — Accesses that do not match all access conditions of a region address
+ *     match (with the MPU enabled) or a background/default memory map match
+ *     generate a fault.
+ *
+ * B3.5.2  Behavior when the MPU is disabled.
+ * Disabling the MPU, by setting the MPU_CTRL.ENABLE bit to 0, means that
+ * privileged and unprivileged accesses use the default memory map.
+ *
+ * When the MPU is disabled:
+ * • Instruction accesses use the default memory map and attributes shown in
+ *   Table B3-1 on B3(p.592). An access to a memory region with the
+ *   execute-never attribute generates a MemManage fault, see Execute Never
+ *   encoding on B3(p.642). No other permission checks are performed. Additional
+ *   control of the Cacheability is made by:
+ *   — The CCR.IC bit if separate instruction and data caches are implemented.
+ *   — The CCR.DC bit if unified caches are implemented.
+ *
+ * • Data accesses use the default memory map and attributes shown in Table B3-1
+ *   on B3(p.592). No memory access permission checks are performed, and no
+ *   aborts can be generated.
+ * • Program flow prediction functions as normal, controlled by the
+ *   value of the CCR.BP bit.
+ *
+ * • Speculative instruction and data fetch operations work as normal, based on
+ *   the default memory map:
+ *   — Speculative data read operations have no effect if the
+ *     data cache is disabled.
+ *   — Speculative instruction fetch operations have no effect if the
+ *     instruction cache is disabled.
+ *
+ *
+ * MPU pseudocode:
+ * The following pseudocode defines the operation of an ARMv7-M MPU.
+ * The terms used align with the MPU register names and bit field names
+ * described in Register support for PMSAv7 in the SCS on page B3-635.
+ *
+ * // ValidateAddress()
+ * // =================
+ * AddressDescriptor
+ * ValidateAddress(bits(32) address, AccType acctype, boolean iswrite)
+ *    ispriv = acctype != AccType_UNPRIV && FindPriv();
+ *    AddressDescriptor result;
+ *    Permissions perms;
+ *    result.physicaladdress = address;
+ *    result.memattrs = DefaultMemoryAttributes(address);
+ *    perms = DefaultPermissions(address);
+ *    hit = FALSE; //Assume no valid MPU region and not using default memory map
+ *    isPPBaccess = (address<31:20> == ‘111000000000’);
+ *    if acctype == AccType_VECTABLE || isPPBaccess then
+ *        hit = TRUE; // use default map for PPB and vector table lookups
+ *    elsif MPU_CTRL.ENABLE == ‘0’ then
+ *        if MPU_CTRL.HFNMIENA == ‘1’ then UNPREDICTABLE;
+ *        else hit = TRUE; // always use default map if MPU disabled
+ *    elsif MPU_CTRL.HFNMIENA == ‘0’ && ExecutionPriority() < 0 then
+ *        hit = TRUE; // optionally use default for HardFault, NMI and FAULTMASK
+ *
+ *    else  // MPU is enabled so check each individual region
+ *        if (MPU_CTRL.PRIVDEFENA == ‘1’) && ispriv then
+ *            hit = TRUE; // opt. default as background for Privileged accesses
+ *        for r = 0 to (UInt(MPU_TYPE.DREGION) - 1) // top matching region wins
+ *            bits(16) size_enable    = MPU_RASR[r]<15:0>;
+ *            bits(32) base_address   = MPU_RBAR[r];
+ *            bits(16) access_control = MPU_RASR[r]<31:16>;
+ *        if size_enable<0> == ‘1’ then  // MPU region enabled so perform checks
+ *            lsbit = UInt(size_enable<5:1>) + 1;
+ *            if lsbit < 5 then UNPREDICTABLE;
+ *            if (lsbit < 8) && (!IsZero(size_enable<15:8>)) then UNPREDICTABLE;
+ *            if lsbit == 32 || address<31:lsbit> == base_address<31:lsbit> then
+ *                subregion = UInt(address<lsbit-1:lsbit-3>);
+ *                if size_enable<subregion+8> == ‘0’ then
+ *                    texcb = access_control<5:3,1:0>;
+ *                    S = access_control<2>;
+ *                    perms.ap = access_control<10:8>;
+ *                    perms.xn = access_control<12>;
+ *                    result.memattrs = DefaultTEXDecode(texcb,S);
+ *                    hit = TRUE;
+ *    if address<31:29> == ‘111’ then  // enforce System space execute never
+ *        perms.xn = ‘1’;
+ *    if hit then  // perform check of acquired access permissions
+ *        CheckPermission(perms, address, acctype, iswrite);
+ *    else  // generate fault if no MPU match or use of default not enabled
+ *        if acctype == AccType_IFETCH then
+ *            MMFSR.IACCVIOL = ‘1’;
+ *            MMFSR.MMARVALID = ‘0’;
+ *        else
+ *            MMFSR.DACCVIOL = ‘1’;
+ *            MMAR = address;
+ *            MMFSR.MMARVALID = ‘1’;
+ *        ExceptionTaken(MemManage);
+ *    return result;
+ *
+ * // DefaultPermissions()
+ * // ====================
+ * Permissions DefaultPermissions(bits(32) address)
+ *    Permissions perms;
+ *    perms.ap = ‘011’;
+ *    case address<31:29> of
+ *        when ‘000’
+ *            perms.xn = ‘0’;
+ *        when ‘001’
+ *            perms.xn = ‘0’;
+ *         when ‘010’
+ *            perms.xn = ‘1’;
+ *         when ‘011’
+ *            perms.xn = ‘0’;
+ *         when ‘100’
+ *            perms.xn = ‘0’;
+ *         when ‘101’
+ *            perms.xn = ‘1’;
+ *         when ‘110’
+ *            perms.xn = ‘1’;
+ *         when ‘111’
+ *            perms.xn = ‘1’;
+ * return perms;
+ *
+ *
+ * =====================
+ * (TABLE B3-11) MPU Registers in DDI0403E_darmv7m_arm.pdf:
+ * PAGE  ADDRESS     NAME       ACCESS   RESETVAL  REGISTER DESCR.
+ * p.636 0xE000ED90  MPU_TYPE   RO        IMPL.    MPU Type Reg.
+ *                                        DEFINED
+ * p.637 0xE000ED94  MPU_CTRL    RW     0x00000000  MPU Control Reg.
+ * p.638 0xE000ED98  MPU_RNR     RW     UNKNOWNMPU  Region Number Reg.
+ * p.639 0xE000ED9C  MPU_RBAR    RW     UNKNOWNMPU  Region Base Addr. Reg.
+ * p.640 0xE000EDA0  MPU_RASR    RW     UNKNOWNMPU  Region Attr. and Size Reg.
+ * p.642 0xE000EDA4  MPU_RBAR_A1 RW         -       Alias 1 of MPU_RBAR
+ * p.642 0xE000EDA8  MPU_RASR_A1 RW         -       Alias 1 of MPU_RASR
+ * p.642 0xE000EDAC  MPU_RBAR_A2 RW         -       Alias 2 of MPU_RBAR
+ * p.642 0xE000EDB0  MPU_RASR_A2 RW         -       Alias 2 of MPU_RASR
+ * p.642 0xE000EDB4  MPU_RBAR_A3 RW         -       Alias 3 of MPU_RBAR
+ * p.642 0xE000EDB8  MPU_RASR_A3 RW         -       Alias 3 of MPU_RASR
+ *
+ *        0xE000EDBC-    -         ...         -         Reserved.
+ *        0xE000EDEC
  **/
+
+typedef struct {
+  vuint32_t TYPE; // RO
+  vuint32_t CTRL; // RW
+  vuint32_t RNR; // RW
+  vuint32_t RBAR; // RW
+  vuint32_t RASR; // RW
+  vuint32_t RBAR_A1; // RW
+  vuint32_t RASR_A1; // RW
+  vuint32_t RBAR_A2; // RW
+  vuint32_t RASR_A2; // RW
+  vuint32_t RBAR_A3; // RW
+  vuint32_t RASR_A3; // RW
+} SReg_MPU;
+
+/**
+ * ==========================================================================
+ * The MPU_TYPE register characteristics are:
+ * Purpose:
+ *   The MPU Type Register indicates how many regions the MPU support.
+ *   Software can use it to determine if the processor implements an MPU.
+ * Usage Constraints - There are no usage constraints.
+ * Configurations - Always implemented.
+ * Attributes - See Table B3-11 above.
+ * The MPU_TYPE register bit assignments are:
+ *         _______________________________________
+ * Fields: |RESERVED|IREGION|DREGION|RESERVED|SEP|
+ * Bitpos: |31    24|23   16|15    8|7      1| 0 |
+ *         |________|_______|_______|________|___|
+ * IREGION:  Instruction region. RAZ. ARMv7-M only supports a unified MPU.
+ * DREGION:  Number of regions supported by the MPU. If this field reads-as-zero
+ *           the processor does not implement an MPU.
+ * SEPARATE: Indicates support for separate instruction and data address maps.
+ *           RAZ. ARMv7-M only supports a unified MPU.
+ * ==========================================================================
+ **/
+typedef enum
+{
+} EType_MPU;
+
+/**
+ * ==========================================================================
+ * The MPU_CTRL register characteristics are:
+ * Purpose:
+ *   Enables the MPU, and when the MPU is enabled, controls whether the default
+ *   memory map is enabled as a background region for privileged accesses, and
+ *   whether the MPU is enabled for HardFaults, NMIs, and exception handlers
+ *   when FAULTMASK is set to 1.
+ *
+ * Usage Constraints - There are no usage constraints.
+ * Configurations - Always implemented.
+ * Attributes - See Table B3-11 above.
+ * The MPU_TYPE register bit assignments are:
+ *         _________________________________________________
+ * Fields: |      RESERVED      |PRIVDEFENA|HFNMIENA|ENABLE|
+ * Bitpos: |31                 3|     2    |    1   |   0  |
+ *         |____________________|__________|________|______|
+ * PRIVDEFENA: When the ENABLE bit is set to 1, the meaning of this bit is:
+ *               0x0 == Disables the default memory map. Any instructions or
+ *                      data access that does not access a defined region faults
+ *               0x1 == MPU Enabled.
+ *
+ * HFNMIENA:   When the ENABLE bit is set to 1, controls whether handlers
+ *             executing with priority less than 0 access memory with the MPU
+ *             enabled or with the MPU disabled. This applies to HardFaults,
+ *             NMIs, and exception handlers when FAULTMASK is set to 1:
+ *               0x0 == Disables the MPU for these handlers.
+ *               0x1 == Use the MPU for memory access by these handlers.
+ *
+ * ENABLE:     Enables the MPU.
+ *               0x0 == MPU Disabled.
+ *               0x1 == MPU Enabled.
+ * ==========================================================================
+ **/
+typedef enum
+{
+} ECtrl_MPU;
+typedef enum
+{
+} ERnr_MPU;
+typedef enum
+{
+} ERbar_MPU;
+typedef enum
+{
+} ERasr_MPU;
+typedef enum
+{
+} ERbar_a1_MPU;
+typedef enum
+{
+} ERasr_a1_MPU;
+typedef enum
+{
+} ERbar_a2_MPU;
+typedef enum
+{
+} ERasr_a2_MPU;
+typedef enum
+{
+} ERbar_a3_MPU;
+typedef enum
+{
+} ERasr_a3_MPU;
+
+#define MPU_BASE_ADDR MAP_32BIT_ANYREG(SReg_MPU, 0x0e00ed90)
+#define MPU_TYPE MPU_BASE_ADDR.TYPE
+#define MPU_CTRL MPU_BASE_ADDR.CTRL
+#define MPU_RNR MPU_BASE_ADDR.RNR
+#define MPU_RBAR MPU_BASE_ADDR.RBAR
+#define MPU_RASR MPU_BASE_ADDR.RASR
+#define MPU_RBAR_A1 MPU_BASE_ADDR.RBAR_A1
+#define MPU_RASR_A1 MPU_BASE_ADDR.RASR_A1
+#define MPU_RBAR_A2 MPU_BASE_ADDR.RBAR_A2
+#define MPU_RASR_A2 MPU_BASE_ADDR.RASR_A2
+#define MPU_RBAR_A3 MPU_BASE_ADDR.RBAR_A3
+#define MPU_RASR_A3 MPU_BASE_ADDR.RASR_A3
+
 void
 configure_mpu();
 

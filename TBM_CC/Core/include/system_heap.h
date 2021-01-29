@@ -290,7 +290,7 @@ typedef struct {
 #define BLOCK_END(hb_cptr) hb_cptr + hb_cptr->data_size + HB_HEADER_SIZE
 #define MAX_HB_DATA_SIZE (0x8000 - HB_HEADER_SIZE - HG_HEADER_SIZE)
 #define HBHG_INCR_ADDR(heapb, n) (heap_block *)(((vuint8_t *)heapb) + n)
-#define VOID_INCR_ADDR(voidb, n) (void *)(((vuint8_t *)heapb) + n)
+#define VOID_INCR_ADDR(any_type, n) (void *)(((vuint8_t *)any_type) + n)
 
 uint16_t g_free_blocks[0x10];
 uint16_t g_used_blocks[0x10];
