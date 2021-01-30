@@ -7577,7 +7577,6 @@ typedef enum DMA_CH_MODE
  *        0xE000EDBC-    -         ...         -         Reserved.
  *        0xE000EDEC
  **/
-
 typedef struct {
   vuint32_t TYPE; // RO
   vuint32_t CTRL; // RW
@@ -7591,7 +7590,18 @@ typedef struct {
   vuint32_t RBAR_A3; // RW
   vuint32_t RASR_A3; // RW
 } SReg_MPU;
-
+#define MPU_BASE_ADDR MAP_32BIT_ANYREG(SReg_MPU, 0x0e00ed90)
+#define MPU_TYPE MPU_BASE_ADDR.TYPE
+#define MPU_CTRL MPU_BASE_ADDR.CTRL
+#define MPU_RNR MPU_BASE_ADDR.RNR
+#define MPU_RBAR MPU_BASE_ADDR.RBAR
+#define MPU_RASR MPU_BASE_ADDR.RASR
+#define MPU_RBAR_A1 MPU_BASE_ADDR.RBAR_A1
+#define MPU_RASR_A1 MPU_BASE_ADDR.RASR_A1
+#define MPU_RBAR_A2 MPU_BASE_ADDR.RBAR_A2
+#define MPU_RASR_A2 MPU_BASE_ADDR.RASR_A2
+#define MPU_RBAR_A3 MPU_BASE_ADDR.RBAR_A3
+#define MPU_RASR_A3 MPU_BASE_ADDR.RASR_A3
 /**
  * ==========================================================================
  * The MPU_TYPE register characteristics are:
@@ -7606,16 +7616,39 @@ typedef struct {
  * Fields: |RESERVED|IREGION|DREGION|RESERVED|SEP|
  * Bitpos: |31    24|23   16|15    8|7      1| 0 |
  *         |________|_______|_______|________|___|
- * IREGION:  Instruction region. RAZ. ARMv7-M only supports a unified MPU.
- * DREGION:  Number of regions supported by the MPU. If this field reads-as-zero
- *           the processor does not implement an MPU.
- * SEPARATE: Indicates support for separate instruction and data address maps.
- *           RAZ. ARMv7-M only supports a unified MPU.
+ * IREGION:  MPU_TYPE_IREGION_READ
+ * DREGION:  MPU_TYPE_DREGION_READ
+ * SEPARATE: MPU_TYPE_SEP_READ
+ *           MPU_TYPE_SEP_EN
+ *           MPU_TYPE_SEP_DIS
  * ==========================================================================
  **/
-typedef enum
-{
-} EType_MPU;
+
+/**
+ * @brief MPU_TYPE_IREGION_READ - Instruction Region.
+ * Instruction region. RAZ. ARMv7-M only supports a unified MPU.
+ **/
+#define MPU_TYPE_IREGION_READ ((MPU_TYPE >> 0x10) & 0x8)
+
+/**
+ * @brief MPU_TYPE_DREGION_READ - Amount of data regions.
+ * Number of regions supported by the MPU. If this field reads-as-zero
+ * the processor does not implement an MPU.
+ **/
+#define MPU_TYPE_DREGION_READ ((MPU_TYPE >> 0x8) & 0x8)
+
+/**
+ * @brief MPU_TYPE_SEP_READ - Seperate instruction and d-addr support.
+ * Indicates support for separate instruction and data address maps. RAZ.
+ * ARMv7-M only supports a unified MPU.
+ **/
+#define MPU_TYPE_SEP_READ (MPU_TYPE & 0x1)
+
+/** @brief Enable SEP */
+#define MPU_TYPE_SEP_EN (MPU_TYPE |= 0x1)
+
+/** @brief Disable SEP */
+#define MPU_TYPE_SEP_DIS MPU_TYPE &= ~(0x1);
 
 /**
  * ==========================================================================
@@ -7634,66 +7667,134 @@ typedef enum
  * Fields: |      RESERVED      |PRIVDEFENA|HFNMIENA|ENABLE|
  * Bitpos: |31                 3|     2    |    1   |   0  |
  *         |____________________|__________|________|______|
- * PRIVDEFENA: When the ENABLE bit is set to 1, the meaning of this bit is:
- *               0x0 == Disables the default memory map. Any instructions or
- *                      data access that does not access a defined region faults
- *               0x1 == MPU Enabled.
- *
- * HFNMIENA:   When the ENABLE bit is set to 1, controls whether handlers
- *             executing with priority less than 0 access memory with the MPU
- *             enabled or with the MPU disabled. This applies to HardFaults,
- *             NMIs, and exception handlers when FAULTMASK is set to 1:
- *               0x0 == Disables the MPU for these handlers.
- *               0x1 == Use the MPU for memory access by these handlers.
- *
- * ENABLE:     Enables the MPU.
- *               0x0 == MPU Disabled.
- *               0x1 == MPU Enabled.
+ * PRIVDEFENA: PRVDFENA_MPU, Use when the ENABLE bit is set to 1.
+ * HFNMIENA:   HFNMIENA_MPU, When the ENABLE bit is set to 1, controls whether
+ *                           handlers executing with priority less than 0 access
+ *                           memory with the MPU enabled or with the MPU
+ *                           disabled. This applies to HardFaults, NMIs, and
+ *                           exception handlers when FAULTMASK is set to 1:
+ * ENABLE:     ENABLE_MPU, ENABLE bit.
  * ==========================================================================
  **/
-typedef enum
-{
-} ECtrl_MPU;
-typedef enum
-{
-} ERnr_MPU;
-typedef enum
-{
-} ERbar_MPU;
+/** @brief MPU_CTRL_PRVDFENA_CLR - Disables the default memory map. Any
+ *instructions or data access that does not access a defined region faults */
+#define MPU_CTRL_PRVDFENA_CLR MPU_CTRL &= ~(0x1 << 0x2)
+/** @brief MPU_CTRL_PRVDFENA_SET - MPU Enabled */
+#define MPU_CTRL_PRVDFENA_SET MPU_CTRL |= (0x1 << 0x2)
+
+/** @brief MPU_CTRL_HFNMIENA_CLR - Disables the MPU for these handlers */
+#define MPU_CTRL_HFNMIENA_DIS MPU_CTRL &= ~(0x1 << 0x1)
+/** @brief MPU_CTRL_HFNMIENA_SET - Use MPU for mem. access by these handlers */
+#define MPU_CTRL_HFNMIENA_EN MPU_CTRL |= (0x1 << 0x1)
+
+/** @brief MPU_CTRL_ENABLE_BIT_CLR - Clears the enable-bit for the MPU. */
+#define MPU_CTRL_ENABLE_BIT_CLR MPU_CTRL &= ~(0x1 << 0x1)
+/** @brief MPU_CTRL_ENABLE_BIT_SET - Sets the enable-bit for the MPU. */
+#define MPU_CTRL_ENABLE_BIT_SET MPU_CTRL |= (0x1 << 0x1)
+
+/**
+ * ==========================================================================
+ * The MPU_RNR register characteristics are:
+ * Purpose:
+ *   Selects the region currently accessed by MPU_RBAR and MPU_RASR.
+ *
+ * Usage Constraints - Used with MPU_RBAR and MPU_RASR,
+ *                     see MPU Region Base Address Register, MPU_RBAR (p.639),
+ *                     and MPU Region Attr. and Size Register, MPU_RASR (p.640).
+ *                     If an implementation supports N regions then the regions
+ *                     number from 0 to (N-1), and the effect of writing a value
+ *                     of N or greater to the REGION field is UNPREDICTABLE.
+ *
+ * Configurations - Implemented only if the processor implements an MPU.
+ * Attributes - See Table B3-11 above.
+ * The MPU_RNR register bit assignments are:
+ *         _________________________
+ * Fields: |   RESERVED   | REGION |
+ * Bitpos: |31           8|7      0|
+ *         |______________|________|
+ * REGION: Indicates the memory region accessed by MPU_RBAR and MPU_RASR.
+ * Normally, software must write the required region number to MPU_RNR to select
+ * the required memory region, before accessing MPU_RBAR or MPU_RASR. However,
+ * the MPU_RBAR.VALID bit gives an alternative way of writing to MPU_RBAR to
+ * update a region base address without first writing the region number to
+ * MPU_RNR, see MPU Region Base Address Register, MPU_RBAR.
+ * ==========================================================================
+ **/
+/** @brief MPU_RNR_REQ_REGIONS - Writes the amount of requested regions */
+#define MPU_RNR_REQ_REGIONS(x) MPU_RNR = (MPU_RNR & 0xffffff00) + (x & 0xff)
+
+/**
+ * ==========================================================================
+ * The MPU_RBAR register characteristics are:
+ * Purpose - Holds the base addr. of the region identified by MPU_RNR.
+ *           On a write, can also be used to update the base address of a
+ *           specified region, in the range 0-5, updating MPU_RNR with the new
+ *           region number.
+ *
+ * Usage constraints -
+ *                    • Normally, used with MPU_RBAR,
+ *                      see MPU Region Number Register, MPU_RNRon page B3-638.
+ *                    • The minimum region alignment required by an MPU_RBAR is
+ *                      IMPLEMENTATION DEFINED.
+ *                      See the register description for more info about
+ *                      permitted region sizes.
+ *                    • If an implementation supports N regions then the regions
+ *                      number from 0 to (N-1). If N is less than 16 the effect
+ *                      of writing a value of N or greater to the REGION
+ *                      field is UNPREDICTABLE.
+ *
+ * Configurations - Implemented only if the processor implements an MPU.
+ * Attributes - See Table B3-11 above.
+ * The MPU_RBAR register bit assignments are:
+ *         ________________________________________
+ * Fields: |          ADDR.          |VALID|REGION|
+ * Bitpos: |31                      5|  4  |3    0|
+ *         |_________________________|_____|______|
+ * ADDR:   Base address of the region.
+ * VALID:  On writes: Indicates whether the region to update is specified by
+ *                    MPU_RNR.REGION, or by the REGION value specified in this
+ *                    write. When using the REGION value specified by this
+ *                    write, MPU_RNR.REGION is updated to this value.
+ *                    0   Apply the base address update to the region specified
+ *                        by MPU_RNR.REGION. The REGION field value is ignored.
+ *                    1   Update MPU_RNR.REGION to the value obtained by zero
+ *                        extending the REGION value specified in this write,
+ *                        and apply the base address update to this region.
+ *         On reads:  This bit reads as zero.
+ *
+ * REGION: On writes: Can specify the number of the region to update, see VALID
+ *                    field description.
+ *         On reads:  Returns bits[3:0] of MPU_RNR.
+ * ==========================================================================
+ **/
+
 typedef enum
 {
 } ERasr_MPU;
+
 typedef enum
 {
 } ERbar_a1_MPU;
+
 typedef enum
 {
 } ERasr_a1_MPU;
+
 typedef enum
 {
 } ERbar_a2_MPU;
+
 typedef enum
 {
 } ERasr_a2_MPU;
+
 typedef enum
 {
 } ERbar_a3_MPU;
+
 typedef enum
 {
 } ERasr_a3_MPU;
-
-#define MPU_BASE_ADDR MAP_32BIT_ANYREG(SReg_MPU, 0x0e00ed90)
-#define MPU_TYPE MPU_BASE_ADDR.TYPE
-#define MPU_CTRL MPU_BASE_ADDR.CTRL
-#define MPU_RNR MPU_BASE_ADDR.RNR
-#define MPU_RBAR MPU_BASE_ADDR.RBAR
-#define MPU_RASR MPU_BASE_ADDR.RASR
-#define MPU_RBAR_A1 MPU_BASE_ADDR.RBAR_A1
-#define MPU_RASR_A1 MPU_BASE_ADDR.RASR_A1
-#define MPU_RBAR_A2 MPU_BASE_ADDR.RBAR_A2
-#define MPU_RASR_A2 MPU_BASE_ADDR.RASR_A2
-#define MPU_RBAR_A3 MPU_BASE_ADDR.RBAR_A3
-#define MPU_RASR_A3 MPU_BASE_ADDR.RASR_A3
 
 void
 configure_mpu();
