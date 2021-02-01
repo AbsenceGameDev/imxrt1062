@@ -8001,6 +8001,7 @@ typedef enum
 /** @brief Input should be of above type */
 #define MPU_RASR_SET_ATTR_TEX(texenc)                                          \
   MPU_RASR = (MPU_RASR & ~(0x7 << 0x13)) | ((texenc & 0x7) << 0x13)
+#define MPU_RASR_READ_ATTR_TEX (MPU_RASR >> 0x13) & 0x7
 
 /**
  * @brief C bit-field
@@ -8025,6 +8026,7 @@ typedef enum
 /** @brief Input should be of above type */
 #define MPU_RASR_SET_ATTR_C(cenc)                                              \
   MPU_RASR = (MPU_RASR & ~(0x1 << 0x11)) | ((cenc & 0x1) << 0x11)
+#define MPU_RASR_READ_ATTR_C (MPU_RASR >> 0x11) & 0x7
 
 /**
  * @brief B bit-field
@@ -8047,8 +8049,9 @@ typedef enum
   B_a_CMEM_WB_NO_W_ALOC = WRITEBACK_NO_W_ALOC & 0x1
 } EBEnc;
 /** @brief Input should be of above type */
-#define MPU_RASR_SET_ATTR_C(benc)                                              \
+#define MPU_RASR_SET_ATTR_B(benc)                                              \
   MPU_RASR = (MPU_RASR & ~(0x1 << 0x10)) | ((benc & 0x1) << 0x10)
+#define MPU_RASR_READ_ATTR_B (MPU_RASR >> 0x10) & 0x7
 
 /**
  * ==========================================================================
