@@ -7576,6 +7576,9 @@ typedef enum DMA_CH_MODE
  *
  *        0xE000EDBC-    -         ...         -         Reserved.
  *        0xE000EDEC
+ * @note The values of the MPU_RASR registers from reset are UNKNOWN. All
+ * MPU_RASR registers must be programmed as either enabled or disabled, before
+ * enabling the MPU using the MPU_CTRL register.
  **/
 typedef struct {
   vuint32_t TYPE; // RO
@@ -7596,12 +7599,6 @@ typedef struct {
 #define MPU_RNR MPU_BASE_ADDR.RNR
 #define MPU_RBAR MPU_BASE_ADDR.RBAR
 #define MPU_RASR MPU_BASE_ADDR.RASR
-#define MPU_RBAR_A1 MPU_BASE_ADDR.RBAR_A1
-#define MPU_RASR_A1 MPU_BASE_ADDR.RASR_A1
-#define MPU_RBAR_A2 MPU_BASE_ADDR.RBAR_A2
-#define MPU_RASR_A2 MPU_BASE_ADDR.RASR_A2
-#define MPU_RBAR_A3 MPU_BASE_ADDR.RBAR_A3
-#define MPU_RASR_A3 MPU_BASE_ADDR.RASR_A3
 /**
  * ==========================================================================
  * The MPU_TYPE register characteristics are:
@@ -7796,9 +7793,9 @@ typedef struct {
 
 /** @brief MPU_RBAR_REGION_W - Can specify the number of the region to update,
  *                             see VALID field description. */
-#define MPU_RBAR_REGION_ADDR_W MPU_RBAR = (MPU_RBAR & 0xffffffe0) | (x & 0x1f)
+#define MPU_RBAR_REGION_W MPU_RBAR = (MPU_RBAR & 0xffffffe0) | (x & 0x1f)
 /** @brief MPU_RBAR_REGION_R - Returns bits[3:0] of MPU_RNR. */
-#define MPU_RBAR_REGION_ADDR_R MPU_RBAR = (MPU_RBAR & 0xffffffe0) | (x & 0x1f)
+#define MPU_RBAR_REGION_R MPU_RBAR = (MPU_RBAR & 0xffffffe0) | (x & 0x1f)
 
 /**
  * @brief MPU Region Attribute and Size Register. (MPU_SASR)
@@ -8067,32 +8064,25 @@ typedef enum
  * MPU_RBAR.VALID field set to 1, software can use a stream of word writes to
  * update efficiently up to four regions, provided all the regions accessed are
  * in the range region 0 to region 15
+ * p.642 0xE000EDA4  MPU_RBAR_A1 RW         -       Alias 1 of MPU_RBAR
+ * p.642 0xE000EDA8  MPU_RASR_A1 RW         -       Alias 1 of MPU_RASR
+ * p.642 0xE000EDAC  MPU_RBAR_A2 RW         -       Alias 2 of MPU_RBAR
+ * p.642 0xE000EDB0  MPU_RASR_A2 RW         -       Alias 2 of MPU_RASR
+ * p.642 0xE000EDB4  MPU_RBAR_A3 RW         -       Alias 3 of MPU_RBAR
+ * p.642 0xE000EDB8  MPU_RASR_A3 RW         -       Alias 3 of MPU_RASR
  * ==========================================================================
  **/
-typedef enum
-{
-} ERbar_a1_MPU;
+#define MPU_RBAR_A1 MPU_BASE_ADDR.RBAR_A1
+#define MPU_RASR_A1 MPU_BASE_ADDR.RASR_A1
+#define MPU_RBAR_A2 MPU_BASE_ADDR.RBAR_A2
+#define MPU_RASR_A2 MPU_BASE_ADDR.RASR_A2
+#define MPU_RBAR_A3 MPU_BASE_ADDR.RBAR_A3
+#define MPU_RASR_A3 MPU_BASE_ADDR.RASR_A3
 
-typedef enum
-{
-} ERasr_a1_MPU;
-
-typedef enum
-{
-} ERbar_a2_MPU;
-
-typedef enum
-{
-} ERasr_a2_MPU;
-
-typedef enum
-{
-} ERbar_a3_MPU;
-
-typedef enum
-{
-} ERasr_a3_MPU;
-
+/**
+ * @brief Configure the MPU
+ * @param
+ **/
 void
 configure_mpu();
 
