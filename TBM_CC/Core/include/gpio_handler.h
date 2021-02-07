@@ -76,7 +76,8 @@ void
 init_gpio(SStoredGPIO *  gpio_device,
           EBaseGPIO      gpio_register,
           EPadCR         pad_group,
-          EBitMuxPad_DSE DSE_OPT);
+          EBitMuxPad_DSE dse_opt,
+          uint8_t        ctrl_pos);
 
 /**
  * @brief: Set all MUX bits in the correct General Purpose Register (GPR)

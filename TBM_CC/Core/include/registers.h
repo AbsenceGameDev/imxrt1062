@@ -649,19 +649,19 @@ typedef enum
 
 typedef enum
 {
-  _A = 0x0,
-  _B = 0x1
+  A_ = 0x0,
+  B_ = 0x1
 } EState;
 
-#define MAP_8BIT_REGISTER(ADDRESS) (*(imcrt_8t_offset * ADDRESS)
-#define MAP_16BIT_REGISTER(ADDRESS) (*(imcrt_16t_offset * ADDRESS)
-#define MAP_32BIT_REGISTER(ADDRESS) (*(imcrt_32t_offset * ADDRESS)
-#define MAP_32BIT_ANYREG(TYPE, ADDRESS) (*(TYPE * ADDRESS)
-#define _OFFSET(A, B) (A + B)
+#define MAP_8BIT_REGISTER(ADDRESS) (*(imxrt_8t_offset * (ADDRESS))
+#define MAP_16BIT_REGISTER(ADDRESS) (*(imxrt_16t_offset * (ADDRESS))
+#define MAP_32BIT_REGISTER(ADDRESS) (*(imxrt_32t_offset * (ADDRESS))
+#define MAP_32BIT_ANYREG(TYPE, ADDRESS) (*((TYPE) * (ADDRESS))
+#define B_OFFSET(A, B) ((A) + (B))
 
-#define FLEXRAM_ITCM_EN(n) ((uint32_t)(n & 0x1))
-#define FLEXRAM_DTCM_EN(n) ((uint32_t)((n & 0x1) << 1))
-#define FLEXRAM_BANK_CFG_SEL(n) ((uint32_t)((n & 0x1) << 2))
+#define FLEXRAM_ITCM_EN(n) ((uint32_t)((n)&0x1))
+#define FLEXRAM_DTCM_EN(n) ((uint32_t)(((n)&0x1) << 1))
+#define FLEXRAM_BANK_CFG_SEL(n) ((uint32_t)(((n)&0x1) << 2))
 
 #define IOMUXC_PAD_SRE ((uint32_t)(1 << 0))
 #define IOMUXC_PAD_DSE(n) ((uint32_t)(((n)&0x07) << 3))

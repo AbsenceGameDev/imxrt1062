@@ -16,7 +16,7 @@ memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * dest_end);
 static void
 memory_clear(uint32_t * dest, uint32_t * dest_end);
 
-void
+int
 main();
 
 __attribute__((section(".startup"),

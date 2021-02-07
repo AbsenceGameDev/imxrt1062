@@ -11,7 +11,7 @@
  *
  * */
 void *
-malloc(uint16_t obj_size)
+malloc_(uint16_t obj_size)
 {
   uint8_t mem_not_found = 0x1;
   heapg_current = heapg_head;

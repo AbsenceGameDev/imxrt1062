@@ -5,4 +5,5 @@ int
 main()
 {
   blinky_led_example();
+  return 0;
 }

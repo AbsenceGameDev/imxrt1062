@@ -1,15 +1,15 @@
 #include "../include/iomux_controller.h"
 
 void
-F_INIT_DEVICE_MUXMODE(SStoredMUXDevice * mux_device,
-                      vuint32_t *        sw_mux,
-                      vuint32_t *        sw_pad,
-                      EBitMuxPad_DSE     dse_opt,
-                      uint8_t            ctrl_pos,
-                      EMuxMode           mux_mode)
+init_device_muxmode(SStoredMUXDevice * mux_device,
+                    vuint32_t *        sw_mux,
+                    vuint32_t *        sw_pad,
+                    EBitMuxPad_DSE     dse_opt,
+                    uint8_t            ctrl_pos,
+                    EMuxMode           mux_mode)
 {
   if (mux_device == NULL) {
-    mux_device = (mux_device *)malloc(MUXDEVICE_BYTESIZE);
+    mux_device = (mux_device *)malloc_(MUXDEVICE_BYTESIZE);
     if (mux_device == NULL) {
       return;
     }
@@ -24,7 +24,7 @@ F_INIT_DEVICE_MUXMODE(SStoredMUXDevice * mux_device,
 }
 
 void
-F_SET_MUXMODE(SStoredMUXDevice * mux_device, EMuxMode mux_mode)
+set_muxmode(SStoredMUXDevice * mux_device, EMuxMode mux_mode)
 {
   *(mux_device->mux_pad_context.mux_pad_addr) = mux_mode;
 }

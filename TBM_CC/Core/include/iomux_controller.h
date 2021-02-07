@@ -141,14 +141,14 @@ typedef struct {
 #define MUXDEVICE_BYTESIZE 0xc // an extra byte for good measure
 
 void
-F_INIT_DEVICE_MUXMODE(SStoredMUXDevice * mux_device,
-                      vuint32_t *        sw_mux,
-                      vuint32_t *        sw_pad,
-                      EBitMuxPad_DSE     dse_opt,
-                      uint8_t            ctrl_pos,
-                      EMuxMode           mux_mode);
+init_device_muxmode(SStoredMUXDevice * mux_device,
+                    vuint32_t *        sw_mux,
+                    vuint32_t *        sw_pad,
+                    EBitMuxPad_DSE     dse_opt,
+                    uint8_t            ctrl_pos,
+                    EMuxMode           mux_mode);
 
 void
-F_SET_MUXMODE(SStoredMUXDevice * mux_device, EMuxMode mux_mode);
+set_muxmode(SStoredMUXDevice * mux_device, EMuxMode mux_mode);
 
 #endif // IOMUX_CONTROLLER_H

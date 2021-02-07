@@ -1,4 +1,7 @@
-#include "gpio_handler.h"
+#include "../include/gpio_handler.h"
+
+#include "../include/registers.h"
+
 /**
  * TODO: Go through documentations to see what how the iomuxc pads are
  * configured, also check the bootdata.c, startup.c and imxrt1062.ld too see if
@@ -53,7 +56,7 @@ void
 init_gpio(SStoredGPIO *  gpio_device,
           EBaseGPIO      gpio_register,
           EPadCR         pad_group,
-          EBitMuxPad_DSE DSE_OPT,
+          EBitMuxPad_DSE dse_opt,
           uint8_t        ctrl_pos)
 {
   switch (pad_group) {
@@ -62,7 +65,7 @@ init_gpio(SStoredGPIO *  gpio_device,
       init_device_muxmode(gpio_device->base_mux_device,
                           IOMUXC_MUX_PAD_GPIO_AD_B0_CR00,
                           IOMUXC_PAD_PAD_GPIO_AD_B0_CR00,
-                          DSE_OPT,
+                          dse_opt,
                           ctrl_pos,
                           ALT5_GPIOx_IOx);
       break;
@@ -71,7 +74,7 @@ init_gpio(SStoredGPIO *  gpio_device,
       init_device_muxmode(gpio_device->base_mux_device,
                           IOMUXC_MUX_PAD_GPIO_AD_B1_CR00,
                           IOMUXC_PAD_PAD_GPIO_AD_B1_CR00,
-                          DSE_OPT,
+                          dse_opt,
                           ctrl_pos,
                           ALT5_GPIOx_IOx);
       break;
@@ -81,7 +84,7 @@ init_gpio(SStoredGPIO *  gpio_device,
       init_device_muxmode(gpio_device->base_mux_device,
                           IOMUXC_MUX_PAD_GPIO_B0_CR00,
                           IOMUXC_PAD_PAD_GPIO_B0_CR00,
-                          DSE_OPT,
+                          dse_opt,
                           ctrl_pos,
                           ALT5_GPIOx_IOx);
       break;
@@ -90,7 +93,7 @@ init_gpio(SStoredGPIO *  gpio_device,
       init_device_muxmode(gpio_device->base_mux_device,
                           IOMUXC_MUX_PAD_GPIO_B1_CR00,
                           IOMUXC_PAD_PAD_GPIO_B1_CR00,
-                          DSE_OPT,
+                          dse_opt,
                           ctrl_pos,
                           ALT5_GPIOx_IOx);
       break;
@@ -99,7 +102,7 @@ init_gpio(SStoredGPIO *  gpio_device,
       init_device_muxmode(gpio_device->base_mux_device,
                           IOMUXC_MUX_PAD_GPIO_SD_B0_CR00,
                           IOMUXC_PAD_PAD_GPIO_SD_B0_CR00,
-                          DSE_OPT,
+                          dse_opt,
                           ctrl_pos,
                           ALT5_GPIOx_IOx);
       break;
@@ -108,10 +111,11 @@ init_gpio(SStoredGPIO *  gpio_device,
       init_device_muxmode(gpio_device->base_mux_device,
                           IOMUXC_MUX_PAD_GPIO_SD_B1_CR00,
                           IOMUXC_PAD_PAD_GPIO_SD_B1_CR00,
-                          DSE_OPT,
+                          dse_opt,
                           ctrl_pos,
                           ALT5_GPIOx_IOx);
       break;
+    default: break;
   }
   set_gpr(gpio_device);
 

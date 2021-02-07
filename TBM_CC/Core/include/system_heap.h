@@ -235,12 +235,13 @@ typedef uint8_t heap_group_t;
  * @param _size 32-bit field: [0,15]: Total Size  [16,31]: Free Size
  * @param _blocks 32-bit field:  USED BLOCKS [0,15].  FREE BLOCKS [16,31].
  **/
-typedef struct {
-  heap_group * prev; // 4 Bytes
-  heap_group * next; // 4 Bytes
-  heap_group_t group_id; // 1 Bytes
-  size_t       _size; // 4 Bytes
-} heap_group;
+struct heap_group_s {
+  struct heap_group_s * prev; // 4 Bytes
+  struct heap_group_s * next; // 4 Bytes
+  heap_group_t          group_id; // 1 Bytes
+  size_t                _size; // 4 Bytes
+};
+typedef struct heap_group_t heap_group;
 #define HG_HEADER_SIZE 0x11
 
 /**
@@ -248,18 +249,20 @@ typedef struct {
  * Overflow Should not be possible, so I will not make edgecases for it,
  * K.I.S.S.
  **/
-{
-#define SET_HEAP_TOTAL(sp, val) (sp = (sp & ~0xffff) | (val & 0xffff))
-#define ADD_HEAP_TOTAL(sp, add) (sp = (sp & ~0xffff) | ((sp & 0xffff) + add))
-#define SUB_HEAP_TOTAL(sp, sub) (sp = (sp & ~0xffff) | ((sp & 0xffff) - sub))
-#define SET_HEAP_FREE(sp, val) (sp = (sp & 0xffff) | (val & ~0xffff))
-#define ADD_HEAP_FREE(sp, add) (sp = (sp & 0xffff) | ((sp & ~0xffff) + add))
-#define SUB_HEAP_FREE(sp, sub) (sp = (sp & 0xffff) | ((sp & ~0xffff) - sub))
-#define READ_HEAP_FREE(heap_g) ((heap_g->_size >> 0x10) & 0x10)
-#define READ_HEAP_TOTAL(heap_g) (heap_g->_size & 0x10)
+#define SET_HEAP_TOTAL(sp, val) ((sp) = ((sp) & ~0xffff) | ((val)&0xffff))
+#define ADD_HEAP_TOTAL(sp, add)                                                \
+  ((sp) = ((sp) & ~0xffff) | (((sp)&0xffff) + (add)))
+#define SUB_HEAP_TOTAL(sp, sub)                                                \
+  ((sp) = ((sp) & ~0xffff) | (((sp)&0xffff) - (sub)))
+#define SET_HEAP_FREE(sp, val) ((sp) = ((sp)&0xffff) | ((val) & ~0xffff))
+#define ADD_HEAP_FREE(sp, add)                                                 \
+  ((sp) = ((sp)&0xffff) | (((sp) & ~0xffff) + (add)))
+#define SUB_HEAP_FREE(sp, sub)                                                 \
+  ((sp) = ((sp)&0xffff) | (((sp) & ~0xffff) - (sub)))
+#define READ_HEAP_FREE(heap_g) (((heap_g)->_size >> 0x10) & 0x10)
+#define READ_HEAP_TOTAL(heap_g) ((heap_g)->_size & 0x10)
 
-#define HGHG_INCR_ADDR(heapg, n) (heap_group *)(((vuint8_t *)heapg) + n)
-}
+#define HGHG_INCR_ADDR(heapg, n) (heap_group *)(((vuint8_t *)(heapg)) + (n))
 
 /**
  * @brief Heap Block struct
@@ -273,24 +276,26 @@ typedef struct {
  * @param id_n_freed bit 0: Free, bit 1-3: Reserved, bit 4-7: group ID
  *
  **/
-typedef struct {
-  heap_block * prev; // 4 Bytes
-  heap_block * next; // 4 Bytes
-  uint16_t     data_size; // 2 Bytes
-  uint8_t      id_n_freed; // 1 Byte
-} heap_block;
+struct heap_block_s {
+  struct heap_block_s * prev; // 4 Bytes
+  struct heap_block_s * next; // 4 Bytes
+  uint16_t              data_size; // 2 Bytes
+  uint8_t               id_n_freed; // 1 Byte
+};
+typedef struct heap_block_s heap_block;
+
 #define HB_HEADER_SIZE 0xb
-#define READ_BLOCK_FREE(heapblock) (heapblock->id_n_freed & 0x1)
+#define READ_BLOCK_FREE(heapblock) ((heapblock)->id_n_freed & 0x1)
 #define SET_BLOCK_FREE(heap_b)                                                 \
-  heap_b->id_n_freed = ((heap_b->id_n_freed & ~0x1) | 0x1)
+  (heap_b)->id_n_freed = (((heap_b)->id_n_freed & ~0x1) | 0x1)
 #define SET_BLOCK_USED(heap_b)                                                 \
-  heap_b->id_n_freed = ((heap_b->id_n_freed & ~0x1) | 0x0)
-#define SET_GROUP_ID(field, id) field = (((id << 0x4) & ~0x1) | (field & 0x1))
-#define READ_BLOCK_GID(idfreed) ((idfreed >> 0x4) & 0x4)
-#define BLOCK_END(hb_cptr) hb_cptr + hb_cptr->data_size + HB_HEADER_SIZE
+  (heap_b)->id_n_freed = (((heap_b)->id_n_freed & ~0x1) | 0x0)
+#define SET_GROUP_ID(field, id) field = ((((id) << 0x4) & ~0x1) | ((field)&0x1))
+#define READ_BLOCK_GID(idfreed) (((idfreed) >> 0x4) & 0x4)
+#define BLOCK_END(hb_cptr) ((hb_cptr) + (hb_cptr)->data_size + HB_HEADER_SIZE)
 #define MAX_HB_DATA_SIZE (0x8000 - HB_HEADER_SIZE - HG_HEADER_SIZE)
-#define HBHG_INCR_ADDR(heapb, n) (heap_block *)(((vuint8_t *)heapb) + n)
-#define VOID_INCR_ADDR(any_type, n) (void *)(((vuint8_t *)any_type) + n)
+#define HBHG_INCR_ADDR(heapb, n) (heap_block *)(((vuint8_t *)(heapb)) + (n))
+#define VOID_INCR_ADDR(any_type, n) (void *)(((vuint8_t *)(any_type)) + (n))
 
 uint16_t g_free_blocks[0x10];
 uint16_t g_used_blocks[0x10];
@@ -319,7 +324,7 @@ typedef enum
  * @return A void* with address of object. NULL if failed.
  **/
 void *
-malloc(uint16_t obj_size);
+malloc_(uint16_t obj_size);
 
 /**
  * @brief Free a pointer
