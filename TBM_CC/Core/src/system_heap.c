@@ -116,7 +116,7 @@ void *
 __find_mem__(heap_group * heap_g, uint16_t size)
 {
   heap_block * cu_b = HG_HEAD_BLOCK(heap_g); // Point to first block
-  heap_block * new_b;
+  heap_block * new_b = ((heap_block *)0);
   heap_block * end_b = HBHG_INCR_ADDR(heap_g, READ_HEAP_TOTAL(heap_g));
 
   for (; (READ_BLOCK_FREE(cu_b)) || (cu_b != (heap_block *)NULL);
@@ -168,7 +168,7 @@ __compactation__(heap_group * heap_g)
   heap_block * hb_cptr = (heap_block *)(heap_g + HG_HEADER_SIZE);
   heap_block * hb_eptr = (heap_block *)(heap_g + 0x8000);
   // looping through the blocks
-  for (; (heap_block *)(BLOCK_END(hb_cptr)) != hb_eptr;) {
+  for (; (BLOCK_END(hb_cptr)) != hb_eptr;) {
     /**If Free, swap it forward.  */
     if (READ_BLOCK_FREE(hb_cptr)) {
       __coalesce_front__(hb_cptr);
@@ -176,7 +176,6 @@ __compactation__(heap_group * heap_g)
     }
     hb_cptr += hb_cptr->data_size; // Incremetning to next block
   }
-  return;
 }
 
 /**
@@ -191,7 +190,6 @@ __remove_block__(heap_block * heap_b)
   g_free_blocks[group_id] += 1;
   g_used_blocks[group_id] -= 1;
   __coalesce__(heap_b);
-  return;
 }
 
 /**
@@ -234,7 +232,6 @@ __coalesce_front__(heap_block * heap_b)
      * Next0->next = Next1->next (End), Base->next = Next0->next (End) */
     heap_b->next = heap_b->next->next;
   }
-  return;
 }
 
 /**
@@ -262,8 +259,8 @@ __coalesce_back__(heap_block * heap_b)
 void
 __data_swap_next__(heap_block * heap_b)
 {
-  heap_block * hb_sptr;
-  uint16_t     datasize_cpy;
+  heap_block * hb_sptr = ((heap_block *)0);
+  uint16_t     datasize_cpy = 0;
   // Swapping data sizes
   datasize_cpy = heap_b->data_size;
   heap_b->data_size = heap_b->next->data_size;

@@ -142,7 +142,7 @@ void
 set_gpr_gdir(SStoredGPIO * gpio_device)
 {
   uint8_t     LOW_HIGH = 0x0; // 0001 low, 0000 high
-  vuint32_t * gdir_addr;
+  vuint32_t * gdir_addr = ((vuint32_t *)0);
   switch (gpio_device->pin) {
       // GPR26 [GPIO1,GPIO6]
     case 0x1: LOW_HIGH |= 0x1;
@@ -211,7 +211,7 @@ set_gpio_gdir(vuint32_t * gpio_gdir_addr,
   *gpio_gdir_addr |= ((0x1 * io_type) << direction_bit);
 };
 
-void *
+uint8_t
 handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register)
 {
   vuint32_t * gpio_ptr = (gpio_device->base_addr + gpio_register);
@@ -219,25 +219,25 @@ handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register)
 
     case GDIR_DIR_REG:
       *gpio_ptr |= (0x1 << gpio_device->bit_id); // Set as OUTPUT
-      return NULL;
+      return 0;
     case PSR_PAD_STATUS_REG:
       return 0x3 | ((*gpio_ptr) >> gpio_device->bit_id); // Read Only
     case DR_SET: // WO
     case DR_CLEAR: // WO
     case DR_TOGGLE: // WO
       *gpio_ptr = (0x1 << gpio_device->bit_id);
-      return NULL;
+      return 0;
     case ICR1_INTERRUPT_CONF_REG1: // regards GPIO [0,15]
       *gpio_ptr = (0x1 << gpio_device->bit_id);
-      return NULL;
+      return 0;
     case ICR2_INTERRUPT_CONF_REG2: // regards GPIO [16,31]
       *gpio_ptr = (0x1 << gpio_device->bit_id);
-      return NULL;
-    case IMR_INTERRUPT_MASK_REG: return NULL;
-    case ISR_INTERRUPT_STAT_REG: return NULL;
-    default: return NULL;
+      return 0;
+    case IMR_INTERRUPT_MASK_REG: return 0;
+    case ISR_INTERRUPT_STAT_REG: return 0;
+    default: return 0;
   }
-  return NULL;
+  return 0;
 };
 
 void

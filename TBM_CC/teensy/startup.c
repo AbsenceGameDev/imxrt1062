@@ -12,9 +12,9 @@ extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
 
 static void
-memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * dest_end);
+memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * const dest_end);
 static void
-memory_clear(uint32_t * dest, uint32_t * dest_end);
+memory_clear(uint32_t * dest, uint32_t * const dest_end);
 
 int
 main();
@@ -44,10 +44,11 @@ startup()
 
 __attribute__((section(".startup"),
                optimize("no-tree-loop-distribute-patterns"))) static void
-memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * dest_end)
+memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * const dest_end)
 {
-  if (dest == src)
+  if (dest == src) {
     return;
+  }
   while (dest < dest_end) {
     *dest++ = *src++;
   }
@@ -55,7 +56,7 @@ memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * dest_end)
 
 __attribute__((section(".startup"),
                optimize("no-tree-loop-distribute-patterns"))) static void
-memory_clear(uint32_t * dest, uint32_t * dest_end)
+memory_clear(uint32_t * dest, uint32_t * const dest_end)
 {
   while (dest < dest_end) {
     *dest++ = 0;

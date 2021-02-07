@@ -85,7 +85,7 @@ init_gpio(SStoredGPIO *  gpio_device,
 void
 set_gpr_gdir(SStoredGPIO * gpio_device);
 
-void *
+uint8_t
 handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register);
 
 void

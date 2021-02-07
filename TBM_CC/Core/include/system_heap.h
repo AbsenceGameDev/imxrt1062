@@ -48,7 +48,7 @@ volatile void * free_heap_ptr = (volatile void *)MEM_START;
   (--KBSize);                                                                  \
   KBSize /= 32;                                                                \
                                                                                \
-  for (uint8_t i = 0; i < KBSize; i++) {                                       \
+  for (uint32_t i = 0; i < KBSize; i++) {                                      \
     current_heap = current_heap->next;                                         \
     current_heap->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);  \
     current_heap->prev = (current_heap - 0x8000);                              \
