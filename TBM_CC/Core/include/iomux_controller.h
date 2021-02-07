@@ -4,7 +4,6 @@
 #include "system_heap.h"
 #include "system_memory_map.h"
 
-
 typedef enum
 {
   ALT0_LCD_DATAx = 0x0, // LCD_DATAx
@@ -142,14 +141,14 @@ typedef struct {
 #define MUXDEVICE_BYTESIZE 0xc // an extra byte for good measure
 
 void
-init_device_muxmode(SStoredMUXDevice * mux_device,
-                    vuint32_t *        SW_MUX,
-                    vuint32_t *        SW_PAD,
-                    EBitMuxPad_DSE     DSE_OPT,
-                    uint8_t            ctrl_pos,
-                    EMuxMode           mux_mode);
+F_INIT_DEVICE_MUXMODE(SStoredMUXDevice * mux_device,
+                      vuint32_t *        sw_mux,
+                      vuint32_t *        sw_pad,
+                      EBitMuxPad_DSE     dse_opt,
+                      uint8_t            ctrl_pos,
+                      EMuxMode           mux_mode);
 
 void
-set_mux_mode(SStoredMUXDevice * mux_device, EMuxMode mux_mode);
+F_SET_MUXMODE(SStoredMUXDevice * mux_device, EMuxMode mux_mode);
 
 #endif // IOMUX_CONTROLLER_H

@@ -1,4 +1,4 @@
-#include "system_memory_map.h"
+#include "../include/system_memory_map.h"
 
 /**
  * @note The values of the MPU_RASR registers from reset are UNKNOWN. All
@@ -6,7 +6,7 @@
  * enabling the MPU using the MPU_CTRL register.
  **/
 void
-configure_mpu()
+F_CONFIG_MPU()
 {
   // This is not the actual body I am looking to create
   // But it will show order of execution needed when doing these things
