@@ -62,7 +62,7 @@ ram_bank_presets(ERAMBankConf requested_config)
   //  Set all OCRAM space available for all access types
   //  (secure/non-secure/user/supervisor).
   SET_OCRAM_TRUSZONE(TZ_DISABLE);
-  return (IOMUXC_GPR_GPR17 = requested_config);
+  IOMUXC_GPR_GPR17 = requested_config;
 }
 
 void
@@ -88,6 +88,7 @@ set_heap_regions()
       __set_designated_heap(
           MEM_OFFS(0x00040000), MEM_OFFS(0x00060000), 0x0, 0x0);
       return;
+    default: return;
   }
 }
 

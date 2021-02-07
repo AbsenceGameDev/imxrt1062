@@ -37,7 +37,7 @@ volatile void * free_heap_ptr = (volatile void *)MEM_START;
   heapg_head->prev = (heap_group *)NULL;                                       \
   heapg_head->_size = 0x80008000;                                              \
   heapg_head->group_id = 0x0;                                                  \
-  heapb_current = HGHG_INCR_ADDR(heapg_head, HG_HEADER_SIZE);                  \
+  heapb_current = HBHG_INCR_ADDR(heapg_head, HG_HEADER_SIZE);                  \
   heapb_current->data_size = MAX_HB_DATA_SIZE;                                 \
   heapb_current->prev = (heap_block *)NULL;                                    \
   heapb_current->next = (heap_block *)NULL;                                    \
@@ -45,7 +45,8 @@ volatile void * free_heap_ptr = (volatile void *)MEM_START;
   SET_GROUP_ID(heapb_current->id_n_freed, 0x0);                                \
                                                                                \
   uint32_t KBSize = (((end_addr_heap) - (start_addr_heap)) + 0x3ff) / 0x400;   \
-  (--KBSize) /= 32;                                                            \
+  (--KBSize);                                                                  \
+  KBSize /= 32;                                                                \
                                                                                \
   for (uint8_t i = 0; i < KBSize; i++) {                                       \
     current_heap = current_heap->next;                                         \
@@ -53,7 +54,7 @@ volatile void * free_heap_ptr = (volatile void *)MEM_START;
     current_heap->prev = (current_heap - 0x8000);                              \
     current_heap->_size = 0x80008000;                                          \
     current_heap->group_id = 0x1 + i;                                          \
-    heapb_current = HGHG_INCR_ADDR(current_heap, HG_HEADER_SIZE);              \
+    heapb_current = HBHG_INCR_ADDR(current_heap, HG_HEADER_SIZE);              \
     heapb_current->data_size = MAX_HB_DATA_SIZE;                               \
     heapb_current->prev = (heap_block *)NULL;                                  \
     heapb_current->next = (heap_block *)NULL;                                  \

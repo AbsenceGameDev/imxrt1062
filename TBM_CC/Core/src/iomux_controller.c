@@ -8,7 +8,7 @@ init_device_muxmode(SStoredMUXDevice * mux_device,
                     EMuxMode           mux_mode)
 {
   if (mux_device == NULL) {
-    mux_device = ((mux_device *)malloc_(MUXDEVICE_BYTESIZE));
+    mux_device = (SStoredMUXDevice *)malloc_(MUXDEVICE_BYTESIZE);
     if (mux_device == NULL) {
       return;
     }
