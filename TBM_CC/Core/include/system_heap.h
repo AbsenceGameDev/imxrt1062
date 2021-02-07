@@ -3,7 +3,11 @@
 
 #include "system_memory_map.h"
 
-#define NULL_ADDR (volatile void * 0x0)
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
+#define NULL_ADDR ((volatile void *)0)
 
 /**
  * @brief: OCRAM TrustZone (TZ) enable macro.
@@ -14,27 +18,23 @@
  * 0x1: The TrustZone feature is enabled. Access to address in the range
  * specified by[ENDADDR : STARTADDR] follows the execution mode access policy
  * described in CSU chapter */
-#define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 |= ((x & 0x1) << 8)
+#define SET_OCRAM_TRUSZONE(x) IOMUXC_GPR_GPR10 |= (((x)&0x1) << 8)
 #define HG_HEAD_BLOCK(heapg)                                                   \
-  (heap_block *)(((vuint8_t *)heapg) + HB_HEADER_SIZE)
+  (heap_block *)(((vuint8_t *)(heapg)) + HB_HEADER_SIZE)
 
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
 #define MEM_START SYSMEM_DTCM_S // S - 0x00040000)
 #define MEM_END SYSMEM_DTCM_E // reserving 128kb for mem_alloc
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
-#define MEM_OFFS(x) (MEM_START + x)
-
-heap_group * heapg_head;
-heap_group * heapg_current;
-heap_block * heapb_current;
+#define MEM_OFFS(x) (MEM_START + (x))
 
 // Split the into N amounts of 32KB segments,
 // N is based on the totalt sice
 #define __gen_heap_group_in_region(start_addr_heap, end_addr_heap)             \
-  heapg_head = (heap_group *)start_addr_heap;                                  \
-  heap_group * current_heap = (heap_group *)start_addr_heap;                   \
+  heapg_head = (heap_group *)(start_addr_heap);                                \
+  heap_group * current_heap = (heap_group *)(start_addr_heap);                 \
   heapg_head->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);      \
-  heapg_head->prev = (head_group *)NULL;                                       \
+  heapg_head->prev = (heap_group *)NULL;                                       \
   heapg_head->_size = 0x80008000;                                              \
   heapg_head->group_id = 0x0;                                                  \
   heapb_current = HGHG_INCR_ADDR(heapg_head, HG_HEADER_SIZE);                  \
@@ -44,7 +44,7 @@ heap_block * heapb_current;
   SET_BLOCK_FREE(heapb_current);                                               \
   SET_GROUP_ID(heapb_current->id_n_freed, 0x0);                                \
                                                                                \
-  uint32_t KBSize = ((end_addr_heap - start_addr_heap) + 0x3ff) / 0x400;       \
+  uint32_t KBSize = (((end_addr_heap) - (start_addr_heap)) + 0x3ff) / 0x400;   \
   (--KBSize) /= 32;                                                            \
                                                                                \
   for (uint8_t i = 0; i < KBSize; i++) {                                       \
@@ -63,10 +63,10 @@ heap_block * heapb_current;
   current_heap->next = (heap_group *)NULL
 
 #define __set_designated_heap(s_addr, e_addr, frag_s_addr, frag_e_addr)        \
-  designated_heap.start_addr_heap = (volatile void *)s_addr;                   \
-  designated_heap.end_addr_heap = (volatile void *)e_addr;                     \
-  designated_heap.frag_start_addr_heap = (volatile void *)frag_s_addr;         \
-  designated_heap.frag_end_addr_heap = (volatile void *)frag_e_addr;
+  designated_heap.start_addr_heap = (volatile void *)(s_addr);                 \
+  designated_heap.end_addr_heap = (volatile void *)(e_addr);                   \
+  designated_heap.frag_start_addr_heap = (volatile void *)(frag_s_addr);       \
+  designated_heap.frag_end_addr_heap = (volatile void *)(frag_e_addr);
 
 /**
  * The common operations involving heaps are:
@@ -239,9 +239,10 @@ struct heap_group_s {
   struct heap_group_s * prev; // 4 Bytes
   struct heap_group_s * next; // 4 Bytes
   heap_group_t          group_id; // 1 Bytes
-  size_t                _size; // 4 Bytes
+  uint32_t              _size; // 4 Bytes
+  uint32_t              _blocks; // 4 Bytes
 };
-typedef struct heap_group_t heap_group;
+typedef struct heap_group_s heap_group;
 #define HG_HEADER_SIZE 0x11
 
 /**
@@ -261,6 +262,8 @@ typedef struct heap_group_t heap_group;
   ((sp) = ((sp)&0xffff) | (((sp) & ~0xffff) - (sub)))
 #define READ_HEAP_FREE(heap_g) (((heap_g)->_size >> 0x10) & 0x10)
 #define READ_HEAP_TOTAL(heap_g) ((heap_g)->_size & 0x10)
+#define READ_HEAP_FREEBLOCKS(heap_g) (((heap_g)->_blocks >> 0x10) & 0x10)
+#define READ_HEAP_USEDBLOCKS(heap_g) ((heap_g)->_blocks & 0x10)
 
 #define HGHG_INCR_ADDR(heapg, n) (heap_group *)(((vuint8_t *)(heapg)) + (n))
 
@@ -300,6 +303,10 @@ typedef struct heap_block_s heap_block;
 uint16_t g_free_blocks[0x10];
 uint16_t g_used_blocks[0x10];
 
+heap_group * heapg_head;
+heap_group * heapg_current;
+heap_block * heapb_current;
+
 typedef enum
 {
   FUSE_VAL_CONF,
@@ -308,8 +315,8 @@ typedef enum
 
 typedef enum
 {
-  TCM_DISABLE,
-  TCM_ENABLE
+  TCM_DISABLE = 0x0,
+  TCM_ENABLE = 0x1
 } EInitTCM;
 
 typedef enum
@@ -354,7 +361,7 @@ set_heap_regions();
 
 /** @brief Generates 32kb heap groups based on the FLEXRAM Config */
 void
-generate_heap_groups();
+generate_heap_groups(uint16_t heap_byte_size);
 
 /** @brief create-heap: create an empty heap */
 heap_group *
@@ -374,7 +381,7 @@ merge(heap_block * heap_ba, heap_block * heap_bb);
 heap_group *
 meld(heap_block * heap_ba, heap_block * heap_bb);
 
-heap_block *
+void *
 __find_mem__(heap_group * heap_g, uint16_t size);
 
 void
@@ -395,7 +402,7 @@ __remove_block__(heap_block * heap_b);
  *       happens within the __coalesce__ internal functions __coalesce_front__
  *       and __coalesce_back__
  **/
-heap_block *
+void
 __coalesce__(heap_block * heap_b);
 
 /**
@@ -412,5 +419,8 @@ __coalesce_front__(heap_block * heap_b);
  **/
 heap_block *
 __coalesce_back__(heap_block * heap_b);
+
+void
+__data_swap_next__(heap_block * heap_b);
 
 #endif // SYSTEM_HEAP_H

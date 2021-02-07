@@ -3,6 +3,9 @@
 
 #include "system_heap.h"
 #include "system_memory_map.h"
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 typedef enum
 {
@@ -138,7 +141,7 @@ typedef struct {
 
 // 32bit + 32bit + 24bit
 // 11 bytes
-#define MUXDEVICE_BYTESIZE 0xc // an extra byte for good measure
+#define MUXDEVICE_BYTESIZE ((uint8_t)0xc) // an extra byte for good measure
 
 void
 init_device_muxmode(SStoredMUXDevice * mux_device,

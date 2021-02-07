@@ -63,14 +63,14 @@ typedef enum
 
 // volatile void *void_loc = (volatile void *)0x12345678;
 typedef struct {
-  uint8_t              bit_id;
-  uint8_t              value;
-  vuint32_t *          base_addr;
-  static const uint8_t pin;
-  EBaseGPIO            offsets;
-  ETypeIO              io_type;
-  SStoredMUXDevice *   base_mux_device;
-} SStoredGPIO = {.base_mux_device.mux_mode = ALT5_GPIOx_IOx};
+  uint8_t            bit_id;
+  uint8_t            value;
+  vuint32_t *        base_addr;
+  const uint8_t      pin;
+  EBaseGPIO          offsets;
+  ETypeIO            io_type;
+  SStoredMUXDevice * base_mux_device;
+} SStoredGPIO; // = {.base_mux_device->mux_mode = ALT5_GPIOx_IOx};
 
 void
 init_gpio(SStoredGPIO *  gpio_device,
@@ -86,7 +86,7 @@ void
 set_gpr_gdir(SStoredGPIO * gpio_device);
 
 void *
-handle_gpio(SStoredGPIO gpio_device, EBaseGPIO gpio_register);
+handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register);
 
 void
 set_icr1(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting);
@@ -95,9 +95,9 @@ void
 set_icr2(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting);
 
 uint32_t
-read_gpio(vuint32_t gpio_base_addr, EBaseGPIO gpio_register);
+read_gpio(vuint32_t * gpio_base_ptr, EBaseGPIO gpio_register);
 void
-set_gpio_muxmode(vuint32_t * gpio_addr, EMuxModes mux_mode);
+set_gpio_muxmode(vuint32_t * gpio_addr, EMuxMode mux_mode);
 void
 set_gpio_gdir(vuint32_t * gpio_gdir_addr,
               ETypeIO     io_type,
@@ -117,11 +117,11 @@ void
 set_iomuxc_dword(vuint32_t * addr, uint_fast32_t dword);
 
 void
-flip_selected_gpr(vuint32_t gpr_iomuxc_gpr);
+flip_selected_gpr(vuint32_t * gpr_iomuxc_gpr);
 void
-set_iomuxc_gpr(vuint32_t gpr_iomuxc_gpr, EState set_state);
+set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state);
 
 void
-blinky_led_example(){};
+blinky_led_example();
 
 #endif

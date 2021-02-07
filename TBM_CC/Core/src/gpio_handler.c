@@ -80,7 +80,6 @@ init_gpio(SStoredGPIO *  gpio_device,
       break;
     case GPIO_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [0,15] (ctrl_postion + 1) */
-      *((&IOMUXC_MUX_PAD_GPIO_B0_CR00) + ctrl_position) = 0x5;
       init_device_muxmode(gpio_device->base_mux_device,
                           IOMUXC_MUX_PAD_GPIO_B0_CR00,
                           IOMUXC_PAD_PAD_GPIO_B0_CR00,
@@ -117,10 +116,10 @@ init_gpio(SStoredGPIO *  gpio_device,
       break;
     default: break;
   }
-  set_gpr(gpio_device);
+  set_gpr_gdir(gpio_device);
 
   // Setting gpio direction for either output or input
-  vuint32_t * redirector = GPIO1_DIRR; // default
+  vuint32_t * redirector = GPIO1_DIRR;
   switch (gpio_device->pin) {
     case 0x1: redirector = *GPIO1_DIRR; break;
     case 0x2: redirector = *GPIO2_DIRR; break;
@@ -155,8 +154,9 @@ set_gpr_gdir(SStoredGPIO * gpio_device)
       } else {
         gdir_addr = GPIO6_DIRR;
       }
-      set_gpio_gdir(
-          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
+      set_gpio_gdir(gdir_addr,
+                    gpio_device->io_type,
+                    gpio_device->base_mux_device->ctrl_pos);
       break;
       // GPR27 [GPIO2,GPIO7]
     case 0x2: LOW_HIGH |= 0x1;
@@ -168,8 +168,9 @@ set_gpr_gdir(SStoredGPIO * gpio_device)
       } else {
         gdir_addr = GPIO7_DIRR;
       }
-      set_gpio_gdir(
-          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
+      set_gpio_gdir(gdir_addr,
+                    gpio_device->io_type,
+                    gpio_device->base_mux_device->ctrl_pos);
       break;
       // GPR28 [GPIO3,GPIO8]
     case 0x3: LOW_HIGH |= 0x1;
@@ -181,8 +182,9 @@ set_gpr_gdir(SStoredGPIO * gpio_device)
       } else {
         gdir_addr = GPIO8_DIRR;
       }
-      set_gpio_gdir(
-          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
+      set_gpio_gdir(gdir_addr,
+                    gpio_device->io_type,
+                    gpio_device->base_mux_device->ctrl_pos);
       break;
       // GPR29 [GPIO4,GPIO9]
     case 0x4: LOW_HIGH |= 0x1;
@@ -194,8 +196,9 @@ set_gpr_gdir(SStoredGPIO * gpio_device)
       } else {
         gdir_addr = GPIO9_DIRR;
       }
-      set_gpio_gdir(
-          gdir_addr, gpio_device->io_type, gpio_device->ctrl_position);
+      set_gpio_gdir(gdir_addr,
+                    gpio_device->io_type,
+                    gpio_device->base_mux_device->ctrl_pos);
       break;
   }
 }
@@ -211,7 +214,7 @@ set_gpio_gdir(vuint32_t * gpio_gdir_addr,
 void *
 handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register)
 {
-  vuint32_t * gpio_ptr = *(gpio_device->base_addr + gpio_register);
+  vuint32_t * gpio_ptr = (gpio_device->base_addr + gpio_register);
   switch (gpio_register) {
 
     case GDIR_DIR_REG:
@@ -251,13 +254,13 @@ set_icr2(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting)
 // E_ICRFIELDS_GPIO
 
 uint32_t
-read_gpio(vuint32_t gpio_base_addr, EBaseGPIO gpio_register)
+read_gpio(vuint32_t * gpio_base_ptr, EBaseGPIO gpio_register)
 {
-  return *(gpio_base_addr + gpio_register);
+  return *((uint32_t *)(((uint8_t *)gpio_base_ptr) + gpio_register));
 };
 
 void
-set_gpio_muxmode(vuint32_t * gpio_addr, EMuxModes mux_mode)
+set_gpio_muxmode(vuint32_t * gpio_addr, EMuxMode mux_mode)
 {
   *gpio_addr = mux_mode;
 }
@@ -297,15 +300,15 @@ set_iomuxc_dword(vuint32_t * addr, uint_fast32_t dword)
 }
 
 void
-flip_selected_gpr(vuint32_t gpr_iomuxc_gpr)
+flip_selected_gpr(vuint32_t * gpr_iomuxc_gpr)
 {
-  *gpr_iomuxc_gpr = !(gpr_iomuxc_gpr);
+  *gpr_iomuxc_gpr = !(*gpr_iomuxc_gpr);
 }
 
 void
-set_iomuxc_gpr(vuint32_t gpr_iomuxc_gpr, EState set_state)
+set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state)
 {
-  (*gpr_iomuxc_gpr) = 0xffffffff * (set_state);
+  (*gpr_iomuxc_gpr) = (vuint32_t)(0xffffffff * (set_state));
 }
 
 /**

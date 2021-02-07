@@ -653,10 +653,10 @@ typedef enum
   B_ = 0x1
 } EState;
 
-#define MAP_8BIT_REGISTER(ADDRESS) (*(imxrt_8t_offset * (ADDRESS))
-#define MAP_16BIT_REGISTER(ADDRESS) (*(imxrt_16t_offset * (ADDRESS))
-#define MAP_32BIT_REGISTER(ADDRESS) (*(imxrt_32t_offset * (ADDRESS))
-#define MAP_32BIT_ANYREG(TYPE, ADDRESS) (*((TYPE) * (ADDRESS))
+#define MAP_8BIT_REGISTER(ADDRESS) (*((imxrt_8t_offset *)(ADDRESS)))
+#define MAP_16BIT_REGISTER(ADDRESS) (*((imxrt_16t_offset *)(ADDRESS)))
+#define MAP_32BIT_REGISTER(ADDRESS) (*((imxrt_32t_offset *)(ADDRESS)))
+#define MAP_32BIT_ANYREG(TYPE, ADDRESS) (*((TYPE *)(ADDRESS)))
 #define B_OFFSET(A, B) ((A) + (B))
 
 #define FLEXRAM_ITCM_EN(n) ((uint32_t)((n)&0x1))

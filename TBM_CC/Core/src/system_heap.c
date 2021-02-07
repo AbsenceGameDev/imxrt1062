@@ -18,7 +18,7 @@ malloc_(uint16_t obj_size)
   void * free_block_ptr = NULL;
 
   for (; mem_not_found || (heapg_current != (heap_group *)NULL);) {
-    if (HG_READ_FREE_BLOCKS((heapg_current = heapg_head)->_blocks) > 0) {
+    if (READ_HEAP_FREEBLOCKS(heapg_current) > 0) {
       free_block_ptr = __find_mem__(heapg_current, obj_size);
       mem_not_found = (free_block_ptr == NULL);
     }
@@ -30,7 +30,7 @@ malloc_(uint16_t obj_size)
 void
 free(void * ptr)
 {
-  __remove_block__((vuint8_t *)(((vuint8_t *)(ptr)) - HB_HEADER_SIZE));
+  __remove_block__((heap_block *)(((vuint8_t *)(ptr)) - HB_HEADER_SIZE));
   ptr = NULL;
 }
 
@@ -118,8 +118,8 @@ __find_mem__(heap_group * heap_g, uint16_t size)
   heap_block * new_b;
   heap_block * end_b = HBHG_INCR_ADDR(heap_g, READ_HEAP_TOTAL(heap_g));
 
-  for (; (READ_HEAP_FREE(cu_b)) || (cu_b != (heap_block *)NULL);
-       cu_b = cu_b->next;) {
+  for (; (READ_BLOCK_FREE(cu_b)) || (cu_b != (heap_block *)NULL);
+       cu_b = cu_b->next) {
     vuint16_t * size_ptr = &(cu_b->data_size);
     if (*size_ptr == size) {
       // if size is exactly what is left; decrement one in _blocks [free]
@@ -171,7 +171,7 @@ __compactation__(heap_group * heap_g)
     /**If Free, swap it forward.  */
     if (READ_BLOCK_FREE(hb_cptr)) {
       __coalesce_front__(hb_cptr);
-      data_swap_next(hb_cptr);
+      __data_swap_next__(hb_cptr);
     }
     hb_cptr += hb_cptr->data_size; // Incremetning to next block
   }
@@ -259,7 +259,7 @@ __coalesce_back__(heap_block * heap_b)
 }
 
 void
-data_swap_next(heap_block * heap_b)
+__data_swap_next__(heap_block * heap_b)
 {
   heap_block * hb_sptr;
   uint16_t     datasize_cpy;
@@ -285,8 +285,8 @@ data_swap_next(heap_block * heap_b)
   heap_b->next->prev = hb_sptr;
 
   // Swapping next ptrs
-  hb_sptr = hb_cptr->next;
-  heap_b->next = hb_cptr->next->next;
+  hb_sptr = heap_b->next;
+  heap_b->next = heap_b->next->next;
   heap_b->next->next = hb_sptr;
 }
 

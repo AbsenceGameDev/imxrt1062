@@ -5,6 +5,10 @@
 
 #include <stdint.h>
 
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
 #define HAB_API_VTABLE 0x00200300 // HAB API vector table addresses
 
 // RESERVED ADDRESS-SPACE
@@ -2463,7 +2467,7 @@ typedef enum
 
 //===
 // 11.4 IOMUXC GPR Memory Map/Register definition
-#define IOMUXC_32BASE00 MAP_16BIT_REGISTER(0x400ac000)
+#define IOMUXC_32BASE00 MAP_32BIT_REGISTER(0x400ac000)
 #define IOMUXC_GPR_GPR00 IOMUXC_32BASE00._0x0000
 #define IOMUXC_GPR_GPR01 IOMUXC_32BASE00._0x0004
 #define IOMUXC_GPR_GPR02 IOMUXC_32BASE00._0x0008
@@ -2480,7 +2484,7 @@ typedef enum
 #define IOMUXC_GPR_GPR13 IOMUXC_32BASE00._0x0034
 #define IOMUXC_GPR_GPR14 IOMUXC_32BASE00._0x0038
 #define IOMUXC_GPR_GPR15 IOMUXC_32BASE00._0x003c
-#define IOMUXC_GPR_GPR16 IOMUXC_32BASE00._0x0040
+#define IOMUXC_GPR_GPR16 (IOMUXC_32BASE00._0x0040)
 #define IOMUXC_GPR_GPR17 IOMUXC_32BASE00._0x0044
 #define IOMUXC_GPR_GPR18 IOMUXC_32BASE00._0x0048
 #define IOMUXC_GPR_GPR19 IOMUXC_32BASE00._0x004c
@@ -2573,7 +2577,7 @@ typedef enum
 #define IOMUXC_MUX_PAD_GPIO_EMC_CR41 IOMUXC_32BASE03._0x00a4
 
 // SW_MUX_PAD_GPIO_AD_B0_xx SW MUX Control Register
-#define IOMUXC_MUX_PAD_GPIO_AD_B0_CR00 IOMUXC_32BASE03._0x00a8
+#define IOMUXC_MUX_PAD_GPIO_AD_B0_CR00 (IOMUXC_32BASE03._0x00a8)
 #define IOMUXC_MUX_PAD_GPIO_AD_B0_CR01 IOMUXC_32BASE03._0x00ac
 #define IOMUXC_MUX_PAD_GPIO_AD_B0_CR02 IOMUXC_32BASE03._0x00b0
 #define IOMUXC_MUX_PAD_GPIO_AD_B0_CR03 IOMUXC_32BASE03._0x00b4
@@ -7711,7 +7715,7 @@ typedef struct {
  * ==========================================================================
  **/
 /** @brief MPU_RNR_REQ_REGIONS - Writes the amount of requested regions */
-#define MPU_RNR_REQ_REGIONS(x) (MPU_RNR = (MPU_RNR & 0xffffff00) | ((x)&0xff))
+#define MPU_RNR_REQ_REGIONS(x) ((MPU_RNR) = ((MPU_RNR)&0xffffff00) | ((x)&0xff))
 
 /**
  * ==========================================================================
@@ -7786,9 +7790,9 @@ typedef struct {
 
 /** @brief MPU_RBAR_REGION_W - Can specify the number of the region to update,
  *                             see VALID field description. */
-#define MPU_RBAR_REGION_W MPU_RBAR = (MPU_RBAR & 0xffffffe0) | (x & 0x1f)
+#define MPU_RBAR_REGION_W(x) (MPU_RBAR = (MPU_RBAR & 0xffffffe0) | ((x)&0x1f))
 /** @brief MPU_RBAR_REGION_R - Returns bits[3:0] of MPU_RNR. */
-#define MPU_RBAR_REGION_R MPU_RBAR = (MPU_RBAR & 0xffffffe0) | (x & 0x1f)
+#define MPU_RBAR_REGION_R (MPU_RBAR & 0xf)
 
 /**
  * @brief MPU Region Attribute and Size Register. (MPU_SASR)
@@ -7830,8 +7834,8 @@ typedef struct {
  *           Enabling a region has no effect unless the MPU_CTRL.ENABLE
  *           bit is set to 1, to enable the MPU.
  **/
-#define MPU_RASR_ENABLE MPU_RASR |= (0x1) // 0x1
-#define MPU_RASR_DISABLE MPU_RASR &= ~(0x1) // 0x0
+#define MPU_RASR_ENABLE (MPU_RASR |= (0x1)) // 0x1
+#define MPU_RASR_DISABLE (MPU_RASR &= ~(0x1)) // 0x0
 
 /**
  * @brief SIZE: Size Field.
@@ -7840,8 +7844,9 @@ typedef struct {
  *          SIZE field values less than 4 are reserved, because the smallest
  *          supported region size is 32 bytes.
  **/
-#define MPU_RASR_REGION_SIZE MPU_RASR |= (0x1) // 0x1
-#define MPU_RASR_SET_REGION_SIZE MPU_RASR &= ~(0x1) // 0x0
+#define MPU_RASR_REGION_SIZE ((MPU_RASR >> 0x1) & 0x1f) // 0x1
+#define MPU_RASR_SET_REGION_SIZE(power)                                        \
+  (MPU_RASR = (MPU_RASR & ~(0b111110)) | (((power)&0b11111) << 0x1)) // 0x0
 
 /**
  * @brief XN: Execute Never Encoding
@@ -7913,7 +7918,7 @@ typedef enum
 } EAccPermEnc;
 #define MPU_RASR_SET_AP(acc_perm_enc)                                          \
   (MPU_RASR = (MPU_RASR & ~(0x7 << 0x18)) | (((acc_perm_enc)&0x7) << 0x18))
-#define MPU_RASR_AP_NO_RW MPU_RASR &= ~(0x7 << 0x18)
+#define MPU_RASR_AP_NO_RW (MPU_RASR &= ~(0x7 << 0x18))
 #define MPU_RASR_AP_PRIVL_RW MPU_RASR_SET_AP(0x1)
 #define MPU_RASR_AP_PARTIAL_RW MPU_RASR_SET_AP(0x2)
 #define MPU_RASR_AP_FULL_RW MPU_RASR_SET_AP(0x3)
