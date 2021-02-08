@@ -3045,8 +3045,9 @@ typedef enum
 
 //===
 
+
 /**
- * @brief: GPIO Memory Map, 12.5.1, p.261
+ * @brief: GPIO Memory Map, 12.5.1, p.961
  * GPIOn base address: 401B_8000h + (n-1)×4000h, where n is from 1 to 4.
  * GPIO5 base address: 400C_0000h.
  * GPIOn base address: 4200_0000h + (n-6)×4000h, where n is from 6 to 9.

@@ -4,6 +4,9 @@
 #define BL_DEFAULT_PERIPHIAL_DETECT_TIMEOUT 5000
 #endif // DEBUG
 
+/**
+ * @brief: vector tables, 12.5.1, p.261
+ **/
 // The bootlaoder will chekc for this address in the application vector
 #ifndef BL_APP_VECTOR_TABLE_ADDRESS
 #define BL_APP_VECTOR_TABLE_ADDRESS (0x10000 + 0x60000000)

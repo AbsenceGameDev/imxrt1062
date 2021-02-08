@@ -5,7 +5,6 @@
 
 #include "registers.h"
 
-
 /**
  * TODO: Go through documentations to see what how the iomuxc pads are
  * configured, also check the bootdata.c, startup.c and imxrt1062.ld too see if
@@ -330,7 +329,7 @@ blinky_led_example()
 
   // Seems like the dir offset is related to the control registers in the iomuxc
   // above, will have to look into it more tomorrow
-  uint_fast8_t dir = 0x3;
+  const uint_fast8_t dir = 0x3;
 
   /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO mode.
    *  Each bit specifies the direction of a one-bit signal.
@@ -341,23 +340,32 @@ blinky_led_example()
 
   for (;;) {
     volatile unsigned int i = 0x0;
-
-    // Set PIN 13 HIGH,
-    set_gpio_datar(&GPIO7_DR_SET, dir);
-
-    // Poor man's delay
-    while (i < 0x10000) {
-      i++;
-    }
-
-    i = 0;
+    volatile unsigned int j = 0x0;
 
     // Set PIN 13 LOW
     clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
 
     // Poor man's delay
-    while (i < 0x010000) {
+    while (i < 0x1ffffff) {
       i++;
+      // Poor man's delay
+      while (j < 0x1ffffff) {
+        j++;
+      }
     }
+    j = i = 0;
+
+    // Set PIN 13 HIGH,
+    set_gpio_datar(&GPIO7_DR_SET, dir);
+
+    // Poor man's delay
+    while (i < 0x1ffffff) {
+      i++;
+      // Poor man's delay
+      while (j < 0x1ffffff) {
+        j++;
+      }
+    }
+    j = i = 0;
   }
 }
