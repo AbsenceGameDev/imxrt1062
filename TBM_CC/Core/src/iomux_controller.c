@@ -1,4 +1,5 @@
-#include "../include/iomux_controller.h"
+//#include "../include/iomux_controller.h"
+#include "iomux_controller.h"
 void
 init_device_muxmode(SStoredMUXDevice * mux_device,
                     vuint32_t *        sw_mux,

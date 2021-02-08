@@ -1,3 +1,5 @@
+#ifndef FLEXSPI_ADDR_H
+#define FLEXSPI_ADDR_H
 #include "registers.h"
 /**
  * @brief: FLEXSPI Memory Map/Register, 27.7, p.1695
@@ -1145,3 +1147,6 @@
 #define b32t_FLEXSPI2_LUT61 FLEXSPI2_32BASE0x0._0x02f4 // LookUpTable 61
 #define b32t_FLEXSPI2_LUT62 FLEXSPI2_32BASE0x0._0x02f8 // LookUpTable 62
 #define b32t_FLEXSPI2_LUT63 FLEXSPI2_32BASE0x0._0x02fc // LookUpTable 63
+
+
+#endif // FLEXSPI_ADDR_H

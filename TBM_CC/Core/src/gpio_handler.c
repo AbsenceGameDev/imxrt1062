@@ -1,6 +1,10 @@
-#include "../include/gpio_handler.h"
+//#include "../include/gpio_handler.h"
+//#include "../include/registers.h"
 
-#include "../include/registers.h"
+#include "gpio_handler.h"
+
+#include "registers.h"
+
 
 /**
  * TODO: Go through documentations to see what how the iomuxc pads are

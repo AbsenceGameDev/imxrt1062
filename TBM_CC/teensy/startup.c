@@ -1,4 +1,5 @@
-#include "../Core/include/system_memory_map.h"
+//#include "../Core/include/system_memory_map.h"
+#include "system_memory_map.h"
 
 extern unsigned long _stextload;
 extern unsigned long _stext;

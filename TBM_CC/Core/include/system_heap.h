@@ -25,49 +25,8 @@
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
 #define MEM_START SYSMEM_DTCM_S // S - 0x00040000)
 #define MEM_END SYSMEM_DTCM_E // reserving 128kb for mem_alloc
-volatile void * free_heap_ptr = (volatile void *)MEM_START;
+extern volatile void * free_heap_ptr;
 #define MEM_OFFS(x) (MEM_START + (x))
-
-// Split the into N amounts of 32KB segments,
-// N is based on the totalt sice
-#define __gen_heap_group_in_region(start_addr_heap, end_addr_heap)             \
-  heapg_head = (heap_group *)(start_addr_heap);                                \
-  heap_group * current_heap = (heap_group *)(start_addr_heap);                 \
-  heapg_head->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);      \
-  heapg_head->prev = (heap_group *)NULL;                                       \
-  heapg_head->_size = 0x80008000;                                              \
-  heapg_head->group_id = 0x0;                                                  \
-  heapb_current = HBHG_INCR_ADDR(heapg_head, HG_HEADER_SIZE);                  \
-  heapb_current->data_size = MAX_HB_DATA_SIZE;                                 \
-  heapb_current->prev = (heap_block *)NULL;                                    \
-  heapb_current->next = (heap_block *)NULL;                                    \
-  SET_BLOCK_FREE(heapb_current);                                               \
-  SET_GROUP_ID(heapb_current->id_n_freed, 0x0);                                \
-                                                                               \
-  uint32_t KBSize = (((end_addr_heap) - (start_addr_heap)) + 0x3ff) / 0x400;   \
-  (--KBSize);                                                                  \
-  KBSize /= 32;                                                                \
-                                                                               \
-  for (uint32_t i = 0; i < KBSize; i++) {                                      \
-    current_heap = current_heap->next;                                         \
-    current_heap->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);  \
-    current_heap->prev = (current_heap - 0x8000);                              \
-    current_heap->_size = 0x80008000;                                          \
-    current_heap->group_id = 0x1 + i;                                          \
-    heapb_current = HBHG_INCR_ADDR(current_heap, HG_HEADER_SIZE);              \
-    heapb_current->data_size = MAX_HB_DATA_SIZE;                               \
-    heapb_current->prev = (heap_block *)NULL;                                  \
-    heapb_current->next = (heap_block *)NULL;                                  \
-    SET_BLOCK_FREE(heapb_current);                                             \
-    SET_GROUP_ID(heapb_current->id_n_freed, 0x1 + i);                          \
-  }                                                                            \
-  current_heap->next = (heap_group *)NULL
-
-#define __set_designated_heap(s_addr, e_addr, frag_s_addr, frag_e_addr)        \
-  designated_heap.start_addr_heap = (volatile void *)(s_addr);                 \
-  designated_heap.end_addr_heap = (volatile void *)(e_addr);                   \
-  designated_heap.frag_start_addr_heap = (volatile void *)(frag_s_addr);       \
-  designated_heap.frag_end_addr_heap = (volatile void *)(frag_e_addr);
 
 /**
  * The common operations involving heaps are:
@@ -221,7 +180,7 @@ typedef struct {
   volatile void * frag_start_addr_heap;
   volatile void * frag_end_addr_heap;
 } heap_region;
-heap_region designated_heap;
+extern heap_region designated_heap;
 
 typedef uint8_t heap_group_t;
 /**
@@ -301,12 +260,53 @@ typedef struct heap_block_s heap_block;
 #define HBHG_INCR_ADDR(heapb, n) (heap_block *)(((vuint8_t *)(heapb)) + (n))
 #define VOID_INCR_ADDR(any_type, n) (void *)(((vuint8_t *)(any_type)) + (n))
 
-uint16_t g_free_blocks[0x10];
-uint16_t g_used_blocks[0x10];
+extern uint16_t g_free_blocks[0x10];
+extern uint16_t g_used_blocks[0x10];
 
-heap_group * heapg_head;
-heap_group * heapg_current;
-heap_block * heapb_current;
+extern heap_group * heapg_head;
+extern heap_group * heapg_current;
+extern heap_block * heapb_current;
+
+// Split the into N amounts of 32KB segments,
+// N is based on the totalt sice
+#define __gen_heap_group_in_region(start_addr_heap, end_addr_heap)             \
+  heapg_head = (heap_group *)(start_addr_heap);                                \
+  heap_group * current_heap = (heap_group *)(start_addr_heap);                 \
+  heapg_head->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);      \
+  heapg_head->prev = (heap_group *)NULL;                                       \
+  heapg_head->_size = 0x80008000;                                              \
+  heapg_head->group_id = 0x0;                                                  \
+  heapb_current = HBHG_INCR_ADDR(heapg_head, HG_HEADER_SIZE);                  \
+  heapb_current->data_size = MAX_HB_DATA_SIZE;                                 \
+  heapb_current->prev = (heap_block *)NULL;                                    \
+  heapb_current->next = (heap_block *)NULL;                                    \
+  SET_BLOCK_FREE(heapb_current);                                               \
+  SET_GROUP_ID(heapb_current->id_n_freed, 0x0);                                \
+                                                                               \
+  uint32_t KBSize = (((end_addr_heap) - (start_addr_heap)) + 0x3ff) / 0x400;   \
+  (--KBSize);                                                                  \
+  KBSize /= 32;                                                                \
+                                                                               \
+  for (uint32_t i = 0; i < KBSize; i++) {                                      \
+    current_heap = current_heap->next;                                         \
+    current_heap->next = (heap_group *)(((vuint8_t *)current_heap) + 0x8000);  \
+    current_heap->prev = (current_heap - 0x8000);                              \
+    current_heap->_size = 0x80008000;                                          \
+    current_heap->group_id = 0x1 + i;                                          \
+    heapb_current = HBHG_INCR_ADDR(current_heap, HG_HEADER_SIZE);              \
+    heapb_current->data_size = MAX_HB_DATA_SIZE;                               \
+    heapb_current->prev = (heap_block *)NULL;                                  \
+    heapb_current->next = (heap_block *)NULL;                                  \
+    SET_BLOCK_FREE(heapb_current);                                             \
+    SET_GROUP_ID(heapb_current->id_n_freed, 0x1 + i);                          \
+  }                                                                            \
+  current_heap->next = (heap_group *)NULL
+
+#define __set_designated_heap(s_addr, e_addr, frag_s_addr, frag_e_addr)        \
+  designated_heap.start_addr_heap = (volatile void *)(s_addr);                 \
+  designated_heap.end_addr_heap = (volatile void *)(e_addr);                   \
+  designated_heap.frag_start_addr_heap = (volatile void *)(frag_s_addr);       \
+  designated_heap.frag_end_addr_heap = (volatile void *)(frag_e_addr);
 
 typedef enum
 {

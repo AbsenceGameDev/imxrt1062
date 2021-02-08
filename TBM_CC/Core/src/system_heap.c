@@ -1,4 +1,13 @@
-#include "../include/system_heap.h"
+//#include "../include/system_heap.h"
+#include "system_heap.h"
+
+uint16_t     g_free_blocks[0x10];
+uint16_t     g_used_blocks[0x10];
+heap_group * heapg_head;
+heap_group * heapg_current;
+heap_block * heapb_current;
+volatile void * free_heap_ptr = (volatile void *)MEM_START;
+heap_region designated_heap;
 
 /** TODO:
  * 1. Use list of unavailable memory blocks while also keeping

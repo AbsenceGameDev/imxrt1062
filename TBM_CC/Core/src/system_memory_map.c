@@ -1,4 +1,5 @@
-#include "../include/system_memory_map.h"
+//#include "../include/system_memory_map.h"
+#include "system_memory_map.h"
 
 /**
  * @note The values of the MPU_RASR registers from reset are UNKNOWN. All
