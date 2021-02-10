@@ -369,3 +369,55 @@ blinky_led_example()
     j = i = 0;
   }
 }
+
+/**
+ * @brief: Blinky LED Example abstraction (WIP)
+ * @TODO: Replace loops with timers. Well, first create some rudimentary timer
+ *     functions and then replace loops. Timers chapter at chapter 51. (p.2941)
+ **/
+void
+blinky_led_abstracted_example()
+{
+  SStoredGPIO stack_gpio_device;
+  stack_gpio_device.pin = 0x7;
+  stack_gpio_device.io_type = GDIR_IN;
+
+  // inits mux with alt5, and sets pad at DSE 0x7, in padgroup B0 at control
+  // register position 3, then sets GPR27 to control, du to pin being 0x7, and
+  // will set it to input based on the io_type member
+  init_gpio(&stack_gpio_device, GDIR_DIR_REG, GPIO_B0, DSE_7_R0_7, 0x3);
+
+  // Loop the blinky example, if it works it also means malloc works btw, as
+  // malloc is used internally in the init_muxmode() function which is called in
+  // init_gpio() function
+  for (;;) {
+    volatile unsigned int i = 0x0;
+    volatile unsigned int j = 0x0;
+
+    // Set PIN 13 LOW
+    clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
+
+    // Poor man's delay
+    while (i < 0x1ffffff) {
+      i++;
+      // Poor man's delay
+      while (j < 0x1ffffff) {
+        j++;
+      }
+    }
+    j = i = 0;
+
+    // Set PIN 13 HIGH,
+    set_gpio_datar(&GPIO7_DR_SET, dir);
+
+    // Poor man's delay
+    while (i < 0x1ffffff) {
+      i++;
+      // Poor man's delay
+      while (j < 0x1ffffff) {
+        j++;
+      }
+    }
+    j = i = 0;
+  }
+}

@@ -124,4 +124,7 @@ set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state);
 void
 blinky_led_example();
 
+void
+blinky_led_abstracted_example();
+
 #endif
