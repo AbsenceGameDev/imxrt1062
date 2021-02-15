@@ -5,7 +5,7 @@ uint16_t        g_free_blocks[0x10];
 uint16_t        g_used_blocks[0x10];
 vheap_group *   heapg_head = ((vheap_group *)0);
 vheap_group *   heapg_current = ((vheap_group *)0);
-vheap_block *   heapb_current;
+vheap_block *   heapb_current = ((vheap_block *)0);
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
 heap_region     designated_heap;
 
@@ -30,7 +30,7 @@ malloc_(uint16_t obj_size)
   heapg_current = heapg_head;
   void * free_block_ptr = NULL;
 
-  if (READ_HEAP_FREEBLOCKS(heapg_current) < 1) {
+  if (heapg_head->_blocks < 1) {
     // Why is READ_HEAP_FREEBLOCKS() reading 0 free blocks?!?
     return NULL;
   }
@@ -54,13 +54,30 @@ free(void * ptr)
   ptr = NULL;
 }
 
+/**
+ * @brief
+ *
+ * NOTE: Have tested it and it seems to work as expected, I have tested up to 2
+ * generated heaps and it works. This leaves hte question why the head heap
+ * still reads free _block as 0 when I read it later on.
+ *
+ * How I tested it: I changed the return types to int and depending on if I
+ * retrurned a 0 or 1, I let the main function run the blinky example. Basically,
+ * I use the blinker function to notify me if things worked as expected or not.
+ *
+ * I did this to check on the first and the second call to __gen_single_heapg__
+ * Everything worked as expected, which was frankly unexpected and leads me to
+ * believe it might have something to do with how pointers are accessed later
+ * on, or synchronization issues could also be at hand here.
+ *
+ */
 void
 __gen_single_heapg__(uint32_t start_addr_heap, uint8_t idx)
 {
   vheap_group * temp = ((vheap_group *)0);
   if (heapg_current == ((vheap_group *)0)) {
     heapg_head = (vheap_group *)(start_addr_heap);
-    temp = (heapg_current = heapg_head);
+    temp = heapg_current = heapg_head;
   } else {
     temp = (heapg_current->next = (vheap_group *)(start_addr_heap));
     temp->prev = heapg_current;
@@ -78,7 +95,7 @@ __gen_single_heapg__(uint32_t start_addr_heap, uint8_t idx)
 }
 
 void
-__find_config__()
+__init_ram_heap__()
 {
   uint8_t  idx = 0;
   uint32_t current_addr = MEM_START;
@@ -87,12 +104,6 @@ __find_config__()
       __gen_single_heapg__(MEM_START + (idx * 0x8000), idx);
     }
   }
-}
-
-void
-__init_ram_heap__()
-{
-  __find_config__(); // Generate heapgroups based on current value of IOMUXC GPR17
 }
 
 /**

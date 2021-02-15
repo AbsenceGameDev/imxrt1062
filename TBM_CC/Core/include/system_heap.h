@@ -117,7 +117,7 @@ typedef volatile heap_group vheap_group;
   ((sp) = ((sp)&0xffff) | (((sp) & ~0xffff) - (sub)))
 #define READ_HEAP_FREE(heap_g) (((heap_g)->_size >> 0x10) & 0x10)
 #define READ_HEAP_TOTAL(heap_g) ((heap_g)->_size & 0x10)
-#define READ_HEAP_FREEBLOCKS(heap_g) (((heap_g)->_blocks >> 0x10) & 0xff)
+#define READ_HEAP_FREEBLOCKS(heap_g) ((heap_g->_blocks >> 0x10) & 0xff)
 #define READ_HEAP_USEDBLOCKS(heap_g) ((heap_g)->_blocks & 0x10)
 
 #define HGHG_INCR_ADDR(heapg, n) (vheap_group *)(((vuint8_t *)(heapg)) + (n))
@@ -206,9 +206,6 @@ free_(void * ptr);
 /** @brief Heap creation funcs. */
 void
 __init_ram_heap__();
-
-void
-__find_config__();
 
 void
 __gen_single_heapg__(uint32_t start_addr_heap, uint8_t idx);
