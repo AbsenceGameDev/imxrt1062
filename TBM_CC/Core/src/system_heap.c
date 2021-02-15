@@ -1,13 +1,13 @@
 //#include "../include/system_heap.h"
 #include "system_heap.h"
 
-uint16_t     g_free_blocks[0x10];
-uint16_t     g_used_blocks[0x10];
-heap_group * heapg_head;
-heap_group * heapg_current;
-heap_block * heapb_current;
+uint16_t        g_free_blocks[0x10];
+uint16_t        g_used_blocks[0x10];
+vheap_group *   heapg_head = ((vheap_group *)0);
+vheap_group *   heapg_current = ((vheap_group *)0);
+vheap_block *   heapb_current;
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
-heap_region designated_heap;
+heap_region     designated_heap;
 
 /** TODO:
  * 1. Use list of unavailable memory blocks while also keeping
@@ -22,16 +22,27 @@ heap_region designated_heap;
 void *
 malloc_(uint16_t obj_size)
 {
+  if (obj_size == 0x0) {
+    return NULL;
+  }
+
   uint8_t mem_not_found = 0x1;
   heapg_current = heapg_head;
   void * free_block_ptr = NULL;
 
-  for (; mem_not_found || (heapg_current != (heap_group *)NULL);) {
+  if (READ_HEAP_FREEBLOCKS(heapg_current) < 1) {
+    // Why is READ_HEAP_FREEBLOCKS() reading 0 free blocks?!?
+    return NULL;
+  }
+
+  for (; mem_not_found || (heapg_current != ((vheap_group *)0));) {
     if (READ_HEAP_FREEBLOCKS(heapg_current) > 0) {
+      // return NULL; // DEBUG REMOVE LATER
       free_block_ptr = __find_mem__(heapg_current, obj_size);
       mem_not_found = (free_block_ptr == NULL);
     }
     heapg_current = heapg_current->next;
+    // return ((void*)0x1010); // DEBUG REMOVE LATER
   }
   return free_block_ptr;
 }
@@ -39,80 +50,49 @@ malloc_(uint16_t obj_size)
 void
 free(void * ptr)
 {
-  __remove_block__((heap_block *)(((vuint8_t *)(ptr)) - HB_HEADER_SIZE));
+  __remove_block__((vheap_block *)(((vuint8_t *)(ptr)) - HB_HEADER_SIZE));
   ptr = NULL;
 }
 
 void
-ram_bank_presets(ERAMBankConf requested_config)
+__gen_single_heapg__(uint32_t start_addr_heap, uint8_t idx)
 {
-  // Setting BANK_CFG field in GPR16 to set flexram-bank config source
-  // to gpr17 instead of fuse value
-  IOMUXC_GPR_GPR16 |= FLEXRAM_BANK_CFG_SEL(GPR17_BANK_CFG);
-
-  // ENABLE DTCM and ITCM?
-  switch (requested_config) {
-    case FLEXRAM_O50_I50_D00: // FLEXRAM_NO_DTCM
-      IOMUXC_GPR_GPR16 |= FLEXRAM_DTCM_EN(TCM_DISABLE);
-      IOMUXC_GPR_GPR16 |= FLEXRAM_ITCM_EN(TCM_ENABLE);
-      break;
-    case FLEXRAM_O50_I00_D50: // FLEXRAM_NO_ITCM
-      IOMUXC_GPR_GPR16 |= FLEXRAM_DTCM_EN(TCM_ENABLE);
-      IOMUXC_GPR_GPR16 |= FLEXRAM_ITCM_EN(TCM_DISABLE);
-      break;
-    case FLEXRAM_OCRAM_ONLY:
-      IOMUXC_GPR_GPR16 |= FLEXRAM_ITCM_EN(TCM_DISABLE);
-      IOMUXC_GPR_GPR16 |= FLEXRAM_DTCM_EN(TCM_DISABLE);
-    default:
-      IOMUXC_GPR_GPR16 |= FLEXRAM_DTCM_EN(TCM_ENABLE);
-      IOMUXC_GPR_GPR16 |= FLEXRAM_ITCM_EN(TCM_ENABLE);
-      break;
+  vheap_group * temp = ((vheap_group *)0);
+  if (heapg_current == ((vheap_group *)0)) {
+    heapg_head = (vheap_group *)(start_addr_heap);
+    temp = (heapg_current = heapg_head);
+  } else {
+    temp = (heapg_current->next = (vheap_group *)(start_addr_heap));
+    temp->prev = heapg_current;
   }
-  //  Set all OCRAM space available for all access types
-  //  (secure/non-secure/user/supervisor).
-  SET_OCRAM_TRUSZONE(TZ_DISABLE);
-  IOMUXC_GPR_GPR17 = requested_config;
+  temp->_size = 0x80008000;
+  temp->_blocks = 0x00010000;
+  temp->group_id = idx;
+
+  heapb_current = HBHG_INCR_ADDR(temp, HG_HEADER_SIZE + HG_HEADER_SIZE);
+  heapb_current->data_size = MAX_HB_DATA_SIZE;
+  heapb_current->prev = (vheap_block *)NULL;
+  heapb_current->next = (vheap_block *)NULL;
+  SET_BLOCK_FREE(heapb_current);
+  SET_GROUP_ID(heapb_current->id_n_freed, idx);
 }
 
 void
-set_heap_regions()
+__find_config__()
 {
-  // Read the currently set rambank config.
-  ERAMBankConf ram_bank_conf = (ERAMBankConf)IOMUXC_GPR_GPR17;
-  switch (ram_bank_conf) {
-    case FLEXRAM_O00_I50_D50:
-    case FLEXRAM_O25_I25_D50:
-    case FLEXRAM_O50_I00_D50:
-      __set_designated_heap(MEM_START,
-                            MEM_OFFS(0x00020000),
-                            MEM_OFFS(0x00040000),
-                            MEM_OFFS(0x00080000));
-      return;
-    case FLEXRAM_OCRAM_ONLY: // Slow heap
-      __set_designated_heap(MEM_START, MEM_OFFS(0x00080000), 0x0, 0x0);
-      return;
-    case FLEXRAM_O25_I50_D25:
-    case FLEXRAM_O50_I25_D25:
-    case FLEXRAM_O50_I50_D00:
-      __set_designated_heap(
-          MEM_OFFS(0x00040000), MEM_OFFS(0x00060000), 0x0, 0x0);
-      return;
-    default: return;
+  uint8_t  idx = 0;
+  uint32_t current_addr = MEM_START;
+  for (; idx < 16; idx++) {
+    if ((IOMUXC_GPR_GPR17 >> (2 * idx) & 0x3) == 0x2) {
+      __gen_single_heapg__(MEM_START + (idx * 0x8000), idx);
+    }
   }
 }
 
-/** @brief generates empty heap groups */
 void
-generate_heap_groups(uint16_t heap_byte_size)
+__init_ram_heap__()
 {
-  if (designated_heap.start_addr_heap != NULL_ADDR) {
-    __gen_heap_group_in_region(designated_heap.start_addr_heap,
-                               designated_heap.end_addr_heap);
-  }
-  if (designated_heap.frag_start_addr_heap != NULL_ADDR) {
-    __gen_heap_group_in_region(designated_heap.frag_start_addr_heap,
-                               designated_heap.frag_end_addr_heap);
-  }
+  __find_config__(); // Generate heapgroups based on current value of IOMUXC GPR17
 }
 
 /**
@@ -122,13 +102,14 @@ generate_heap_groups(uint16_t heap_byte_size)
  * @return Returns either a NULL ptr or a valid pointer
  **/
 void *
-__find_mem__(heap_group * heap_g, uint16_t size)
+__find_mem__(vheap_group * heap_g, uint16_t size)
 {
-  heap_block * cu_b = HG_HEAD_BLOCK(heap_g); // Point to first block
-  heap_block * new_b = ((heap_block *)0);
-  heap_block * end_b = HBHG_INCR_ADDR(heap_g, READ_HEAP_TOTAL(heap_g));
+  vheap_block * cu_b = HG_HEAD_BLOCK(heap_g); // Point to first block
+  vheap_block * new_b = ((vheap_block *)0);
+  vheap_block * end_b = HBHG_INCR_ADDR(heap_g, READ_HEAP_TOTAL(heap_g));
+  return NULL; // DEBUG REMOVE LATER
 
-  for (; (READ_BLOCK_FREE(cu_b)) || (cu_b != (heap_block *)NULL);
+  for (; (READ_BLOCK_FREE(cu_b)) || (cu_b != (vheap_block *)NULL);
        cu_b = cu_b->next) {
     vuint16_t * size_ptr = &(cu_b->data_size);
     if (*size_ptr == size) {
@@ -171,11 +152,11 @@ __find_mem__(heap_group * heap_g, uint16_t size)
  * @param heap_g Heap group to compact.
  **/
 void
-__compactation__(heap_group * heap_g)
+__compactation__(vheap_group * heap_g)
 {
   // iterate through block and compact it
-  heap_block * hb_cptr = (heap_block *)(heap_g + HG_HEADER_SIZE);
-  heap_block * hb_eptr = (heap_block *)(heap_g + 0x8000);
+  vheap_block * hb_cptr = (vheap_block *)(heap_g + HG_HEADER_SIZE);
+  vheap_block * hb_eptr = (vheap_block *)(heap_g + 0x8000);
   // looping through the blocks
   for (; (BLOCK_END(hb_cptr)) != hb_eptr;) {
     /**If Free, swap it forward.  */
@@ -192,7 +173,7 @@ __compactation__(heap_group * heap_g)
  * Clearing data isn't actually needed
  **/
 void
-__remove_block__(heap_block * heap_b)
+__remove_block__(vheap_block * heap_b)
 {
   SET_BLOCK_FREE(heap_b);
   uint8_t group_id = READ_BLOCK_GID(heap_b->id_n_freed);
@@ -210,7 +191,7 @@ __remove_block__(heap_block * heap_b)
  *       and __coalesce_back__
  **/
 void
-__coalesce__(heap_block * heap_b)
+__coalesce__(vheap_block * heap_b)
 {
   if (READ_BLOCK_FREE(heap_b->next)) {
     __coalesce_front__(heap_b);
@@ -225,9 +206,9 @@ __coalesce__(heap_block * heap_b)
  * @param heap_b pointer to block to coalesce forward from
  **/
 void
-__coalesce_front__(heap_block * heap_b)
+__coalesce_front__(vheap_block * heap_b)
 {
-  if (heap_b->next == (heap_block *)NULL) {
+  if (heap_b->next == (vheap_block *)NULL) {
     return;
   }
   if (READ_BLOCK_FREE(heap_b->next)) {
@@ -248,13 +229,13 @@ __coalesce_front__(heap_block * heap_b)
  * @param heap_b pointer to block to coalesce backward from
  * @return Returns a pointer to the 'prev' pointer
  **/
-heap_block *
-__coalesce_back__(heap_block * heap_b)
+vheap_block *
+__coalesce_back__(vheap_block * heap_b)
 {
   if (heap_b->prev == NULL) {
-    return (heap_block *)NULL;
+    return (vheap_block *)NULL;
   }
-  heap_block * prev_cpy = heap_b;
+  vheap_block * prev_cpy = heap_b;
   if (READ_BLOCK_FREE(heap_b->prev)) {
     heap_b->prev->data_size += heap_b->data_size;
     heap_b->data_size = 0x0;
@@ -266,10 +247,10 @@ __coalesce_back__(heap_block * heap_b)
 }
 
 void
-__data_swap_next__(heap_block * heap_b)
+__data_swap_next__(vheap_block * heap_b)
 {
-  heap_block * hb_sptr = ((heap_block *)0);
-  uint16_t     datasize_cpy = 0;
+  vheap_block * hb_sptr = ((vheap_block *)0);
+  uint16_t      datasize_cpy = 0;
   // Swapping data sizes
   datasize_cpy = heap_b->data_size;
   heap_b->data_size = heap_b->next->data_size;

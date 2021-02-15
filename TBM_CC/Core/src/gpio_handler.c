@@ -321,52 +321,56 @@ set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state)
 void
 blinky_led_example()
 {
-  IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
-  IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+  void * test = malloc_(0x10);
+  if (test == NULL) { // MAKESHIFT DEBUG; BLINK LED TO INDICATE STUFF
 
-  // GPR27, Set it to Control
-  IOMUXC_GPR_GPR27 = 0xffffffff;
+    IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
+    IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
 
-  // Seems like the dir offset is related to the control registers in the iomuxc
-  // above, will have to look into it more tomorrow
-  const uint_fast8_t dir = 0x3;
+    // GPR27, Set it to Control
+    IOMUXC_GPR_GPR27 = 0xffffffff;
 
-  /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO mode.
-   *  Each bit specifies the direction of a one-bit signal.
-   **/
+    // Seems like the dir offset is related to the control registers in the
+    // iomuxc above, will have to look into it more tomorrow
+    const uint_fast8_t dir = 0x3;
 
-  // Set DPIO7 direction (set as output = 1, input = 0), in GDIR
-  set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
+    /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO
+     *mode. Each bit specifies the direction of a one-bit signal.
+     **/
 
-  for (;;) {
-    volatile unsigned int i = 0x0;
-    volatile unsigned int j = 0x0;
+    // Set DPIO7 direction (set as output = 1, input = 0), in GDIR
+    set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
 
-    // Set PIN 13 LOW
-    clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
+    for (;;) {
+      volatile unsigned int i = 0x0;
+      volatile unsigned int j = 0x0;
 
-    // Poor man's delay
-    while (i < 0x1ffffff) {
-      i++;
+      // Set PIN 13 LOW
+      clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
+
       // Poor man's delay
-      while (j < 0x1ffffff) {
-        j++;
+      while (i < 0x1ffffff) {
+        i++;
+        // Poor man's delay
+        while (j < 0x1ffffff) {
+          j++;
+        }
       }
-    }
-    j = i = 0;
+      j = i = 0;
 
-    // Set PIN 13 HIGH,
-    set_gpio_datar(&GPIO7_DR_SET, dir);
+      // Set PIN 13 HIGH,
+      set_gpio_datar(&GPIO7_DR_SET, dir);
 
-    // Poor man's delay
-    while (i < 0x1ffffff) {
-      i++;
       // Poor man's delay
-      while (j < 0x1ffffff) {
-        j++;
+      while (i < 0x1ffffff) {
+        i++;
+        // Poor man's delay
+        while (j < 0x1ffffff) {
+          j++;
+        }
       }
+      j = i = 0;
     }
-    j = i = 0;
   }
 }
 
@@ -378,15 +382,14 @@ blinky_led_example()
 void
 blinky_led_abstracted_example()
 {
-  SStoredGPIO stack_gpio_device;
-  stack_gpio_device.pin = 0x7;
+  SStoredGPIO stack_gpio_device = {.pin = 0x7};
   stack_gpio_device.io_type = GDIR_IN;
 
   // inits mux with alt5, and sets pad at DSE 0x7, in padgroup B0 at control
   // register position 3, then sets GPR27 to control, du to pin being 0x7, and
   // will set it to input based on the io_type member
   init_gpio(&stack_gpio_device, GDIR_DIR_REG, GPIO_B0, DSE_7_R0_7, 0x3);
-
+  uint8_t dir = stack_gpio_device.base_mux_device->ctrl_pos;
   // Loop the blinky example, if it works it also means malloc works btw, as
   // malloc is used internally in the init_muxmode() function which is called in
   // init_gpio() function

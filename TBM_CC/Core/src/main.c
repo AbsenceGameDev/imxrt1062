@@ -6,6 +6,8 @@
 int
 main()
 {
-  blinky_led_abstracted_example();
+  __init_ram_heap__();
+  blinky_led_example();
+  // blinky_led_abstracted_example();
   return 0;
 }
