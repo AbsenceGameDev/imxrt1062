@@ -1,7 +1,6 @@
 #include "simple_glyphs.h"
 
 /**
- * @brief
  * @brief Reference graphs below for 4x4 characters.
  * They are meant to to be used on small 64x16 (or 128x32) px screens.
  * I opted to create these 4x4 glyphs to go from an initial max of 16 (or 32)
