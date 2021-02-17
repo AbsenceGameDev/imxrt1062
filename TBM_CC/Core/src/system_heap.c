@@ -28,13 +28,13 @@ malloc_(uint16_t obj_size)
 
   uint8_t mem_not_found = 0x1;
   heapg_current = heapg_head;
-  void * free_block_ptr = NULL;
 
-  if (heapg_head->_blocks < 1) {
+  if ((heapg_head->_size) < 1) {
     // Why is READ_HEAP_FREEBLOCKS() reading 0 free blocks?!?
     return NULL;
   }
 
+  void * free_block_ptr = NULL;
   for (; mem_not_found || (heapg_current != ((vheap_group *)0));) {
     if (READ_HEAP_FREEBLOCKS(heapg_current) > 0) {
       // return NULL; // DEBUG REMOVE LATER
