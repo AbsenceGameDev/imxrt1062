@@ -31,6 +31,9 @@ malloc_(uint16_t obj_size)
 
   if ((heapg_head->_size) < 1) {
     // Why is READ_HEAP_FREEBLOCKS() reading 0 free blocks?!?
+    // heapg_head->_size should have been set by now,
+    // and I tested heapb_current which luckily were up to my expectations of
+    // being set properly and read properly.
     return NULL;
   }
 
