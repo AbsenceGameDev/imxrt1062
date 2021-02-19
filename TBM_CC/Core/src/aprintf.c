@@ -3,6 +3,7 @@
 /**
  * @brief Generate a 4x4 glyph block based on read data.
  **/
+
 void *
 __get_glyph_block_4x4__(char * instream)
 {
