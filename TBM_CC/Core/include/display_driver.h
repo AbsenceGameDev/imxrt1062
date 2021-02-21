@@ -9,7 +9,7 @@
  * Input Voltage: 3.3V ~ 5V
  * Compatible I/O Level: 3.3V, 5V
  * Only Need 2 I/O Port to Control
- * Relevant pins: GND, VC0, SCL, SDA
+ * Relevant pins: GND, VCC, SCL, SDA
  * GND = Ground;
  * VCC = Voltage input;
  * SCL = I2C-bus clock signal The transmission of information in the I2C-bus is
@@ -129,6 +129,8 @@
  *     established by pulling the “SDA in” from LOW to HIGH while the “SCL”
  *     stays HIGH.
  *
+ * ====
+ * ====
  * NOTE:
  *      Please be noted that the transmission of the data bit has some
  *      limitations.
@@ -140,6 +142,8 @@
  *      2. Both the data line (SDA) and the clock line (SCL) should be pulled up
  *         by external resistors.
  *
+ * ====
+ * ====
  * NOTE:
  *      Solomon Systech Apr 2008   P 22/59 Rev 1.1 SSD1306  8.2Command Decoder
  *      This module determines whether the input data is interpreted as data or
@@ -150,6 +154,8 @@
  *      interpreted as a command. Then data input will be decoded and written to
  *      the corresponding command register.
  *
+ * ====
+ * ====
  * NOTE:
  *      The frame frequency of display is determined by the following formula:
  *      F{frame} = F{osc} / (D * K * No.of Mux)
@@ -165,16 +171,75 @@
  *        value is 63 (i.e. 64MUX).
  *      • FOSC is the oscillator frequency. It can be changed by command
  *        D5h A[7:4]. The higher the register setting results in higher freq.
+ * ====
+ * ====
+ * 10.1.3
+ * Set Memory Addressing Mode (command: 20h) There are 3 different memory
+ *addressing mode in SSD1306: page addressing mode, horizontal addressing mode
+ *and vertical addressing mode. This command sets the way of memory addressing
+ *into one of the above three modes. In there, “COL” means the graphic display
+ *data RAM column.
  *
- * SUMMARY:
+ * NOTE: Page addressing mode (A[1:0]=10xb)
+ *       In page addressing mode, after the display RAM is read/written, the
+ *       column address pointer is increased automatically by 1.
+ *       If the column address pointer reaches column end address, the column
+ *       address pointer is reset to column start address and page address
+ *       pointer is not changed.
+ *       Users have to set the new page and column addresses in order to access
+ *       the next page RAM content. The sequence of movement of the PAGE and
+ *       column address point for page addressing mode is shown in Figure 10-1
+ *
+ *      In normal display data RAM read or write and page addressing mode, the
+ *      following steps are required to define the starting RAM access pointer
+ *      location:
+ *          • Set the page start address of the target display location by
+ *            command B0h to B7h.
+ *          • Set the lower start column address of pointer by command 00h~0Fh.
+ *          • Set the upper start column address of pointer by command 10h~1Fh.
+ *      For example, if the page address is set to B2h, lower column address is
+ *      03h and upper column address is 10h, then  that  means  the  starting
+ *      column is SEG3  of  PAGE2.  The  RAM  access  pointer  is  located  as
+ *      shown in Figure 10-2.  The input data byte will be written into RAM
+ *      position of column 3.
+ *
+ * THOUGHTS:
  *  First I need to power on the lcd with the above mentioned power-onn
  *  sequence. Then after it is powered on I send a boot up command, from there I
- *  need to set som initializing commands. When data needs to be sent to the
- *  screen I must also deliver a signal through SCL input to triger the clock.
- *  The clock needs to be signalled before data from SDA can be read.
+ *  need to set some initializing commands.
+ *
+ *  Then to test, try sending A4h/A5h commands, A5h forces entire display ON,
+ *  while A4h resumes the display from the entire display "ON" stage. (p.37)
+ *
+ *  As noted above, set the addressing mode (page-addressing preferrably)
+ *  And perform it's neccessary setup steps
+ *
+ *  When data needs to be sent to the screen I must also deliver a signal
+ *  through SCL input to triger the clock. The clock needs to be signalled
+ *  before data from SDA can be read.
  *
  * Now the question remains how the data is actually being read, and if I can
- *  gain direct access to the screen through the SDA pin somehow
+ *  gain direct access to the screen through the SDA pin somehow.
+ *
+ *  Ok, looking at the actual driverboard;
+ *  it looks like the SDA circuit leads into R1 resistor.
+ *  R1, R2 & R3 are connected in series, followed by D1 which is followed by C8
+ *  This means we have this chain of components -
+ *  [SDA -> R1 -> R2 -> R3 -> D1 -> C8]
+ *
+ *  From reading the specs and looking at the driver-board I gather that I need
+ *  to do this in approx. this proposed order:
+ *
+ *  1. Set Ground pin.
+ *  2. Send power to Vcc and initiate the power ON sequence.
+ *  3. Send data to be read. For each data send:
+ *     - Send pulses of SDA input after an initial pulse to the SCL pin
+ *     - Expect the SDA input to be read by the "Command Decoder"
+ *  Repeat step 3 for as long as needed.
+ *
+ *  4. Initiate power OFF sequence to turn it off.
+ *
+ *
  *
  **/
 
@@ -188,7 +253,7 @@
  * Mini Size: 2.7 x 2.8cm
  * Only Need 2 I/O Port to Control
  * Full Compatible , 51
- * Relevant pins: GND, VC0, SCL, SDA
+ * Relevant pins: GND, VCC, SCL, SDA
  *   (Info regarding relevant pins is in the 128x32 MINIOLED description above)
  **/
 
