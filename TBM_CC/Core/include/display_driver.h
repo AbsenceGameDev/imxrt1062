@@ -30,16 +30,38 @@
  *       The “SDAOUT” pin may be disconnected. When “SDAOUT” pin is
  *       disconnected, the acknowledgement signal'll be ignored in the I2C-bus.
  *
+ * THOUGHTS:
+ *  First I need to power on the lcd with the above mentioned power-onn
+ *  sequence. Then after it is powered on I send a boot up command, from there I
+ *  need to set some initializing commands.
+ *
+ *  Then to test, try sending A4h/A5h commands, A5h forces entire display ON,
+ *  while A4h resumes the display from the entire display "ON" stage. (p.37)
+ *
+ *  As noted above, set the addressing mode (page-addressing preferrably)
+ *  And perform it's neccessary setup steps
+ *
+ *  When data needs to be sent to the screen I must also deliver a signal
+ *  through SCL input to triger the clock. The clock needs to be signalled
+ *  before data from SDA can be read.
+ *
+ * Now the question remains how the data is actually being read, and if I can
+ *  gain direct access to the screen through the SDA pin somehow.
+ *
+ *  Ok, looking at the actual driverboard;
+ *  it looks like the SDA circuit leads into R1 resistor.
+ *  R1, R2 & R3 are connected in series, followed by D1 which is followed by C8
+ *  This means we have this chain of components -
+ *  [SDA -> R1 -> R2 -> R3 -> D1 -> C8]
+ *
  * Regarding SCL and SDA for data comms -
  *  Read chapter 8.1.5 (p.19-21) MINIOLED_SSD1206.pdf
  *  8.1.5 MCU I2C Interface -
- *
  *
  * Regarding whether input is data or commands -
  *  Read chapter 8.2 (p.22) MINIOLED_SSD1206.pdf
  *  Read chapter 9. (p.28-33) MINIOLED_SSD1206.pdf (Commands)
  *  Read chapter 10. (p.34-46) MINIOLED_SSD1206.pdf (Commands)
- *
  *
  * Regarding internal GDDRAM -
  *  Read chapter 8.7 (p.25) MINIOLED_SSD1206.pdf
@@ -97,151 +119,164 @@
  *  3. Power OFF VDD after tOFF. (5) (Typical tOFF=100ms)
  *
  *
- * (8.1.5.2 p.20) Steps to set-up write mode I2C
- *  1. The master device initiates the data communication by a start condition.
- *     The definition of the start condition is shown in Figure 8-8.
- *     The start condition is established by pulling the SDA from HIGH to LOW
- *     while the SCL stays HIGH.
- *  2. The slave address is following the start condition for recognition use.
- *     For the SSD1306, the slave address is either “b0111100” or “b0111101” by
- *     changing the SA0 to LOW or HIGH (D/C pin acts as SA0).
- *  3. The write mode is established by setting the R/W# bit to logic “0”.
- *  4. An acknowledgement signal will be generated after receiving one byte of
- *     data, including the slave address and the R/W# bit. Please refer to the
- *     Figure 8-9 for the graphical representation of the acknowledge signal.
- *     The acknowledge bit is defined as the SDA line is pulled down during the
- *     HIGH period of the acknowledgement related clock pulse.
- *  5. After the transmission of the slave address, either the control byte or
- *     the data byte may be sent across the SDA. A control byte mainly consists
- *     of Co and D/C# bits following by six “0” ‘s.
- *        a.If the Co bit is set as logic “0”, the transmission of the following
- *          information will contain data bytes only.
- *        b.The D/C# bit determines the next data byte is acted as a command or
- *          a data. If the D/C# bit is set to logic “0”, it defines the
- *          following data byte as a command. If the D/C# bit is set to logic
- *          “1”, it defines the following data byte as a data which will be
- *          stored at the GDDRAM. The GDDRAM column address pointer will be
- *          increased by one automatically after each data write.
- *  6. Acknowledge bit will be generated after receiving each control byte or
- *     data byte.
- *  7. The write mode will be finished when a stop condition is applied. The
- *     stop condition is also defined in Figure 8-8. The stop condition is
- *     established by pulling the “SDA in” from LOW to HIGH while the “SCL”
- *     stays HIGH.
+ * IICBUS: I2C-Bus data format:
+ * [S, Slave-Addr, m(CtrlByte, DataByte, ...), CtrlByte, n(DataByte, ...), P]
+ *      Where:
+ *      S = Start Condition
+ *      P = Stop Condition
+ *      m >= 0 words (ControlByte, DataByte)
+ *      n >= 0 words (DataByte)
+ *      Slave-Addr (if SA0 is LOW) = [0, 1, 1, 1, 1, 0, SA0, RW#]
+ *      CtrlByte =   [Co, D/C#, 0, 0, 0, 0, 0, 0][ACK_BIT_HEADER]
  *
- * ====
- * ====
- * NOTE:
- *      Please be noted that the transmission of the data bit has some
- *      limitations.
- *      1. The data bit, which is transmitted during each SCL pulse, must
- *         keep at a stable state within the “HIGH” period of the clock pulse.
- *         Please refer to the  Figure 8-10 for graphical representations.
- *         Except in start or stop conditions, the data line can be switched
- *         only when the SCL is LOW.
- *      2. Both the data line (SDA) and the clock line (SCL) should be pulled up
- *         by external resistors.
+ *          Where:
+ *          SA0 -> LOW == 0, HIGH == 1
+ *          RW# -> 0 == Establish WriteMode
+ *          if sent a control byte:
+ *              Co -> 0 == Notify of Only data transmission
+ *              D/C# -> next byte: {LOW (CMD) == 0, or HIGH (GDDRAM_DATA) == 1}
  *
- * ====
- * ====
- * NOTE:
- *      Solomon Systech Apr 2008   P 22/59 Rev 1.1 SSD1306  8.2Command Decoder
- *      This module determines whether the input data is interpreted as data or
- *      command. Data is interpreted based upon the input of the D/C# pin.
+ *      Start Condition: Established by pulling the SDA from HIGH to LOW
+ *                       while the SCL stays HIGH.
  *
- *      If D/C# pin is HIGH, D[7:0] is interpreted as display data written to
- *      Graphic Display Data RAM (GDDRAM). If it is LOW, the input at D[7:0] is
- *      interpreted as a command. Then data input will be decoded and written to
- *      the corresponding command register.
+ *      Stop Condition: Established by pulling the “SDA in” from LOW to
+ *                      HIGH while the “SCL” stays HIGH.
  *
- * ====
- * ====
- * NOTE:
- *      The frame frequency of display is determined by the following formula:
- *      F{frame} = F{osc} / (D * K * No.of Mux)
- *      where:
- *      • D stands for clock divide ratio. It is set by command D5h A[3:0].
- *        The divide ratio has the range from 1 to 16.
- *      • K is the number of display clocks per row.  The value is derived by
- *        K = Phase 1 period + Phase 2 period + BANK0 pulse width
- *          =  2 + 2 + 50 = 54 at power on reset
- *          (Please refer to Section 8.6 “Segment Drivers / Common Drivers” for
- *           the details of the “Phase”)
- *      • Number of multiplex ratio is set by command A8h. The power on reset
- *        value is 63 (i.e. 64MUX).
- *      • FOSC is the oscillator frequency. It can be changed by command
- *        D5h A[7:4]. The higher the register setting results in higher freq.
- * ====
- * ====
- * 10.1.3
- * Set Memory Addressing Mode (command: 20h) There are 3 different memory
- *addressing mode in SSD1306: page addressing mode, horizontal addressing mode
- *and vertical addressing mode. This command sets the way of memory addressing
- *into one of the above three modes. In there, “COL” means the graphic display
- *data RAM column.
- *
- * NOTE: Page addressing mode (A[1:0]=10xb)
- *       In page addressing mode, after the display RAM is read/written, the
- *       column address pointer is increased automatically by 1.
- *       If the column address pointer reaches column end address, the column
- *       address pointer is reset to column start address and page address
- *       pointer is not changed.
- *       Users have to set the new page and column addresses in order to access
- *       the next page RAM content. The sequence of movement of the PAGE and
- *       column address point for page addressing mode is shown in Figure 10-1
- *
- *      In normal display data RAM read or write and page addressing mode, the
- *      following steps are required to define the starting RAM access pointer
- *      location:
- *          • Set the page start address of the target display location by
- *            command B0h to B7h.
- *          • Set the lower start column address of pointer by command 00h~0Fh.
- *          • Set the upper start column address of pointer by command 10h~1Fh.
- *      For example, if the page address is set to B2h, lower column address is
- *      03h and upper column address is 10h, then  that  means  the  starting
- *      column is SEG3  of  PAGE2.  The  RAM  access  pointer  is  located  as
- *      shown in Figure 10-2.  The input data byte will be written into RAM
- *      position of column 3.
- *
- * THOUGHTS:
- *  First I need to power on the lcd with the above mentioned power-onn
- *  sequence. Then after it is powered on I send a boot up command, from there I
- *  need to set some initializing commands.
- *
- *  Then to test, try sending A4h/A5h commands, A5h forces entire display ON,
- *  while A4h resumes the display from the entire display "ON" stage. (p.37)
- *
- *  As noted above, set the addressing mode (page-addressing preferrably)
- *  And perform it's neccessary setup steps
- *
- *  When data needs to be sent to the screen I must also deliver a signal
- *  through SCL input to triger the clock. The clock needs to be signalled
- *  before data from SDA can be read.
- *
- * Now the question remains how the data is actually being read, and if I can
- *  gain direct access to the screen through the SDA pin somehow.
- *
- *  Ok, looking at the actual driverboard;
- *  it looks like the SDA circuit leads into R1 resistor.
- *  R1, R2 & R3 are connected in series, followed by D1 which is followed by C8
- *  This means we have this chain of components -
- *  [SDA -> R1 -> R2 -> R3 -> D1 -> C8]
+ * NOTE: Write mode will finish when a stop condition is applied.
  *
  *  From reading the specs and looking at the driver-board I gather that I need
  *  to do this in approx. this proposed order:
  *
- *  1. Set Ground pin.
- *  2. Send power to Vcc and initiate the power ON sequence.
- *  3. Send data to be read. For each data send:
- *     - Send pulses of SDA input after an initial pulse to the SCL pin
- *     - Expect the SDA input to be read by the "Command Decoder"
- *  Repeat step 3 for as long as needed.
+ *  0. Set Ground pin.
+ *  1. Power ON VDD.
+ *     (By setting VCC to min 7v Max 15v; we get VDD=2.8v if VCC is 12v)
+ *  2. Send Start Condition (As described above)
+ *  3. Send data according to the I2C Bus (As described above @IICBUS:)
+ *      3a. Send 8 bits, [0,1,1,1,1,0][SA0=LOW][RW#=0]
+ *      3b.After transmission of the slave address, send Ctrl-byte
+ *         Ctrl byte =   [Co, D/C#, 0, 0, 0, 0, 0, 0]
+ *         Co -> 0 == Expect only Data bytes, 1 == Expect more Ctrl bytes
+ *         D/C# -> next byte: {LOW (CMD) == 0, or HIGH (GDDRAM_DATA) == 1}
+ *      (Incoming databytes set to read as GDDRAM DATA, will increment through
+ *      the GDDRAM according to the current GDDRAM Page Addressing Mode)
  *
- *  4. Initiate power OFF sequence to turn it off.
  *
+ *  4. Repeat step 3 for as long as needed.
+ *
+ *  5. Send Command 0xAE, to power off display.
+ *  6. Send Stop Condition.
+ *  7. Power OFF VCC
+ *  8. Power OFF VDD after tOFF. (Typical tOFF=100ms)
+ *
+ * Read the command list and see which commands might be usable, like page
+ *  addressing command, then abstract it into some functions
  *
  *
  **/
+
+typedef struct {
+  /** Send Start to SSD1306 display. */
+  void (*start)(void);
+
+  /** Send Stop condition to SSD1306 display. */
+  void (*stop)(void);
+
+  /**
+   * Sends byte to SSD1306 device
+   * @param data - byte to send
+   */
+  void (*send)(unsigned char data);
+
+  /**
+   * @brief Sends bytes to SSD1306 device
+   *
+   * Sends bytes to SSD1306 device. This functions gives
+   * ~ 30% performance increase than ssd1306_intf.send.
+   *
+   * @param buffer - bytes to send
+   * @param size - number of bytes to send
+   */
+  void (*send_buffer)(const unsigned char * buffer, unsigned short size);
+
+} ssd1306_intf; // ssd1306 interface
+
+typedef enum
+{
+  PAGE_ADDRESSING = 0x2,
+  VERT_ADDRESSING = 0x1,
+  HORZ_ADDRESSING = 0x0,
+  INVALID = 0x3
+} EMemAddressMode;
+
+typedef enum
+{
+  // 1. Fundemental Command Table
+  E_SET_CONTRAST_CTRL = 0x0a81, // Reset == 0x7f
+  E_ENTIRE_DISPLAY_RESUME = 0xa4,
+  E_ENTIRE_DISPLAY_ON = 0xa5,
+  E_SET_NORMAL_DISPLAY = 0xa6,
+  E_SET_INVERTED_DISPLAY = 0xa7,
+  E_SET_DISPLAY_OFF = 0xae,
+  E_SET_DISPLAY_ON = 0xaf,
+
+  // 2. Scrolling Command Table
+  E_RIGHT_HORIZONTAL_SCROLL = 0x26, // Scroll by 1 column
+  E_LEFT_HORIZONTAL_SCROLL = 0x27, // Scroll by 1 column
+  E_VERT_HORIZONTAL_SCROLL = 0x29, // Scroll by 1 column
+  E_HORZ_HORIZONTAL_SCROLL = 0x2a, // Scroll by 1 column (table at p.29)
+  E_STOP_SCROLL = 0x2e,
+  E_ACTIVATE_SCROLL = 0x2f,
+  E_SET_VERT_SCROLL_AREA = 0xa3,
+  E_SET_VERT_SCROLL_AREA = 0xa3,
+
+  // 3. Addressing Setting Command Table
+  E_SET_LOWER_COL_STARTADDR_PAM = 0x00,
+  E_SET_HIGHER_COL_STARTADDR_PAM = 0x10,
+  E_SET_MEM_ADDR_MODE = 0x20,
+  E_SET_COL_ADDR = 0x21,
+  E_SET_PAGE_ADDR = 0x22,
+  E_SET_PAGE_STARTADDR_PAM = 0xb0,
+
+  // 4. HW Config (Panel resolution & layour related) Command Table
+  E_SET_DISPLAY_START_LINE = 0x40, /** 0x40 - 0x7f */
+  E_SET_SEGMENT_REMAP_0 = 0xa0, // Col 0 is mapped to SEG0
+  E_SET_SEGMENT_REMAP_127 = 0xa0, // Col 127 is mapped to SEG0
+  E_SET_MUX_RATIO = 0xa8, // Set mux ratio to N+1 MUX,
+                          // [0,14]invalid, [16,63]valid
+  E_SET_COM_NORMAL_SCAN = 0xc0, // COM output scan direction
+  E_SET_COM_REMAPPED_SCAN = 0xc8, // COM output scan direction
+  E_SET_DISPLAY_OFFSET = 0xd3, // Vertical shift by COM, [0,63]
+  E_SET_COM_PINS_HWCONF = 0xda,
+
+  // 5. Timing & Driving Scheme Setting Command Table
+  E_SET_DSPL_CLK_DROF = 0xd5,
+  E_SET_PRECHARGE_PERIOD = 0xd9,
+  E_SET_VCOM_DESLCT_LVL = 0xdb,
+  E_NO_OP_CMD = 0xe3,
+
+} ECommandRegisters; // Please refer to the command table at chapter 9
+                     // (p.28-p.32) for register bit field descriptions
+
+#define SET_LOW_COL_STARTADDR_PAM(x) (E_SET_LOWER_COL_STARTADDR_PAM + (x))
+#define SET_HIGHER_COL_STARTADDR_PAM(x) (E_SET_HIGHER_COL_STARTADDR_PAM + (x))
+#define SET_PAGE_STARTADDR_PAM(x) (E_SET_PAGE_STARTADDR_PAM + (x))
+#define SET_DISPLAY_START_LINE(x) (E_SET_DISPLAY_START_LINE + (x))
+
+#define ARM_M7
+//#define ATMETGA32
+//#define ...
+
+void
+ssd1306_set_address_mode(EMemAddressMode memory_mode);
+
+void
+send_command_byte(ECommandRegisters cmd_hex);
+
+void
+send_data_byte(EMemAddressMode data);
+
+void
+populate_interface();
 
 /**
  * 128x64 MINIOLED
