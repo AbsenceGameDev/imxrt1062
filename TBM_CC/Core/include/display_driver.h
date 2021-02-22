@@ -171,34 +171,18 @@
  * Read the command list and see which commands might be usable, like page
  *  addressing command, then abstract it into some functions
  *
+ * Proposed way to set value by command:
+ * [START] [SlaveAddr, Command_Ctrl, Command_Data, DataToSet] [STOP]
+ *
+ * NOTE: Status Register Read -
+ *       This command is issued by setting D/C# ON LOW during a data read (See
+ *       Figure 13-1 to Figure 13-2 for parallel interface waveform). It allows
+ *       the MCU to monitor the internal status of the chip. No status read is
+ *       provided for serial mode
+ *
+ * For I2C Interface Timinng charesteristics, read page 54 of SSD1306 datasheet
  *
  **/
-
-typedef struct {
-  /** Send Start to SSD1306 display. */
-  void (*start)(void);
-
-  /** Send Stop condition to SSD1306 display. */
-  void (*stop)(void);
-
-  /**
-   * Sends byte to SSD1306 device
-   * @param data - byte to send
-   */
-  void (*send)(unsigned char data);
-
-  /**
-   * @brief Sends bytes to SSD1306 device
-   *
-   * Sends bytes to SSD1306 device. This functions gives
-   * ~ 30% performance increase than ssd1306_intf.send.
-   *
-   * @param buffer - bytes to send
-   * @param size - number of bytes to send
-   */
-  void (*send_buffer)(const unsigned char * buffer, unsigned short size);
-
-} ssd1306_intf; // ssd1306 interface
 
 typedef enum
 {
@@ -256,27 +240,85 @@ typedef enum
 
 } ECommandRegisters; // Please refer to the command table at chapter 9
                      // (p.28-p.32) for register bit field descriptions
-
-#define SET_LOW_COL_STARTADDR_PAM(x) (E_SET_LOWER_COL_STARTADDR_PAM + (x))
-#define SET_HIGHER_COL_STARTADDR_PAM(x) (E_SET_HIGHER_COL_STARTADDR_PAM + (x))
-#define SET_PAGE_STARTADDR_PAM(x) (E_SET_PAGE_STARTADDR_PAM + (x))
-#define SET_DISPLAY_START_LINE(x) (E_SET_DISPLAY_START_LINE + (x))
-
 #define ARM_M7
 //#define ATMETGA32
 //#define ...
 
+#define SSD1306_I2C_SET_LOW_COL_STARTADDR_PAM(x)                               \
+  (E_SET_LOWER_COL_STARTADDR_PAM + (x))
+#define SSD1306_I2C_SET_HIGHER_COL_STARTADDR_PAM(x)                            \
+  (E_SET_HIGHER_COL_STARTADDR_PAM + (x))
+#define SSD1306_I2C_SET_PAGE_STARTADDR_PAM(x) (E_SET_PAGE_STARTADDR_PAM + (x))
+#define SSD1306_I2C_SET_DISPLAY_START_LINE(x) (E_SET_DISPLAY_START_LINE + (x))
+
+#define ssd1306_delay(x) _delay_loop_2(x)
+
+/** Section, which defines I2C timings for SSD1306 display from datasheet */
+#define SSD1306_I2C_START_STOP_DELAY 600
+#define SSD1306_I2C_RISE_TIME 300
+#define SSD1306_I2C_FALL_TIME 300
+#define SSD1306_I2C_DATA_HOLD_TIME 300
+#define SSD1306_I2C_IDLE_TIME 1300
+#define SSD1306_I2C_CLOCK 2500
+
+/** Send Start to SSD1306 display. */
+typedef void (*start_fp)(void);
+
+/** Send Stop condition to SSD1306 display. */
+typedef void (*stop_fp)(void);
+
+/** Sends byte to SSD1306 device; @param data - TX - byte */
+typedef void (*send_fp)(unsigned char data);
+
+/**
+ * @brief Sends bytes to SSD1306 device;
+ * @param buf byte buffer; @param size # of bytes;
+ */
+typedef void (*sendbuf_fp)(const unsigned char * buf, unsigned short size);
+
+typedef struct {
+  start_fp   start;
+  stop_fp    stop;
+  send_fp    send;
+  sendbuf_fp send_buffer;
+} ssd1306_intf; // ssd1306 interface
+
+// physical layer
+static void
+ssd1306_phy_send_byte(unsigned char data);
+static void
+ssd1306_phy_send_bytes(const unsigned char * buf, unsigned short size);
+static void
+ssd1306_phy_start(void);
+static void
+ssd1306_phy_stop(void);
+static void
+ssd1306_phy_close();
+void
+ssd1306_phy_init(char scl, char sda, char sa);
+
+// abstracted layer
+void
+ssd1306_populate_interface();
 void
 ssd1306_set_address_mode(EMemAddressMode memory_mode);
-
 void
-send_command_byte(ECommandRegisters cmd_hex);
-
+ssd1306_send_command_byte(ECommandRegisters cmd_hex);
 void
-send_data_byte(EMemAddressMode data);
-
+ssd1306_set_command_register_byte(ECommandRegisters cmd_hex,
+                                  unsigned char     value);
 void
-populate_interface();
+ssd1306_set_command_register_word(ECommandRegisters cmd_hex,
+                                  unsigned short    value);
+void
+ssd1306_set_command_register_dword(ECommandRegisters cmd_hex,
+                                   unsigned long     value);
+void
+ssd1306_send_data_byte(unsigned char data);
+void
+ssd1306_send_data_word(unsigned short data);
+void
+ssd1306_send_data_dword(unsigned long data);
 
 /**
  * 128x64 MINIOLED
