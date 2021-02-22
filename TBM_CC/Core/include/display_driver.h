@@ -1,6 +1,8 @@
 #ifndef DISPLAY_DRIVER_H
 #define DISPLAY_DRIVER_H
 
+#include "system_memory_map.h"
+
 /**
  * @brief 128x32 MINIOLED
  * OLED Driver IC: SSD1306 (SOLOMON SYSTECH)
@@ -211,7 +213,6 @@ typedef enum
   E_STOP_SCROLL = 0x2e,
   E_ACTIVATE_SCROLL = 0x2f,
   E_SET_VERT_SCROLL_AREA = 0xa3,
-  E_SET_VERT_SCROLL_AREA = 0xa3,
 
   // 3. Addressing Setting Command Table
   E_SET_LOWER_COL_STARTADDR_PAM = 0x00,
@@ -262,32 +263,36 @@ typedef enum
 #define SSD1306_I2C_CLOCK 2500
 
 /** Send Start to SSD1306 display. */
-typedef void (*start_fp)(void);
+typedef void (*start_fp_t)(void);
 
 /** Send Stop condition to SSD1306 display. */
-typedef void (*stop_fp)(void);
+typedef void (*stop_fp_t)(void);
 
 /** Sends byte to SSD1306 device; @param data - TX - byte */
-typedef void (*send_fp)(unsigned char data);
+typedef void (*send_fp_t)(unsigned char data);
 
 /**
  * @brief Sends bytes to SSD1306 device;
  * @param buf byte buffer; @param size # of bytes;
  */
-typedef void (*sendbuf_fp)(const unsigned char * buf, unsigned short size);
+typedef void (*sendbuf_fp_t)(const unsigned char * buf,
+                             unsigned short        size,
+                             trigger_gpio_fp_t     trigger_gpio);
 
 typedef struct {
-  start_fp   start;
-  stop_fp    stop;
-  send_fp    send;
-  sendbuf_fp send_buffer;
+  start_fp_t   start_fp;
+  stop_fp_t    stop_fp;
+  send_fp_t    send_fp;
+  sendbuf_fp_t send_buffer_fp;
 } ssd1306_intf; // ssd1306 interface
 
 // physical layer
 static void
-ssd1306_phy_send_byte(unsigned char data);
+ssd1306_phy_send_byte(unsigned char data, trigger_gpio_fp_t trigger_gpio);
 static void
-ssd1306_phy_send_bytes(const unsigned char * buf, unsigned short size);
+ssd1306_phy_send_bytes(const unsigned char * buf,
+                       unsigned short        size,
+                       trigger_gpio_fp_t     trigger_gpio);
 static void
 ssd1306_phy_start(void);
 static void
@@ -298,8 +303,9 @@ void
 ssd1306_phy_init(char scl, char sda, char sa);
 
 // abstracted layer
-void
-ssd1306_populate_interface();
+ssd1306_intf *
+ssd1306_create_interface();
+
 void
 ssd1306_set_address_mode(EMemAddressMode memory_mode);
 void

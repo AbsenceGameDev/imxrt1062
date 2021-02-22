@@ -277,7 +277,7 @@ extern _8x8_ _oe_8x8;
 #define MSG_MAX_LENGTH 0xff
 #define LOGIC_XOR(a, b) (((a) || (b)) && ~((a) && (b)))
 
-char const h2a_const[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+extern char const h2a_const[];
 #define hex2ascii(hexd) (h2a_const[hexd])
 
 _4x4_ *

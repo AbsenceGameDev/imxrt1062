@@ -3045,7 +3045,6 @@ typedef enum
 
 //===
 
-
 /**
  * @brief: GPIO Memory Map, 12.5.1, p.961
  * GPIOn base address: 401B_8000h + (n-1)×4000h, where n is from 1 to 4.
@@ -8082,6 +8081,14 @@ typedef enum
 #define MPU_RASR_A2 MPU_BASE_ADDR.RASR_A2
 #define MPU_RBAR_A3 MPU_BASE_ADDR.RBAR_A3
 #define MPU_RASR_A3 MPU_BASE_ADDR.RASR_A3
+
+/**
+ * @brief pointer to be able to source pin addresses to the interface
+ * @param gpio_pin_addr const volatile uint32_t pointer to a gpio addr
+ * @param pulse const uint8_t that indicates low or high pulse
+ */
+typedef void (*trigger_gpio_fp_t)(const vuint32_t *   gpio_pin_addr,
+                                  const unsigned char pulse);
 
 /**
  * @brief Configure the MPU

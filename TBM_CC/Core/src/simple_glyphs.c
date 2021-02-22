@@ -1,5 +1,6 @@
 #include "simple_glyphs.h"
 
+char const h2a_const[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 /**
  * @brief Reference graphs below for 4x4 characters.
  * They are meant to to be used on small 64x16 (or 128x32) px screens.
