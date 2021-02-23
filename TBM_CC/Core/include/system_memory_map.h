@@ -8087,7 +8087,7 @@ typedef enum
  * @param gpio_pin_addr const volatile uint32_t pointer to a gpio addr
  * @param pulse const uint8_t that indicates low or high pulse
  */
-typedef void (*trigger_gpio_fp_t)(const vuint32_t *   gpio_pin_addr,
+typedef void (*trigger_gpio_fp_t)(const uint8_t       gpio_device_id,
                                   const unsigned char pulse);
 
 /**

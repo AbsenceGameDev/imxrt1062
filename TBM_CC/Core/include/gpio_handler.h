@@ -72,6 +72,16 @@ typedef struct {
   SStoredMUXDevice * base_mux_device;
 } SStoredGPIO; // = {.base_mux_device->mux_mode = ALT5_GPIOx_IOx};
 
+/**
+ * @brief pointer to be able to source pin addresses to the interface
+ * @param gpio_pin_addr const volatile uint32_t pointer to a gpio addr
+ * @param pulse const uint8_t that indicates low or high pulse
+ */
+void
+trigger_gpio(const uint8_t gpio_device_id, const unsigned char pulse);
+extern trigger_gpio_fp_t tgpio_fp;
+extern SStoredGPIO       current_gpio_devices[9];
+
 void
 init_gpio(SStoredGPIO *  gpio_device,
           EBaseGPIO      gpio_register,

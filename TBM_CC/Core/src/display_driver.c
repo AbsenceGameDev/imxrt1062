@@ -30,6 +30,7 @@ ssd1306_phy_send_byte(unsigned char data, trigger_gpio_fp_t trigger_gpio)
   for (i = 8; i > 0; i--) {
     // Send write-bit pulse
     trigger_gpio((vuint32_t *)0, i); // null addr is placeholder
+    // then wait before sending next bit, I think it was a couple of microsecs
   }
   // generating confirmation impulse
 }

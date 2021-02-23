@@ -4,14 +4,44 @@
 #include "gpio_handler.h"
 
 #include "registers.h"
+/**
+ * @brief TODO GPIO_HANDLER
+ * 1. Only use ID's in span [0,8]
+ *  2. Keep an array of uninitialized devices, current_gpio_devices[9] and then
+ *     keep the corresponding pin to the corresponding index.
+ *  3. Whenever an interface needs to trigger gpio, then use aforementioned
+ *     device-ID and access current_gpio_devices[ID] to do the stuff needed
+ **/
+
+// Function pointer to send through some interfaces,
+// for now it only regards display driver interface
+trigger_gpio_fp_t tgpio_fp = trigger_gpio;
+SStoredGPIO current_gpio_devices[9]; // Make addDevice/removeDevice functions
+
+void
+trigger_gpio(const uint8_t gpio_device_id, const unsigned char pulse)
+{
+
+  // Uncomment below codeblock after I have written add_device and rem_device;
+  /**
+   * current_gpio_devices[gpio_device_id] device;
+   * uint8_t dir = device.base_mux_device->ctrl_pos;
+   * set_gpr_gdir()
+   * set_gpio_datar(&GPIO7_DR_SET, dir);
+   * while (some_condition) { // Select correct GPIOxx macros, not sure how yet
+   *    if (pulse){ // conditions might need to be flipped for some devices
+   *       // Set PIN 13 LOW
+   *       clr_gpio_datar(&GPIOxx_DR_CLEAR, dir);
+   *    } else {
+   *       // Set PIN 13 HIGH,
+   *       set_gpio_datar(&GPIOxx_DR_SET, dir);
+   *    }
+   * }
+   *
+   **/
+}
 
 /**
- * TODO: Go through documentations to see what how the iomuxc pads are
- * configured, also check the bootdata.c, startup.c and imxrt1062.ld too see if
- * the iomux pads are configured there
- *
- * @brief: The imxrt1062 has 9 GPIOs, each of them has 32 channels? Not sure
- * will have to read more in the reference manual
  *
  * High-speed GPIOs exist in this device:
  * •  GPIO 1-5 are standard-speed GPIOs that run off the IPG_CLK_ROOT,
@@ -23,11 +53,6 @@
  *    The IOMUXC_GPR_GPR26-29 registers areused to determine if the regular or
  *    high-speed GPIO module is used for the GPIO pins on a given port.
  *
- * NOTE: / TODO:
- *  Read through chapter 10-12 tomorrow, everything from overview to functioncal
- *  descriptions. Need to understand how they work now that I have a small
- *  understanding of what they are
- *
  * Maybe change name of pad_position to control_position?
  *
  * NOTE: The programming sequence for driving output signals should be:
@@ -36,23 +61,6 @@
  *     need to read loopback pad value through PSR
  * 2.  Configure GPIO direction register to output (GPIO_GDIR[GDIR] set to 1b).
  * 3.  Write value to data register (GPIO_DR).
- *
- * A pseudocode description to drive 4'b0101 on [output3:output0] is as follows:
- * // SET PADS TO GPIO MODE VIA IOMUX.
- * write sw_mux_ctl_pad_<output[0-3]>.mux_mode, <GPIO_MUX_MODE>
- *
- * // Enable loopback so we can capture pad value into PSR in output mode
- * write sw_mux_ctl_pad_<output[0-3]>.sion, 1
- *
- * // SET GDIR=1 TO OUTPUT BITS.
- * write GDIR[31:4,output3_bit,output2_bit, output1_bit, output0_bit,]
- *32'hxxxxxxxF
- *
- * // WRITE OUTPUT VALUE=4’b0101 TO DR.
- * write DR, 32'hxxxxxxx5
- *
- * // READ OUTPUT VALUE FROM PSR ONLY.
- * read_cmp PSR, 32'hxxxxxxx5
  *
  **/
 void
