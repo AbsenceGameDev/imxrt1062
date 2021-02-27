@@ -58,6 +58,35 @@
 #define GPT2_CR_SET_ENMOD(x) (GPT2_CR &= ~(0x1 << 0x1) | (((x)&0x1) << 0x1))
 #define GPT2_SR_CLR GPT2_SR &= ~0x1f
 
+/**
+ * @brief Clock Gating Register enum
+ *
+ * CGR value | Clock Activity Description
+ * @param CLK_OFF__ALL_MODES Clock is off during all modes.
+ *                           Stop enter hardware handshake is disabled.
+ * @param CLK_ON__RUN Clock is on in run mode, but off in WAIT and STOP modes
+ * @param CLK_ON__NO_STOP Clock is on during all modes, except STOP mode.
+ **/
+typedef enum
+{
+  CLK_OFF__ALL_MODES = 0b00,
+  CLK_ON__RUN = 0b01,
+  CLK_ON__NO_STOP = 0b11
+} EClkGateReg;
+
+// Some defines to set enable GPTx at the Clock Controlelr Module (CCM)
+#define CCM_C_CGR0_GPT2_SERIAL(n) ((uint32_t)(((n)&0b11) << 26))
+#define CCM_C_CGR0_GPT2_BUS(n) ((uint32_t)(((n)&0b11) << 24))
+#define CCM_C_GPT2_EN                                                          \
+  CCM_C_CGR0 |= CCM_C_CGR0_GPT2_BUS(CLK_ON__NO_STOP) |                         \
+                CCM_C_CGR0_GPT2_SERIAL(CLK_ON__NO_STOP)
+
+#define CCM_C_CGR1_GPT1_SERIAL(n) ((uint32_t)(((n)&0b11) << 22))
+#define CCM_C_CGR1_GPT1_BUS(n) ((uint32_t)(((n)&0b11) << 20))
+#define CCM_C_GPT1_EN                                                          \
+  CCM_C_CGR1 |= CCM_C_CGR1_GPT1_BUS(CLK_ON__NO_STOP) |                         \
+                CCM_C_CGR1_GPT1_SERIAL(CLK_ON__NO_STOP)
+
 typedef enum
 {
   GPT1_E,
@@ -74,12 +103,28 @@ typedef enum
   GPT_IPG_CLK_24M = 0b101 // XTALOSC
 } EClockSrc;
 
+typedef uint32_t micros_t; // 10⁻⁶(s)
+typedef uint32_t zeptos_t; // 10⁻⁷(s)
+typedef uint32_t yoctos_t; // 10⁻⁸(s)
+typedef uint32_t nanos_t; // 10⁻⁹(s)
+
+typedef union {
+  micros_t ms; // micro-seconds
+  micros_t zs; // zepto-seconds
+  micros_t ys; // yocto-seconds
+  micros_t ns; // nano-seconds
+} gp_timer_u;
+
 typedef struct {
-  EGptimer  gpt_x;
-  EClockSrc gpt_clk;
-} gp_timer;
+  EGptimer   gpt_x;
+  EClockSrc  gpt_clk;
+  gp_timer_u time_container;
+} gp_timer_s;
 
 const void
-slct_clksrc_gpt(gp_timer * timer);
+slct_clksrc_gpt(gp_timer_s * timer);
+
+uint_fast32_t
+convert_to_time(gp_timer_s * timer);
 
 #endif // GP_TIMER_H
