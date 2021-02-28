@@ -1,6 +1,8 @@
+// General Purpose Timers
 #ifndef GP_TIMER_H
 #define GP_TIMER_H
-// General Purpose Timers
+
+#include "system_memory_map.h"
 
 /**
  * 52.6.1  Selecting the Clock Source
@@ -31,9 +33,9 @@
  * GPT2_CR = 0x401f0000
  * GPT2_SR = 0x401f0008
  * GPT2_IR = 0x401f000c
+ *
  **/
 
-#include "system_memory_map.h"
 // GPT1 macros
 #define GPT1_IR_EN(x) (GPT1_IR &= (~0x1f) | ((x)&0x1f))
 #define GPT1_CR_EN(x) (GPT1_CR &= (~0x1) | ((x)&0x1))
@@ -72,7 +74,7 @@ typedef enum
   CLK_OFF__ALL_MODES = 0b00,
   CLK_ON__RUN = 0b01,
   CLK_ON__NO_STOP = 0b11
-} EClkGateReg;
+} clk_gate_reg_e;
 
 // Some defines to set enable GPTx at the Clock Controlelr Module (CCM)
 #define CCM_C_CGR0_GPT2_SERIAL(n) ((uint32_t)(((n)&0b11) << 26))
@@ -91,7 +93,15 @@ typedef enum
 {
   GPT1_E,
   GPT2_E
-} EGptimer;
+} gptimer_e;
+
+typedef enum
+{
+  OCR_CH1,
+  OCR_CH2,
+  OCR_CH3
+} gpt_ocr_e;
+typedef uint32_t gpt_ocr_t;
 
 typedef enum
 {
@@ -101,30 +111,51 @@ typedef enum
   GPT_EXT_CLK = 0b011,
   GPT_IPG_CLK_32K = 0b100,
   GPT_IPG_CLK_24M = 0b101 // XTALOSC
-} EClockSrc;
+} clk_src_e;
 
+typedef uint32_t days_t; // ((60²)*24) (s)
+typedef uint32_t hours_t; // 60²(s)
+typedef uint32_t minutes_t; // 60(s)
+typedef uint32_t seconds_t; // 1(s)
+typedef uint32_t millis_t; // 10⁻³(s)
 typedef uint32_t micros_t; // 10⁻⁶(s)
 typedef uint32_t zeptos_t; // 10⁻⁷(s)
 typedef uint32_t yoctos_t; // 10⁻⁸(s)
 typedef uint32_t nanos_t; // 10⁻⁹(s)
 
 typedef union {
-  micros_t ms; // micro-seconds
-  micros_t zs; // zepto-seconds
-  micros_t ys; // yocto-seconds
-  micros_t ns; // nano-seconds
+  days_t    d;
+  hours_t   h;
+  minutes_t m;
+  seconds_t s;
+  millis_t  ms; // milli-seconds
+  micros_t  us; // micro-seconds
+  zeptos_t  zs; // zepto-seconds
+  yoctos_t  ys; // yocto-seconds
+  nanos_t   ns; // nano-seconds
 } gp_timer_u;
 
 typedef struct {
-  EGptimer   gpt_x;
-  EClockSrc  gpt_clk;
-  gp_timer_u time_container;
+  gp_timer_u count;
+  uint16_t   steps; // steps in this case being wrap
 } gp_timer_s;
 
+typedef struct {
+  gptimer_e  gpt_x;
+  gpt_ocr_t  ocr_arr[3];
+  clk_src_e  gpt_clk;
+  gp_timer_s time_container;
+} gpt_manager;
+
 const void
-slct_clksrc_gpt(gp_timer_s * timer);
+__slct_clksrc_gpt__(gpt_manager * timer);
+
+const void
+__set_comparator_gpt__(gpt_manager * timer,
+                       gpt_ocr_t     compareval,
+                       gpt_ocr_e     channel);
 
 uint_fast32_t
-convert_to_time(gp_timer_s * timer);
+__convert_to_time__(gpt_manager * timer);
 
 #endif // GP_TIMER_H
