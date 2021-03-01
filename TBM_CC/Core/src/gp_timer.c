@@ -88,7 +88,7 @@ __set_comparator_gpt__(gpt_manager * timer,
 
   switch (timer->gpt_x) {
     case GPT1_E:
-      // set GPT1_IR fields: {ROVIE,IF1IE,IF2IE,OF1IE,OF2IE,OF3IE} = 1
+      // set GPT1f_IR fields: {ROVIE,IF1IE,IF2IE,OF1IE,OF2IE,OF3IE} = 1
       GPT1_IR_EN(0x1);
 
       switch (channel) {
