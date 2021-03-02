@@ -6,7 +6,7 @@ vuint32_t * glob_gpt_ptrs[6] = {
     &GPT1_OCR1, &GPT1_OCR2, &GPT1_OCR3, &GPT2_OCR1, &GPT2_OCR2, &GPT2_OCR3};
 
 void
-init_gptman()
+init_gptman_arr()
 {
   for (unsigned char idx = 0; idx < 6; idx++) {
     glob_gptman[idx].time_container.steps = 0x0;
@@ -17,6 +17,25 @@ init_gptman()
     glob_gptman[idx].compval = 0x0;
     glob_gptman[idx].gpt_clk = GPT_NO_CLK;
   }
+}
+
+void
+init_gptman(gpt_manager *    gptman,
+            gptimer_e        gpt_x,
+            gpt_ocr_e        ocr_ch,
+            clk_src_e        gpt_clk,
+            gp_timetype_e    time_type,
+            gp_timer_s       time_container,
+            uint32_t         compval,
+            timer_manager_cb callback)
+{
+  gptman->gpt_x = gpt_x;
+  gptman->ocr_ch = ocr_ch;
+  gptman->gpt_clk = gpt_clk;
+  gptman->time_type = time_type;
+  gptman->time_container = time_container;
+  gptman->compval = compval;
+  gptman->callback = callback;
 }
 
 /**
@@ -30,7 +49,6 @@ init_gptman()
 void
 __slct_clksrc_gpt__(gpt_manager * timer)
 {
-
   switch (timer->gpt_x) {
     case GPT1_E:
 
@@ -95,9 +113,7 @@ __set_callback_gpt__(gpt_manager * timer, timer_manager_cb callback)
 }
 
 void
-__set_comparator_gpt__(gpt_manager * timer,
-                       gpt_ocr_t     compareval,
-                       gpt_ocr_e     channel)
+__set_comparator_gpt__(gpt_manager * timer)
 {
   switch (timer->gpt_x) {
     case GPT1_E:
@@ -107,10 +123,19 @@ __set_comparator_gpt__(gpt_manager * timer,
       // Point to internal callback in irq vector table
       add_to_irq_vector(IRQ_GPT1, callback_gpt1);
 
-      switch (channel) {
-        case OCR_CH1: *glob_gpt_ptrs[0] = compareval; break;
-        case OCR_CH2: *glob_gpt_ptrs[1] = compareval; break;
-        case OCR_CH3: *glob_gpt_ptrs[2] = compareval; break;
+      switch (timer->ocr_ch) {
+        case OCR_CH1:
+          GPT1_CR_SET_OM1(0x3);
+          *glob_gpt_ptrs[0] = timer->compval;
+          break;
+        case OCR_CH2:
+          GPT1_CR_SET_OM2(0x3);
+          *glob_gpt_ptrs[1] = timer->compval;
+          break;
+        case OCR_CH3:
+          GPT1_CR_SET_OM3(0x3);
+          *glob_gpt_ptrs[2] = timer->compval;
+          break;
         default: break;
       }
       break;
@@ -122,10 +147,19 @@ __set_comparator_gpt__(gpt_manager * timer,
       // Point to internal callback in irq vector table
       add_to_irq_vector(IRQ_GPT2, callback_gpt2);
 
-      switch (channel) {
-        case OCR_CH1: *glob_gpt_ptrs[3] = compareval; break;
-        case OCR_CH2: *glob_gpt_ptrs[4] = compareval; break;
-        case OCR_CH3: *glob_gpt_ptrs[5] = compareval; break;
+      switch (timer->ocr_ch) {
+        case OCR_CH1:
+          GPT2_CR_SET_OM1(0x3);
+          *glob_gpt_ptrs[3] = timer->compval;
+          break;
+        case OCR_CH2:
+          GPT2_CR_SET_OM2(0x3);
+          *glob_gpt_ptrs[4] = timer->compval;
+          break;
+        case OCR_CH3:
+          GPT2_CR_SET_OM3(0x3);
+          *glob_gpt_ptrs[5] = timer->compval;
+          break;
         default: break;
       }
       break;
@@ -160,42 +194,42 @@ set_time(gpt_manager * timer, gp_timetype_e time_type, gpt_ocr_t compareval)
   gp_timer_u * u_time_ptr = &(timer->time_container.count);
 
   switch (time_type) {
-    case DAYS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M * 85200), timer->ocr_ch);
-      break; // 0.00000000000048229167d resolution
-    case HOURS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M * 3600), timer->ocr_ch);
-      break; // 0.000000000011575h resolution
-    case MINUTES_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M * 60), timer->ocr_ch);
-      break; // 0.0000000006945m resolution
-    case SECONDS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = ref_value_24M, timer->ocr_ch);
-      break; // 0.00000004167s reolution.
-    case MILLIS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M / 1000), timer->ocr_ch);
-      break; // 0.00004167ms resolution
-    case MICROS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M / 1000000), timer->ocr_ch);
-      break; // 0.04167us resolution
-    case ZEPTOS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M / 10000000), timer->ocr_ch);
-      break; // 0.4167zs resolution
-    case YOCTOS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M / 100000000), timer->ocr_ch);
-      break; // 4.167ys resolution
-    case NANOS_E:
-      __set_comparator_gpt__(
-          timer, u_time_ptr->ns = (ref_value_24M / 1000000000), timer->ocr_ch);
-      break; // 41.67ns resolution
+    case DAYS_E: // 0.00000000000048229167d resolution
+      u_time_ptr->ns = (ref_value_24M * 85200);
+      __set_comparator_gpt__(timer);
+      break;
+    case HOURS_E: // 0.000000000011575h resolution
+      u_time_ptr->ns = (ref_value_24M * 3600);
+      __set_comparator_gpt__(timer);
+      break;
+    case MINUTES_E: // 0.0000000006945m resolution
+      u_time_ptr->ns = (ref_value_24M * 60);
+      __set_comparator_gpt__(timer);
+      break;
+    case SECONDS_E: // 0.00000004167s reolution.
+      u_time_ptr->ns = ref_value_24M;
+      __set_comparator_gpt__(timer);
+      break;
+    case MILLIS_E: // 0.00004167ms resolution
+      u_time_ptr->ns = (ref_value_24M / 1000);
+      __set_comparator_gpt__(timer);
+      break;
+    case MICROS_E: // 0.04167us resolution
+      u_time_ptr->ns = (ref_value_24M / 1000000);
+      __set_comparator_gpt__(timer);
+      break;
+    case ZEPTOS_E: // 0.4167zs resolution
+      u_time_ptr->ns = (ref_value_24M / 10000000);
+      __set_comparator_gpt__(timer);
+      break;
+    case YOCTOS_E: // 4.167ys resolution
+      u_time_ptr->ns = (ref_value_24M / 100000000);
+      __set_comparator_gpt__(timer);
+      break;
+    case NANOS_E: // 41.67ns resolution
+      u_time_ptr->ns = (ref_value_24M / 1000000000);
+      __set_comparator_gpt__(timer);
+      break;
 
     default: break;
   }
@@ -230,6 +264,9 @@ callback_gpt1(void)
   for (uint8_t idx = 0; idx < 3; idx++) {
     if (glob_gptman[idx].compval == *glob_gpt_ptrs[idx]) {
       glob_gptman[idx].callback(); // Trigger manager interface callback
+      set_time(&glob_gptman[idx],
+               glob_gptman[idx].time_type,
+               ++(glob_gptman[idx].compval));
     }
   }
 }
@@ -240,6 +277,9 @@ callback_gpt2(void)
   for (uint8_t idx = 3; idx < 6; idx++) {
     if (glob_gptman[idx].compval == *glob_gpt_ptrs[idx]) {
       glob_gptman[idx].callback(); // Trigger manager interface callback
+      set_time(&glob_gptman[idx],
+               glob_gptman[idx].time_type,
+               ++(glob_gptman[idx].compval));
     }
   }
 }

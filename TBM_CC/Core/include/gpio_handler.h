@@ -132,7 +132,7 @@ void
 set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state);
 
 void
-blinky_led_example();
+blinky_led_example(uint32_t seconds);
 
 void
 blinky_led_abstracted_example();

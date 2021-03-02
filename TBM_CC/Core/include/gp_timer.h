@@ -158,12 +158,12 @@ typedef void * (*timer_manager_cb)(void);
 
 typedef struct {
   gptimer_e        gpt_x;
+  gpt_ocr_e        ocr_ch;
+  gp_timetype_e    time_type;
+  gp_timer_s       time_container;
+  clk_src_e        gpt_clk;
   uint32_t         compval;
   timer_manager_cb callback;
-  clk_src_e        gpt_clk;
-  gp_timer_s       time_container;
-  gp_timetype_e    time_type;
-  gpt_ocr_e        ocr_ch;
 } gpt_manager;
 
 extern gpt_manager
@@ -173,7 +173,17 @@ extern vuint32_t *
     glob_gpt_ptrs[6]; /** idx [0,2] == gpt1_OCRidx, idx [3,5] == gpt2_OCRidx */
 
 void
-init_gptman();
+init_gptman_arr();
+
+void
+init_gptman(gpt_manager *    gptman,
+            gptimer_e        gpt_x,
+            gpt_ocr_e        ocr_ch,
+            clk_src_e        gpt_clk,
+            gp_timetype_e    time_type,
+            gp_timer_s       time_container,
+            uint32_t         compval,
+            timer_manager_cb callback);
 
 void
 __slct_clksrc_gpt__(gpt_manager * timer);
@@ -182,9 +192,7 @@ void
 __set_callback_gpt__(gpt_manager * timer, timer_manager_cb callback);
 
 void
-__set_comparator_gpt__(gpt_manager * timer,
-                       gpt_ocr_t     compareval,
-                       gpt_ocr_e     channel);
+__set_comparator_gpt__(gpt_manager * timer);
 
 void
 set_time(gpt_manager * timer, gp_timetype_e time_type, gpt_ocr_t compareval);

@@ -3,6 +3,7 @@
 
 #include "gpio_handler.h"
 
+#include "gp_timer.h"
 #include "registers.h"
 /**
  * @brief TODO GPIO_HANDLER
@@ -323,12 +324,49 @@ set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state)
   (*gpr_iomuxc_gpr) = (vuint32_t)(0xffffffff * (set_state));
 }
 
+uint8_t GPT1_CH0_FAUXBOOL = 0x1;
+
+void *
+callback_gpt1_ch1(void)
+{
+  if (GPT1_CH0_FAUXBOOL) {
+    // Set PIN 13 LOW
+    clr_gpio_datar(&GPIO7_DR_CLEAR, 0x3);
+    GPT1_CH0_FAUXBOOL = 0x0;
+    return NULL;
+  }
+
+  // Set PIN 13 HIGH,
+  set_gpio_datar(&GPIO7_DR_SET, 0x3);
+  GPT1_CH0_FAUXBOOL = 0x1;
+  return NULL;
+
+  // Test with flipflop logic maybe, with a global state array for each gpt
+  // compare channel? Seems crude, but keep it as a last resort if no other
+  // ideas come to mind
+  //
+  // Ok lets try something liek a state machine
+}
+
 /**
  * @brief: Blinky LED Example
  * Configure GPIO B0_03 (PIN 13) for output, ALT 5 according to p.511 */
 void
-blinky_led_example()
+blinky_led_example(uint32_t seconds)
 {
+  timer_manager_cb blinker_callback = callback_gpt1_ch1;
+  gpt_manager      gpt_mgr;
+  gp_timer_s       timer_container;
+  init_gptman(&gpt_mgr,
+              GPT1_E,
+              OCR_CH1,
+              GPT_IPG_CLK_24M,
+              SECONDS_E,
+              timer_container,
+              seconds,
+              blinker_callback);
+  __slct_clksrc_gpt__(&gpt_mgr);
+
   void * test = malloc_(0x10);
   if (test == NULL) { // MAKESHIFT DEBUG; BLINK LED TO INDICATE STUFF
 
@@ -349,38 +387,43 @@ blinky_led_example()
     // Set DPIO7 direction (set as output = 1, input = 0), in GDIR
     set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
 
-    for (;;) {
-      volatile unsigned int i = 0x0;
-      volatile unsigned int j = 0x0;
+    // for (;;) {
+    //   volatile unsigned int i = 0x0;
+    //   volatile unsigned int j = 0x0;
 
-      // Set PIN 13 LOW
-      clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
+    //   // Set PIN 13 LOW
+    //   clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
 
-      // Poor man's delay
-      while (i < 0x1ffffff) {
-        i++;
-        // Poor man's delay
-        while (j < 0x1ffffff) {
-          j++;
-        }
-      }
-      j = i = 0;
+    //   // Poor man's delay
+    //   while (i < 0x1ffffff) {
+    //     i++;
+    //     // Poor man's delay
+    //     while (j < 0x1ffffff) {
+    //       j++;
+    //     }
+    //   }
+    //   j = i = 0;
 
-      // Set PIN 13 HIGH,
-      set_gpio_datar(&GPIO7_DR_SET, dir);
+    //   // Set PIN 13 HIGH,
+    //   set_gpio_datar(&GPIO7_DR_SET, dir);
 
-      // Poor man's delay
-      while (i < 0x1ffffff) {
-        i++;
-        // Poor man's delay
-        while (j < 0x1ffffff) {
-          j++;
-        }
-      }
-      j = i = 0;
-    }
+    //   // Poor man's delay
+    //   while (i < 0x1ffffff) {
+    //     i++;
+    //     // Poor man's delay
+    //     while (j < 0x1ffffff) {
+    //       j++;
+    //     }
+    //   }
+    //   j = i = 0;
+    // }
   }
 }
+
+// void *
+// timer_callback()
+// {
+// }
 
 /**
  * @brief: Blinky LED Example abstraction (WIP)
