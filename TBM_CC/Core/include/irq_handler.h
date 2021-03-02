@@ -1,6 +1,8 @@
 #ifndef IRQ_HANDLER_H
 #define IRQ_HANDLER_H
 
+#include "system_memory_map.h"
+
 /** 4.3 CM7 interrupts (p.43 - p.52), IMXRT1060_Processor_Reference_Manual */
 typedef enum
 {
@@ -194,10 +196,15 @@ typedef enum
   IRQ_RESERVED9 = 159,
 
 } irq_num_e;
-#define NVIC_IRQs 0xa0
 
 typedef void (*void_func)(void);
+extern void (*__vectors_ram__[NVIC_IRQs + 0x10])(void);
 
 void
-add_to_irq_vector(irq_num_e irq, void_func function);
+add_to_irq_vector(irq_num_e irq, void_func function) __attribute__((unused));
+
+void
+remove_from_irq_vector(irq_num_e irq, void_func function)
+    __attribute__((unused));
+
 #endif // IRQ_HANDLER_H

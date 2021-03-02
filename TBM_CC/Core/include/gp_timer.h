@@ -2,6 +2,7 @@
 #ifndef GP_TIMER_H
 #define GP_TIMER_H
 
+#include "irq_handler.h"
 #include "system_memory_map.h"
 
 /**
@@ -135,27 +136,60 @@ typedef union {
   nanos_t   ns; // nano-seconds
 } gp_timer_u;
 
+typedef enum
+{
+  DAYS_E,
+  HOURS_E,
+  MINUTES_E,
+  SECONDS_E,
+  MILLIS_E, // milli-seconds
+  MICROS_E, // micro-seconds
+  ZEPTOS_E, // zepto-seconds
+  YOCTOS_E, // yocto-seconds
+  NANOS_E // nano-seconds
+} gp_timetype_e;
+
 typedef struct {
   gp_timer_u count;
   uint16_t   steps; // steps in this case being wrap
 } gp_timer_s;
 
+typedef void * (*timer_manager_cb)(void);
+
 typedef struct {
-  gptimer_e  gpt_x;
-  gpt_ocr_t  ocr_arr[3];
-  clk_src_e  gpt_clk;
-  gp_timer_s time_container;
+  gptimer_e        gpt_x;
+  uint32_t         compval;
+  timer_manager_cb callback;
+  clk_src_e        gpt_clk;
+  gp_timer_s       time_container;
+  gp_timetype_e    time_type;
 } gpt_manager;
 
-const void
+extern gpt_manager
+    glob_gptman[6]; /** idx [0,2] == gpt1_OCRidx, idx [3,5] == gpt2_OCRidx, */
+
+extern vuint32_t *
+    glob_gpt_ptrs[6]; /** idx [0,2] == gpt1_OCRidx, idx [3,5] == gpt2_OCRidx */
+
+void
+init_gptman();
+
+void
 __slct_clksrc_gpt__(gpt_manager * timer);
 
-const void
-__set_comparator_gpt__(gpt_manager * timer,
-                       gpt_ocr_t     compareval,
-                       gpt_ocr_e     channel);
+void
+__set_comparator_gpt__(gpt_manager *    timer,
+                       gpt_ocr_t        compareval,
+                       gpt_ocr_e        channel,
+                       timer_manager_cb callback);
 
 uint_fast32_t
 __convert_to_time__(gpt_manager * timer);
+
+void
+callback_gpt1(void);
+
+void
+callback_gpt2(void);
 
 #endif // GP_TIMER_H

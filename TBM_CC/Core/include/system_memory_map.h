@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#define NVIC_IRQs 0xa0
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
@@ -5653,29 +5655,29 @@ typedef enum
  *    response (like a busexception)
  *
  **/
-#define GPT_BASE0 MAP_8BIT_REGISTER(0x401ec000)
-#define GPT1_CR GPT_BASE0._0x000 // Control Register
-#define GPT1_PR GPT_BASE0._0x004 // Prescaler Register
-#define GPT1_SR GPT_BASE0._0x008 // Status Register
-#define GPT1_IR GPT_BASE0._0x00c // Interrupt Register
-#define GPT1_OCR1 GPT_BASE0._0x010 // Output Compare Register 1
-#define GPT1_OCR2 GPT_BASE0._0x014 // Output Compare Register 2
-#define GPT1_OCR3 GPT_BASE0._0x018 // Output Compare Register 3
-#define GPT1_ICR1 GPT_BASE0._0x01c // Input Capture Register 1
-#define GPT1_ICR2 GPT_BASE0._0x020 // Input Capture Register 2
-#define GPT1_CNT GPT_BASE0._0x024 // Counter Register
+#define GPT_BASE0 MAP_32BIT_REGISTER(0x401ec000)
+#define GPT1_CR GPT_BASE0._0x0000 // Control Register
+#define GPT1_PR GPT_BASE0._0x0004 // Prescaler Register
+#define GPT1_SR GPT_BASE0._0x0008 // Status Register
+#define GPT1_IR GPT_BASE0._0x000c // Interrupt Register
+#define GPT1_OCR1 GPT_BASE0._0x0010 // Output Compare Register 1
+#define GPT1_OCR2 GPT_BASE0._0x0014 // Output Compare Register 2
+#define GPT1_OCR3 GPT_BASE0._0x0018 // Output Compare Register 3
+#define GPT1_ICR1 GPT_BASE0._0x001c // Input Capture Register 1
+#define GPT1_ICR2 GPT_BASE0._0x0020 // Input Capture Register 2
+#define GPT1_CNT GPT_BASE0._0x0024 // Counter Register
 
-#define GPT_BASE1 MAP_8BIT_REGISTER(0x401f0000)
-#define GPT2_CR GPT_BASE1._0x000 // Control Register
-#define GPT2_PR GPT_BASE1._0x004 // Prescaler Register
-#define GPT2_SR GPT_BASE1._0x008 // Status Register
-#define GPT2_IR GPT_BASE1._0x00c // Interrupt Register
-#define GPT2_OCR1 GPT_BASE1._0x010 // Output Compare Register 1
-#define GPT2_OCR2 GPT_BASE1._0x014 // Output Compare Register 2
-#define GPT2_OCR3 GPT_BASE1._0x018 // Output Compare Register 3
-#define GPT2_ICR1 GPT_BASE1._0x01c // Input Capture Register 1
-#define GPT2_ICR2 GPT_BASE1._0x020 // Input Capture Register 2
-#define GPT2_CNT GPT_BASE1._0x024 // Counter Register
+#define GPT_BASE1 MAP_32BIT_REGISTER(0x401f0000)
+#define GPT2_CR GPT_BASE1._0x0000 // Control Register
+#define GPT2_PR GPT_BASE1._0x0004 // Prescaler Register
+#define GPT2_SR GPT_BASE1._0x0008 // Status Register
+#define GPT2_IR GPT_BASE1._0x000c // Interrupt Register
+#define GPT2_OCR1 GPT_BASE1._0x0010 // Output Compare Register 1
+#define GPT2_OCR2 GPT_BASE1._0x0014 // Output Compare Register 2
+#define GPT2_OCR3 GPT_BASE1._0x0018 // Output Compare Register 3
+#define GPT2_ICR1 GPT_BASE1._0x001c // Input Capture Register 1
+#define GPT2_ICR2 GPT_BASE1._0x0020 // Input Capture Register 2
+#define GPT2_CNT GPT_BASE1._0x0024 // Counter Register
 
 /**
  * @brief: PIT, Periodic Interrupt Timer, Memory Map/Register
