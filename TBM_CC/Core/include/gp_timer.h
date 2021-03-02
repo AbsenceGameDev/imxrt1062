@@ -163,6 +163,7 @@ typedef struct {
   clk_src_e        gpt_clk;
   gp_timer_s       time_container;
   gp_timetype_e    time_type;
+  gpt_ocr_e        ocr_ch;
 } gpt_manager;
 
 extern gpt_manager
@@ -178,13 +179,15 @@ void
 __slct_clksrc_gpt__(gpt_manager * timer);
 
 void
-__set_comparator_gpt__(gpt_manager *    timer,
-                       gpt_ocr_t        compareval,
-                       gpt_ocr_e        channel,
-                       timer_manager_cb callback);
+__set_callback_gpt__(gpt_manager * timer, timer_manager_cb callback);
 
-uint_fast32_t
-__convert_to_time__(gpt_manager * timer);
+void
+__set_comparator_gpt__(gpt_manager * timer,
+                       gpt_ocr_t     compareval,
+                       gpt_ocr_e     channel);
+
+void
+set_time(gpt_manager * timer, gp_timetype_e time_type, gpt_ocr_t compareval);
 
 void
 callback_gpt1(void);

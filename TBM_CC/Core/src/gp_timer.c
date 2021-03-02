@@ -89,14 +89,16 @@ __slct_clksrc_gpt__(gpt_manager * timer)
  *
  **/
 void
-__set_comparator_gpt__(gpt_manager *    timer,
-                       gpt_ocr_t        compareval,
-                       gpt_ocr_e        channel,
-                       timer_manager_cb callback)
+__set_callback_gpt__(gpt_manager * timer, timer_manager_cb callback)
 {
-  /** @todo set up interrupts somewhere in here, read above excerpt from spec! */
-  timer->callback = callback; // Supplied interface callback
+  timer->callback = callback;
+}
 
+void
+__set_comparator_gpt__(gpt_manager * timer,
+                       gpt_ocr_t     compareval,
+                       gpt_ocr_e     channel)
+{
   switch (timer->gpt_x) {
     case GPT1_E:
       // set GPT1f_IR fields: {ROVIE,IF1IE,IF2IE,OF1IE,OF2IE,OF3IE} = 1
@@ -130,6 +132,98 @@ __set_comparator_gpt__(gpt_manager *    timer,
   }
 }
 
+/**
+ * @brief Set time value for comparator
+ *
+ * @param timer input, Ptr to a gpt_manager
+ * @param time_type input, enum of gp_timetype_e
+ * @param compareval input, value, in the timetype requested
+ *
+ * @todo Expand it to work with more than just 24MHz clocks later, right now
+ * assume 24MHz
+ *
+ * @note Count registers are too small to keep track of days on the 24MHz clock,
+ * max would be about 3.2 hours, will have to create an hour-incrementor
+ * which could either be 8 or 16 bits wide, 8 bits seems fine to focus on at
+ * first, it would give about 10 days of span, and would only be used if either
+ * hour or day time_types are used.
+ */
+void
+set_time(gpt_manager * timer, gp_timetype_e time_type, gpt_ocr_t compareval)
+{
+  timer->compval = compareval;
+  timer->time_type = time_type;
+
+  // 24MHz = 41nanoseconds periods
+  // (compareval * 0x16E3600) (seconds)
+  uint32_t     ref_value_24M = compareval * 0x16E3600;
+  gp_timer_u * u_time_ptr = &(timer->time_container.count);
+
+  switch (time_type) {
+    case DAYS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M * 85200), timer->ocr_ch);
+      break; // 0.00000000000048229167d resolution
+    case HOURS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M * 3600), timer->ocr_ch);
+      break; // 0.000000000011575h resolution
+    case MINUTES_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M * 60), timer->ocr_ch);
+      break; // 0.0000000006945m resolution
+    case SECONDS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = ref_value_24M, timer->ocr_ch);
+      break; // 0.00000004167s reolution.
+    case MILLIS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M / 1000), timer->ocr_ch);
+      break; // 0.00004167ms resolution
+    case MICROS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M / 1000000), timer->ocr_ch);
+      break; // 0.04167us resolution
+    case ZEPTOS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M / 10000000), timer->ocr_ch);
+      break; // 0.4167zs resolution
+    case YOCTOS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M / 100000000), timer->ocr_ch);
+      break; // 4.167ys resolution
+    case NANOS_E:
+      __set_comparator_gpt__(
+          timer, u_time_ptr->ns = (ref_value_24M / 1000000000), timer->ocr_ch);
+      break; // 41.67ns resolution
+
+    default: break;
+  }
+}
+
+/**
+ * GPT External Signals table
+ *| NAME            | PAD          | MODE |
+ *|=================|==============|======|
+ *| GPT1_COMPARE1   | GPIO_EMC_35  | ALT2 |
+ *|                 | GPIO_B1_07   | ALT8 |
+ *|=================|==============|======|
+ *| GPT1_COMPARE2   | GPIO_EMC_35  | ALT2 |
+ *|                 | GPIO_B1_07   | ALT8 |
+ *|=================|==============|======|
+ *| GPT1_COMPARE3   | GPIO_EMC_35  | ALT2 |
+ *|                 | GPIO_B1_07   | ALT8 |
+ *|=================|==============|======|
+ *| GPT2_COMPARE1   | GPIO_EMC_35  | ALT2 |
+ *|                 | GPIO_B1_07   | ALT8 |
+ *|=================|==============|======|
+ *| GPT2_COMPARE2   | GPIO_EMC_35  | ALT2 |
+ *|                 | GPIO_B1_07   | ALT8 |
+ *|=================|==============|======|
+ *| GPT2_COMPARE3   | GPIO_EMC_35  | ALT2 |
+ *|                 | GPIO_B1_07   | ALT8 |
+ *|=================|==============|======|
+ */
 void
 callback_gpt1(void)
 {
