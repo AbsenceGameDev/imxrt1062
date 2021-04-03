@@ -12,7 +12,8 @@ init_gptman_arr()
     glob_gptman[idx].time_container.steps = 0x0;
     glob_gptman[idx].time_container.count.s = 0x0;
     glob_gptman[idx].time_type = SECONDS_E;
-    glob_gptman[idx].callback = ((timer_manager_cb)0);
+    glob_gptman[idx].callback =
+        ((timer_manager_cb)0); // firs setting a null callback
     glob_gptman[idx].gpt_x = (GPT1_E * (idx < 3)) + (GPT2_E * !(idx < 3));
     glob_gptman[idx].compval = 0x0;
     glob_gptman[idx].gpt_clk = GPT_NO_CLK;
@@ -67,7 +68,7 @@ __slct_clksrc_gpt__(gpt_manager * timer)
       GPT1_SR_CLR;
       GPT1_CR_SET_ENMOD(0x1);
       GPT1_CR_EN(0x1);
-      GPT1_IR_EN(0x1);
+      GPT1_IR_EN(0x7);
       break;
     case GPT2_E:
       CCM_C_GPT2_EN;
@@ -82,7 +83,7 @@ __slct_clksrc_gpt__(gpt_manager * timer)
       GPT2_SR_CLR;
       GPT2_CR_SET_ENMOD(0x1);
       GPT2_CR_EN(0x1);
-      GPT2_IR_EN(0x1);
+      GPT2_IR_EN(0x7);
       break;
   }
 }
@@ -112,6 +113,50 @@ __set_callback_gpt__(gpt_manager * timer, timer_manager_cb callback)
   timer->callback = callback;
 }
 
+/**
+ * @brief Clamps values if they exceed max limit of the 24mhx cycle registers
+ * @details Clamps them using arithmetic logic, instead of control-blocks like
+ *ifs
+ *
+ * @returns Either return a clamped value, or return the inputted value,
+ * if the time didn't exceed the max of it's timetype, then return intputted
+ *value, otherwise return clamped value
+ **/
+uint32_t
+__time_clamp_24mhz__(uint32_t intime, gp_timetype_e ttype)
+{
+  uint32_t clamped_val = 0;
+  clamped_val = 2 * (ttype == MINUTES_E && intime > 2) +
+                178 * (ttype == SECONDS_E && intime > 178) +
+                178956 * (ttype == MILLIS_E && intime > 178956) +
+                178956970 * (ttype == MICROS_E && intime > 178956970) +
+                1789569706 * (ttype == ZEPTOS_E && intime > 1789569706) +
+                0xffffffff * (ttype == YOCTOS_E && intime >= 0xffffffff) +
+                0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff);
+  return (intime * (clamped_val == 0)) + clamped_val;
+};
+
+// hardcoded to be used with the 24MHz clock for testing
+uint32_t
+__resolve_time__(gpt_manager * gptimer_mgr)
+{
+  gp_timetype_e timetype = gptimer_mgr->time_type;
+  // ensuring safety
+  uint32_t time_og_unit =
+      __time_clamp_24mhz__(gptimer_mgr->compval, gptimer_mgr->time_type);
+
+  // 24MHz = 41nanoseconds periods
+  // (compareval * 0x16E3600 == compareval * 24MHz) (seconds)
+  // (compareval * 0x00005dc0 == compareval * 24KHz) (millis)
+  return (time_og_unit * 0x55d4a800) * (timetype == MINUTES_E) +
+         (time_og_unit * 0x016e3600) * (timetype == SECONDS_E) +
+         (time_og_unit * 0x00005dc0) * (timetype == MILLIS_E) +
+         (time_og_unit * 0x00000018) * (timetype == MICROS_E) +
+         ((time_og_unit * 0x18) / 0xa) * (timetype == ZEPTOS_E) +
+         ((time_og_unit * 0x18) / 0x64) * (timetype == YOCTOS_E) +
+         ((time_og_unit * 0x18) / 0x3e8) * (timetype == NANOS_E);
+}
+
 void
 __set_comparator_gpt__(gpt_manager * timer)
 {
@@ -121,20 +166,23 @@ __set_comparator_gpt__(gpt_manager * timer)
       GPT1_IR_EN(0x1);
 
       // Point to internal callback in irq vector table
-      add_to_irq_vector(IRQ_GPT1, callback_gpt1);
+      add_to_irq_v(IRQ_GPT1, timer->callback);
 
       switch (timer->ocr_ch) {
         case OCR_CH1:
           GPT1_CR_SET_OM1(0x3);
-          *glob_gpt_ptrs[0] = timer->compval;
+          //*glob_gpt_ptrs[0] = __resolve_time__(timer); // timer->compval;
+          GPT1_OCR1 = __resolve_time__(timer); // timer->compval;
           break;
         case OCR_CH2:
           GPT1_CR_SET_OM2(0x3);
-          *glob_gpt_ptrs[1] = timer->compval;
+          // *glob_gpt_ptrs[1] = __resolve_time__(timer); // timer->compval;
+          GPT1_OCR2 = __resolve_time__(timer); // timer->compval;
           break;
         case OCR_CH3:
           GPT1_CR_SET_OM3(0x3);
-          *glob_gpt_ptrs[2] = timer->compval;
+          // *glob_gpt_ptrs[2] = __resolve_time__(timer); // timer->compval;
+          GPT1_OCR3 = __resolve_time__(timer); // timer->compval;
           break;
         default: break;
       }
@@ -145,20 +193,23 @@ __set_comparator_gpt__(gpt_manager * timer)
       GPT2_IR_EN(0x1);
 
       // Point to internal callback in irq vector table
-      add_to_irq_vector(IRQ_GPT2, callback_gpt2);
+      add_to_irq_v(IRQ_GPT2, callback_gpt2);
 
       switch (timer->ocr_ch) {
         case OCR_CH1:
           GPT2_CR_SET_OM1(0x3);
-          *glob_gpt_ptrs[3] = timer->compval;
+          // *glob_gpt_ptrs[3] = __resolve_time__(timer); // timer->compval;
+          GPT2_OCR1 = __resolve_time__(timer); // timer->compval;
           break;
         case OCR_CH2:
           GPT2_CR_SET_OM2(0x3);
-          *glob_gpt_ptrs[4] = timer->compval;
+          // *glob_gpt_ptrs[4] = __resolve_time__(timer); // timer->compval;
+          GPT2_OCR2 = __resolve_time__(timer); // timer->compval;
           break;
         case OCR_CH3:
           GPT2_CR_SET_OM3(0x3);
-          *glob_gpt_ptrs[5] = timer->compval;
+          // *glob_gpt_ptrs[5] = __resolve_time__(timer); // timer->compval;
+          GPT2_OCR3 = __resolve_time__(timer); // timer->compval;
           break;
         default: break;
       }
@@ -187,52 +238,10 @@ set_time(gpt_manager * timer, gp_timetype_e time_type, gpt_ocr_t compareval)
 {
   timer->compval = compareval;
   timer->time_type = time_type;
-
-  // 24MHz = 41nanoseconds periods
-  // (compareval * 0x16E3600) (seconds)
-  uint32_t     ref_value_24M = compareval * 0x16E3600;
-  gp_timer_u * u_time_ptr = &(timer->time_container.count);
-
-  switch (time_type) {
-    case DAYS_E: // 0.00000000000048229167d resolution
-      u_time_ptr->ns = (ref_value_24M * 85200);
-      __set_comparator_gpt__(timer);
-      break;
-    case HOURS_E: // 0.000000000011575h resolution
-      u_time_ptr->ns = (ref_value_24M * 3600);
-      __set_comparator_gpt__(timer);
-      break;
-    case MINUTES_E: // 0.0000000006945m resolution
-      u_time_ptr->ns = (ref_value_24M * 60);
-      __set_comparator_gpt__(timer);
-      break;
-    case SECONDS_E: // 0.00000004167s reolution.
-      u_time_ptr->ns = ref_value_24M;
-      __set_comparator_gpt__(timer);
-      break;
-    case MILLIS_E: // 0.00004167ms resolution
-      u_time_ptr->ns = (ref_value_24M / 1000);
-      __set_comparator_gpt__(timer);
-      break;
-    case MICROS_E: // 0.04167us resolution
-      u_time_ptr->ns = (ref_value_24M / 1000000);
-      __set_comparator_gpt__(timer);
-      break;
-    case ZEPTOS_E: // 0.4167zs resolution
-      u_time_ptr->ns = (ref_value_24M / 10000000);
-      __set_comparator_gpt__(timer);
-      break;
-    case YOCTOS_E: // 4.167ys resolution
-      u_time_ptr->ns = (ref_value_24M / 100000000);
-      __set_comparator_gpt__(timer);
-      break;
-    case NANOS_E: // 41.67ns resolution
-      u_time_ptr->ns = (ref_value_24M / 1000000000);
-      __set_comparator_gpt__(timer);
-      break;
-
-    default: break;
-  }
+  __slct_clksrc_gpt__(timer);
+  __set_comparator_gpt__(timer);
+  __setup_gpt2__(); // test for now, will make a general version for both gpt1
+                    // and 2 maybe
 }
 
 /**
@@ -282,4 +291,27 @@ callback_gpt2(void)
                ++(glob_gptman[idx].compval));
     }
   }
+}
+
+void
+__setup_gpt2__()
+{
+  // pinMode(13, OUTPUT);
+  // analogWriteFrequency(14, 100);  // test with PWM
+  // analogWrite(14, 128); // jumper pwm 14  to pin 15  Serial3 on T4B2 breakout
+  // Connect GPS 1PPS signal to pin 15 (GPIO_AD_B1_03)
+  IOMUXC_GPT2_IPP_IND_CAPIN1__SLCT_IN_DR = 1; // remap GPT2 capture 1
+  IOMUXC_MUX_PAD_GPIO_AD_B1_CR03 = 8; // GPT2 Capture1
+  IOMUXC_PAD_PAD_GPIO_AD_B1_CR03 = 0x13000; // Pulldown & Hyst
+
+  CCM_C_GPT2_EN;
+
+  GPT2_CR = 0;
+  GPT2_PR = 0;
+  GPT2_SR_CLR; // clear all prior status
+  GPT2_IR_EN(0x1);
+  GPT2_CR = GPT_CR_SET_EN(0x1) | GPT_CR_CLKSRC(GPT_IPG_CLK) |
+            GPT_CR_MODE(RESTARTMODE_E) | GPT_CR_IM1_SET(1);
+
+  // NVIC_ENABLE_IRQ(IRQ_GPT2);
 }

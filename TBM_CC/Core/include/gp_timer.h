@@ -37,6 +37,27 @@
  *
  **/
 
+typedef enum
+{
+  FREERUNMODE_E = 0b00,
+  RESTARTMODE_E = 0b01
+} gpt_run_mode_e;
+
+// General
+#define GPT_IR_SET_EN(x) (~0x1f) | ((x)&0x1f)
+#define GPT_CR_SET_EN(x) (~0x1) | ((x)&0x1)
+#define GPT_CR_SET_OM1(x) ~(0x7 << 0x14) | (((x)&0x7) << 0x14)
+#define GPT_CR_SET_OM2(x) ~(0x7 << 0x17) | (((x)&0x7) << 0x17)
+#define GPT_CR_SET_OM3(x) ~(0x7 << 0x1a) | (((x)&0x7) << 0x1a)
+#define GPT_CR_IM_CLR ~(0xf << 0x10) // clear [19,16]
+#define GPT_CR_IM1_SET(x) ~(0x3 << 0x10) | (((x)&0x3) << 0x10) // set [17,16]
+#define GPT_CR_IM2_SET(x) ~(0x3 << 0x12) | (((x)&0x3) << 0x12) // set [19,18]
+#define GPT_CR_CLKSRC(SRC) ~(0x7 << 0x6) | ((SRC & 0x7) << 0x6)
+#define GPT_CR_SWR(x) ~(0x1 << 0xf) | (((x)&0x1) << 0xf)
+#define GPT_CR_SET_ENMOD(x) ~(0x1 << 0x1) | (((x)&0x1) << 0x1)
+#define GPT_SR_CLR ~0x1f
+#define GPT_CR_MODE(gpt_run_mode) ~(0x1 << 0x9) | ((gpt_run_mode & 0x1) << 0x9)
+
 // GPT1 macros
 #define GPT1_IR_EN(x) (GPT1_IR &= (~0x1f) | ((x)&0x1f))
 #define GPT1_CR_EN(x) (GPT1_CR &= (~0x1) | ((x)&0x1))
@@ -56,7 +77,7 @@
 #define GPT2_CR_SET_OM2(x) (GPT2_CR &= (~(0x7 << 0x17) | (((x)&0x7) << 0x17)))
 #define GPT2_CR_SET_OM3(x) (GPT2_CR &= (~(0x7 << 0x1a) | (((x)&0x7) << 0x1a)))
 #define GPT2_CR_IM_CLR GPT2_CR &= ~(0xf << 0x10) // clear [19,16]
-#define GPT2_CR_CLKSRC(SRC) GPT2_CR &= ~(0x7 << 0x6) | ((SRC & 0x7) << 0x6)
+#define GPT2_CR_CLKSRC(SRC) GPT2_CR &= ~(0x7 << 0x9) | ((SRC & 0x7) << 0x6)
 #define GPT2_CR_SWR(x) (GPT2_CR &= ~(0x1 << 0xf) | (((x)&0x1) << 0xf))
 #define GPT2_CR_SET_ENMOD(x) (GPT2_CR &= ~(0x1 << 0x1) | (((x)&0x1) << 0x1))
 #define GPT2_SR_CLR GPT2_SR &= ~0x1f
@@ -77,6 +98,23 @@ typedef enum
   CLK_ON__NO_STOP = 0b11
 } clk_gate_reg_e;
 
+// // Some defines to set enable GPTx at the Clock Controlelr Module (CCM)
+// /** @brief Set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
+// #define GPT2_SET_BUS(x) CCM_C_CGR0 |= (uint32_t)((x) << 24)
+// /** @brief set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
+// #define GPT2_SET_SERIAL(x) CCM_C_CGR0 |= (uint32_t)((x) << 26)
+// #define CCM_C_GPT2_EN
+//   CCM_C_CGR0 |= GPT2_SET_BUS(CLK_ON__NO_STOP) |
+//   GPT2_SET_SERIAL(CLK_ON__NO_STOP)
+//
+// /** @brief Set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
+// #define GPT1_SET_BUS(x) CCM_C_CGR1 |= (uint32_t)((x) << 20)
+// /** @brief set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
+// #define GPT1_SET_SERIAL(x) CCM_C_CGR1 |= (uint32_t)((x) << 22)
+// #define CCM_C_GPT1_EN
+//   CCM_C_CGR1 |= GPT1_SET_BUS(CLK_ON__NO_STOP) |
+//   GPT1_SET_SERIAL(CLK_ON__NO_STOP)
+//
 // Some defines to set enable GPTx at the Clock Controlelr Module (CCM)
 #define CCM_C_CGR0_GPT2_SERIAL(n) ((uint32_t)(((n)&0b11) << 26))
 #define CCM_C_CGR0_GPT2_BUS(n) ((uint32_t)(((n)&0b11) << 24))
@@ -154,7 +192,7 @@ typedef struct {
   uint16_t   steps; // steps in this case being wrap
 } gp_timer_s;
 
-typedef void * (*timer_manager_cb)(void);
+typedef void (*timer_manager_cb)(void);
 
 typedef struct {
   gptimer_e        gpt_x;
@@ -191,6 +229,9 @@ __slct_clksrc_gpt__(gpt_manager * timer);
 void
 __set_callback_gpt__(gpt_manager * timer, timer_manager_cb callback);
 
+uint32_t
+__time_clamp_24mhz__(uint32_t intime, gp_timetype_e ttype);
+
 void
 __set_comparator_gpt__(gpt_manager * timer);
 
@@ -202,5 +243,8 @@ callback_gpt1(void);
 
 void
 callback_gpt2(void);
+
+void
+__setup_gpt2__();
 
 #endif // GP_TIMER_H

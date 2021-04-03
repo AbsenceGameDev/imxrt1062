@@ -324,22 +324,23 @@ set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state)
   (*gpr_iomuxc_gpr) = (vuint32_t)(0xffffffff * (set_state));
 }
 
+// GLOBALS
 uint8_t GPT1_CH0_FAUXBOOL = 0x1;
 
-void *
+void
 callback_gpt1_ch1(void)
 {
   if (GPT1_CH0_FAUXBOOL) {
     // Set PIN 13 LOW
     clr_gpio_datar(&GPIO7_DR_CLEAR, 0x3);
     GPT1_CH0_FAUXBOOL = 0x0;
-    return NULL;
+    return; // NULL;
   }
 
   // Set PIN 13 HIGH,
   set_gpio_datar(&GPIO7_DR_SET, 0x3);
   GPT1_CH0_FAUXBOOL = 0x1;
-  return NULL;
+  // return NULL;
 
   // Test with flipflop logic maybe, with a global state array for each gpt
   // compare channel? Seems crude, but keep it as a last resort if no other
@@ -354,70 +355,31 @@ callback_gpt1_ch1(void)
 void
 blinky_led_example(uint32_t seconds)
 {
+  IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
+  IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+  // GPR27, Set it to Control
+  IOMUXC_GPR_GPR27 = 0xffffffff;
+  const uint_fast8_t dir = 0x3;
+  set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
+
   timer_manager_cb blinker_callback = callback_gpt1_ch1;
   gpt_manager      gpt_mgr;
   gp_timer_s       timer_container;
   init_gptman(&gpt_mgr,
-              GPT1_E,
+              GPT2_E,
               OCR_CH1,
               GPT_IPG_CLK_24M,
               SECONDS_E,
               timer_container,
-              seconds,
+              0x10,
               blinker_callback);
-  __slct_clksrc_gpt__(&gpt_mgr);
+  set_time(&gpt_mgr, SECONDS_E, 0x2);
+  add_to_irq_v(IRQ_GPT2, callback_gpt1_ch1);
+  // Above does not crash, so not doing anything too out of the ordinary.
+  // I'm guessing I am missing some step in setting the registers
+  // OR I am pushing the callback wrongly to the interrupt vector
 
-  void * test = malloc_(0x10);
-  if (test == NULL) { // MAKESHIFT DEBUG; BLINK LED TO INDICATE STUFF
-
-    IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
-    IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
-
-    // GPR27, Set it to Control
-    IOMUXC_GPR_GPR27 = 0xffffffff;
-
-    // Seems like the dir offset is related to the control registers in the
-    // iomuxc above, will have to look into it more tomorrow
-    const uint_fast8_t dir = 0x3;
-
-    /** GPIO_GDIR functions as direction control when the IOMUXC is in GPIO
-     *mode. Each bit specifies the direction of a one-bit signal.
-     **/
-
-    // Set DPIO7 direction (set as output = 1, input = 0), in GDIR
-    set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
-
-    // for (;;) {
-    //   volatile unsigned int i = 0x0;
-    //   volatile unsigned int j = 0x0;
-
-    //   // Set PIN 13 LOW
-    //   clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
-
-    //   // Poor man's delay
-    //   while (i < 0x1ffffff) {
-    //     i++;
-    //     // Poor man's delay
-    //     while (j < 0x1ffffff) {
-    //       j++;
-    //     }
-    //   }
-    //   j = i = 0;
-
-    //   // Set PIN 13 HIGH,
-    //   set_gpio_datar(&GPIO7_DR_SET, dir);
-
-    //   // Poor man's delay
-    //   while (i < 0x1ffffff) {
-    //     i++;
-    //     // Poor man's delay
-    //     while (j < 0x1ffffff) {
-    //       j++;
-    //     }
-    //   }
-    //   j = i = 0;
-    // }
-  }
+  // blinky_led_original_example();
 }
 
 // void *
@@ -473,5 +435,51 @@ blinky_led_abstracted_example()
       }
     }
     j = i = 0;
+  }
+}
+
+void
+blinky_led_original_example()
+{
+  IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
+  IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+
+  // GPR27, Set it to Control
+  IOMUXC_GPR_GPR27 = 0xffffffff;
+  const uint_fast8_t dir = 0x3;
+  set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
+
+  void * test = malloc_(0x10); // "malloc"
+  if (test == NULL) { // MAKESHIFT DEBUG; BLINK LED TO INDICATE STUFF
+    for (;;) {
+      volatile unsigned int i = 0x0;
+      volatile unsigned int j = 0x0;
+
+      // Set PIN 13 LOW
+      clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
+
+      // Poor man's delay
+      while (i < 0x1ffffff) {
+        i++;
+        // Poor man's delay
+        while (j < 0x1ffffff) {
+          j++;
+        }
+      }
+      j = i = 0;
+
+      // Set PIN 13 HIGH,
+      set_gpio_datar(&GPIO7_DR_SET, dir);
+
+      // Poor man's delay
+      while (i < 0x1ffffff) {
+        i++;
+        // Poor man's delay
+        while (j < 0x1ffffff) {
+          j++;
+        }
+      }
+      j = i = 0;
+    }
   }
 }

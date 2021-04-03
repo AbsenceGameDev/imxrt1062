@@ -6,6 +6,9 @@
 void *
 __get_glyph_block_4x4__(char * instream);
 
+void *
+__get_glyph_block_8x8__(char * instream);
+
 int
 aprintf(char * instring);
 

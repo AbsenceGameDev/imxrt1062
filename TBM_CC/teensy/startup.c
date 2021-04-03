@@ -1,3 +1,4 @@
+#include "irq_handler.h"
 #include "system_memory_map.h"
 
 extern unsigned long _stextload;
@@ -10,6 +11,8 @@ extern unsigned long _sbss;
 extern unsigned long _ebss;
 extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
+
+typedef void (*void_func)(void);
 
 static void
 memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * dest_end);
@@ -63,4 +66,16 @@ memory_clear(uint32_t * dest, uint32_t * dest_end)
   while (dest < dest_end) {
     *dest++ = 0;
   }
+}
+
+void __attribute__((used)) add_to_irq_v(irq_num_e irq, void_func function)
+{
+  __vectors_ram__[irq + 0x10] = function;
+  asm volatile("" : : : "memory");
+}
+
+void __attribute__((used)) remove_from_irq_v(irq_num_e irq, void_func function)
+{
+  __vectors_ram__[irq + 0x10] = ((void_func)0);
+  asm volatile("" : : : "memory");
 }

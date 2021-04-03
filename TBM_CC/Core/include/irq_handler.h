@@ -200,11 +200,22 @@ typedef enum
 typedef void (*void_func)(void);
 extern void (*__vectors_ram__[NVIC_IRQs + 0x10])(void);
 
-void
-add_to_irq_vector(irq_num_e irq, void_func function) __attribute__((unused));
+extern void
+add_to_irq_v(irq_num_e irq, void_func function);
+extern void
+remove_from_irq_v(irq_num_e irq, void_func function);
 
-void
-remove_from_irq_vector(irq_num_e irq, void_func function)
-    __attribute__((unused));
+void __attribute__((used)) add_to_irq_vector(irq_num_e irq, void_func function);
+// {
+//   __vectors_ram__[irq + 0x10] = function;
+//   asm volatile("" : : : "memory");
+// }
+
+void __attribute__((used))
+remove_from_irq_vector(irq_num_e irq, void_func function);
+// {
+//   __vectors_ram__[irq + 0x10] = ((void_func)0);
+//   asm volatile("" : : : "memory");
+// }
 
 #endif // IRQ_HANDLER_H

@@ -3,6 +3,7 @@
 
 #include "iomux_controller.h"
 
+// ENUMS
 typedef enum
 {
   DR_DATA_REG = 0x0, // RW
@@ -61,6 +62,7 @@ typedef enum
   GDIR_OUT
 } ETypeIO;
 
+// TYPES
 // volatile void *void_loc = (volatile void *)0x12345678;
 typedef struct {
   uint8_t            bit_id;
@@ -72,6 +74,11 @@ typedef struct {
   SStoredMUXDevice * base_mux_device;
 } SStoredGPIO; // = {.base_mux_device->mux_mode = ALT5_GPIOx_IOx};
 
+// EXTERNS
+extern trigger_gpio_fp_t tgpio_fp;
+extern SStoredGPIO       current_gpio_devices[9];
+
+// FUNCTION DECLARATIONS
 /**
  * @brief pointer to be able to source pin addresses to the interface
  * @param gpio_pin_addr const volatile uint32_t pointer to a gpio addr
@@ -79,8 +86,6 @@ typedef struct {
  */
 void
 trigger_gpio(const uint8_t gpio_device_id, const unsigned char pulse);
-extern trigger_gpio_fp_t tgpio_fp;
-extern SStoredGPIO       current_gpio_devices[9];
 
 void
 init_gpio(SStoredGPIO *  gpio_device,
@@ -136,5 +141,8 @@ blinky_led_example(uint32_t seconds);
 
 void
 blinky_led_abstracted_example();
+
+void
+blinky_led_original_example();
 
 #endif
