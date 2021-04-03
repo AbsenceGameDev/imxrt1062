@@ -3,7 +3,15 @@
 
 #include "system_memory_map.h"
 
-/** 4.3 CM7 interrupts (p.43 - p.52), IMXRT1060_Processor_Reference_Manual */
+/**
+ *  @brief 4.3 CM7 interrupts (p.43 - p.52), IMXRT1060 Processor Ref Manual
+ *
+ *  @details Due to the clock frequency difference between CPU andperipheral, in
+ *           some corner case, peripheral interrupt flag maynot be really
+ *           cleared before CPU exit ISR. In such case, user should add DSB
+ *           instruction right after instruction to clear interrupt flag.
+ *
+ **/
 typedef enum
 {
   // CM7

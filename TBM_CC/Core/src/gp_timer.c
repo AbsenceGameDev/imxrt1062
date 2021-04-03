@@ -57,33 +57,33 @@ __slct_clksrc_gpt__(gpt_manager * timer)
       CCM_C_GPT1_EN;
 
       // Init clock registers
-      GPT1_CR_EN(0x0);
-      GPT1_IR_EN(0x0);
-      GPT1_CR_SET_OM1(0x0);
-      GPT1_CR_SET_OM2(0x0);
-      GPT1_CR_SET_OM3(0x0);
+      GPT1_CR_EN(DISABLE);
+      GPT1_IR_EN(DISABLE);
+      GPT1_CR_SET_OM1(DISABLE);
+      GPT1_CR_SET_OM2(DISABLE);
+      GPT1_CR_SET_OM3(DISABLE);
       GPT1_CR_IM_CLR;
       GPT1_CR_CLKSRC(timer->gpt_clk);
-      GPT1_CR_SWR(0x1);
+      GPT1_CR_SWR(ENABLE);
       GPT1_SR_CLR;
-      GPT1_CR_SET_ENMOD(0x1);
-      GPT1_CR_EN(0x1);
-      GPT1_IR_EN(0x7);
+      GPT1_CR_SET_ENMOD(ENABLE);
+      GPT1_CR_EN(ENABLE);
+      GPT1_IR_EN(ENABLE);
       break;
     case GPT2_E:
       CCM_C_GPT2_EN;
-      GPT2_CR_EN(0x0);
-      GPT2_IR_EN(0x0);
-      GPT2_CR_SET_OM1(0x0);
-      GPT2_CR_SET_OM2(0x0);
-      GPT2_CR_SET_OM3(0x0);
+      GPT2_CR_EN(DISABLE);
+      GPT2_IR_EN(DISABLE);
+      GPT2_CR_SET_OM1(DISABLE);
+      GPT2_CR_SET_OM2(DISABLE);
+      GPT2_CR_SET_OM3(DISABLE);
       GPT2_CR_IM_CLR;
       GPT2_CR_CLKSRC(timer->gpt_clk);
-      GPT2_CR_SWR(0x1);
+      GPT2_CR_SWR(ENABLE);
       GPT2_SR_CLR;
-      GPT2_CR_SET_ENMOD(0x1);
-      GPT2_CR_EN(0x1);
-      GPT2_IR_EN(0x7);
+      GPT2_CR_SET_ENMOD(ENABLE);
+      GPT2_CR_EN(ENABLE);
+      GPT2_IR_EN(ENABLE);
       break;
   }
 }
@@ -163,7 +163,7 @@ __set_comparator_gpt__(gpt_manager * timer)
   switch (timer->gpt_x) {
     case GPT1_E:
       // set GPT1f_IR fields: {ROVIE,IF1IE,IF2IE,OF1IE,OF2IE,OF3IE} = 1
-      GPT1_IR_EN(0x1);
+      GPT1_IR_EN(ENABLE);
 
       // Point to internal callback in irq vector table
       add_to_irq_v(IRQ_GPT1, timer->callback);
@@ -190,7 +190,7 @@ __set_comparator_gpt__(gpt_manager * timer)
 
     case GPT2_E:
       // set GPT2_IR fields: {ROVIE,IF1IE,IF2IE,OF1IE,OF2IE,OF3IE} = 1
-      GPT2_IR_EN(0x1);
+      GPT2_IR_EN(ENABLE);
 
       // Point to internal callback in irq vector table
       add_to_irq_v(IRQ_GPT2, callback_gpt2);
@@ -300,18 +300,19 @@ __setup_gpt2__()
   // analogWriteFrequency(14, 100);  // test with PWM
   // analogWrite(14, 128); // jumper pwm 14  to pin 15  Serial3 on T4B2 breakout
   // Connect GPS 1PPS signal to pin 15 (GPIO_AD_B1_03)
-  IOMUXC_GPT2_IPP_IND_CAPIN1__SLCT_IN_DR = 1; // remap GPT2 capture 1
-  IOMUXC_MUX_PAD_GPIO_AD_B1_CR03 = 8; // GPT2 Capture1
-  IOMUXC_PAD_PAD_GPIO_AD_B1_CR03 = 0x13000; // Pulldown & Hyst
+  IOMUXC_GPT2_IPP_IND_CAPIN1__SLCT_IN_DR = 0x1; // remap GPT2 capture 1
+  IOMUXC_MUX_PAD_GPIO_AD_B1_CR03 = 0x8; // GPT2 Capture1
+  IOMUXC_PAD_PAD_GPIO_AD_B1_CR03 = PAD_HYST_ENABLED | PAD_100KOHM_DOWN |
+                                   PAD_SLCT_PULLER | PAD_PULLKEEP_ENABLED;
 
-  GPT2_CR = 0;
-  GPT2_PR = 0;
+  GPT2_CR = DISABLE;
+  GPT2_PR = DISABLE;
   CCM_C_GPT2_EN;
 
   GPT2_SR_CLR; // clear all prior status
-  GPT2_IR_EN(0x1);
-  GPT2_CR = GPT_CR_SET_EN(0x1) | GPT_CR_CLKSRC(GPT_IPG_CLK) |
-            GPT_CR_MODE(RESTARTMODE_E) | GPT_CR_IM1_SET(1);
+  GPT2_IR_EN(ENABLE);
+  GPT2_CR = GPT_CR_SET_EN(ENABLE) | GPT_CR_CLKSRC(GPT_IPG_CLK) |
+            GPT_CR_MODE(RESTARTMODE_E) | GPT_CR_IM1_SET(ENABLE);
 
   // NVIC_ENABLE_IRQ(IRQ_GPT2);
 }

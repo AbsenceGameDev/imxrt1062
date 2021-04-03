@@ -333,13 +333,13 @@ callback_gpt1_ch1(void)
   if (GPT1_CH0_FAUXBOOL) {
     // Set PIN 13 LOW
     clr_gpio_datar(&GPIO7_DR_CLEAR, 0x3);
-    GPT1_CH0_FAUXBOOL = 0x0;
+    GPT1_CH0_FAUXBOOL = DISABLE;
     return; // NULL;
   }
 
   // Set PIN 13 HIGH,
   set_gpio_datar(&GPIO7_DR_SET, 0x3);
-  GPT1_CH0_FAUXBOOL = 0x1;
+  GPT1_CH0_FAUXBOOL = ENABLE;
   // return NULL;
 
   // Test with flipflop logic maybe, with a global state array for each gpt

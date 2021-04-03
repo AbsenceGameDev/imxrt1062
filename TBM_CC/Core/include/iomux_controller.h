@@ -42,22 +42,22 @@ typedef enum
 
 typedef enum
 {
-  DSE_0_DISABLED = 0x0,
-  DSE_1_R0_150O_3_3_V__260O_1_8V = 0x1,
-  DSE_2_R0_2 = 0x2,
-  DSE_3_R0_3 = 0x3,
-  DSE_4_R0_4 = 0x4,
-  DSE_5_R0_5 = 0x5,
-  DSE_6_R0_6 = 0x6,
-  DSE_7_R0_7 = 0x7,
+  PAD_DSE_DISABLED = 0x0,
+  PAD_DSE_R0_150O_3_3_V__260O_1_8V = 0x1,
+  PAD_DSE_R0_2 = 0x2,
+  PAD_DSE_R0_3 = 0x3,
+  PAD_DSE_R0_4 = 0x4,
+  PAD_DSE_R0_5 = 0x5,
+  PAD_DSE_R0_6 = 0x6,
+  PAD_DSE_R0_7 = 0x7,
 } EBitMuxPad_DSE; // Drive Strength Field
 
 typedef enum
 {
-  SPEED_0_LOW_50MHz = 0x0,
-  SPEED_1_MID_100MHz = 0x1,
-  SPEED_2_HI_120MHz = 0x2,
-  SPEED_3_MAX_200MHz = 0x3,
+  PAD_SPEED_50MHz = 0x0,
+  PAD_SPEED_100MHz = 0x1,
+  PAD_SPEED_150MHz = 0x2,
+  PAD_SPEED_200MHz = 0x3
 } EBitMuxPad_SPEED; // Speed Field
 
 typedef enum
@@ -74,16 +74,16 @@ typedef enum
 
 typedef enum
 {
-  PUE_0_KEEPER = 0x0,
-  PUE_1_PULL = 0x1
+  PAD_SLCT_KEEPER = 0x0,
+  PAD_SLCT_PULLER = 0x1
 } EBitMuxPad_PUE; // Pull/Keep Select Field
 
 typedef enum
 {
-  PUS_0_100K_OHM_PULL_DOWN = 0x0,
-  PUS_1_47K_OHM_PULL_UP = 0x1,
-  PUS_2_100K_OHM_PULL_UP = 0x2,
-  PUS_3_22K_OHM_PULL_UP = 0x3,
+  PAD_CONF_100KOHM_DOWN = 0x0,
+  PAD_CONF_47KOHM_UP = 0x1,
+  PAD_CONF_100KOHM_UP = 0x2,
+  PAD_CONF_22KOHM_UP = 0x3,
 } EBitMuxPad_PUS; // Pull Up/Down Config. Field
 
 typedef enum
