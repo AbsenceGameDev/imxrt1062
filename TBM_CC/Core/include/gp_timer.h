@@ -99,34 +99,19 @@ typedef enum
 } clk_gate_reg_e;
 
 // // Some defines to set enable GPTx at the Clock Controlelr Module (CCM)
-// /** @brief Set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
-// #define GPT2_SET_BUS(x) CCM_C_CGR0 |= (uint32_t)((x) << 24)
-// /** @brief set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
-// #define GPT2_SET_SERIAL(x) CCM_C_CGR0 |= (uint32_t)((x) << 26)
-// #define CCM_C_GPT2_EN
-//   CCM_C_CGR0 |= GPT2_SET_BUS(CLK_ON__NO_STOP) |
-//   GPT2_SET_SERIAL(CLK_ON__NO_STOP)
-//
-// /** @brief Set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
-// #define GPT1_SET_BUS(x) CCM_C_CGR1 |= (uint32_t)((x) << 20)
-// /** @brief set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
-// #define GPT1_SET_SERIAL(x) CCM_C_CGR1 |= (uint32_t)((x) << 22)
-// #define CCM_C_GPT1_EN
-//   CCM_C_CGR1 |= GPT1_SET_BUS(CLK_ON__NO_STOP) |
-//   GPT1_SET_SERIAL(CLK_ON__NO_STOP)
-//
-// Some defines to set enable GPTx at the Clock Controlelr Module (CCM)
-#define CCM_C_CGR0_GPT2_SERIAL(n) ((uint32_t)(((n)&0b11) << 26))
-#define CCM_C_CGR0_GPT2_BUS(n) ((uint32_t)(((n)&0b11) << 24))
+/** @brief Set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
+#define GPT2_SET_BUS(x) (uint32_t)(((x)&0b11) << 24)
+/** @brief set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
+#define GPT2_SET_SERIAL(x) (uint32_t)(((x)&0b11) << 26)
 #define CCM_C_GPT2_EN                                                          \
-  CCM_C_CGR0 |= CCM_C_CGR0_GPT2_BUS(CLK_ON__NO_STOP) |                         \
-                CCM_C_CGR0_GPT2_SERIAL(CLK_ON__NO_STOP)
+  CCM_C_CGR0 |= GPT2_SET_BUS(CLK_ON__NO_STOP) | GPT2_SET_SERIAL(CLK_ON__NO_STOP)
 
-#define CCM_C_CGR1_GPT1_SERIAL(n) ((uint32_t)(((n)&0b11) << 22))
-#define CCM_C_CGR1_GPT1_BUS(n) ((uint32_t)(((n)&0b11) << 20))
+/** @brief Set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
+#define GPT1_SET_BUS(x) (uint32_t)(((x)&0b11) << 20)
+/** @brief set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
+#define GPT1_SET_SERIAL(x) (uint32_t)(((x)&0b11) << 22)
 #define CCM_C_GPT1_EN                                                          \
-  CCM_C_CGR1 |= CCM_C_CGR1_GPT1_BUS(CLK_ON__NO_STOP) |                         \
-                CCM_C_CGR1_GPT1_SERIAL(CLK_ON__NO_STOP)
+  CCM_C_CGR1 |= GPT1_SET_BUS(CLK_ON__NO_STOP) | GPT1_SET_SERIAL(CLK_ON__NO_STOP)
 
 typedef enum
 {

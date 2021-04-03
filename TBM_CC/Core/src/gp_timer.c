@@ -304,10 +304,10 @@ __setup_gpt2__()
   IOMUXC_MUX_PAD_GPIO_AD_B1_CR03 = 8; // GPT2 Capture1
   IOMUXC_PAD_PAD_GPIO_AD_B1_CR03 = 0x13000; // Pulldown & Hyst
 
-  CCM_C_GPT2_EN;
-
   GPT2_CR = 0;
   GPT2_PR = 0;
+  CCM_C_GPT2_EN;
+
   GPT2_SR_CLR; // clear all prior status
   GPT2_IR_EN(0x1);
   GPT2_CR = GPT_CR_SET_EN(0x1) | GPT_CR_CLKSRC(GPT_IPG_CLK) |
