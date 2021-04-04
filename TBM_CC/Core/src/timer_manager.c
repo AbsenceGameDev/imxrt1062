@@ -92,20 +92,6 @@ __slct_clksrc_gpt__(timer_manager_t * timer)
 /** p.2954 & p.2966
  *
  * 52.5.2.2 Output Compare
- * The three Output Compare Channels use the same counter (GPT_CNT) as the
- * Input Capture Channels.
- * When the programmed content of an Output Compare register matches the
- * value in GPT_CNT, an output compare status flag is set and an interrupt
- * is generated (if the corresponding bit is set in the interrupt register).
- *
- * Consequently, the Output Compare timer pin will be set, cleared, toggled,
- * not affected at all or provide anactive-low pulse for one input clock period
- * (subject to the restriction on the maximumfrequency allowed on the pad)
- * according to the mode bits (that were programmed).
- *
- *
- * There is also a "forced-compare" feature mentioned in the specs, which may be
- *  irrelevant right now but it's definelty worth coming back to later.
  *
  **/
 void
@@ -505,8 +491,16 @@ __setup_gpt2__()
 void
 setup_pit_timer(timer_manager_t * pit_mgr, EPITTimer pit_timerx)
 {
+  add_to_irq_v(IRQ_PIT, pit_mgr->callback);
+  reset_pit(pit_mgr, pit_timerx);
+}
+
+void
+reset_pit(timer_manager_t * pit_mgr, EPITTimer pit_timerx)
+{
   // turn on PIT
   PIT_MCR_SET(MCR_RESET);
+  // Push callback to interrupt vector
 
   if (pit_mgr->speedfield == PIT_SPEED_50MHz) {
     PIT_LOADVAL0_SET(__resolve_time_50MHz__(pit_mgr));
@@ -524,10 +518,8 @@ setup_pit_timer(timer_manager_t * pit_mgr, EPITTimer pit_timerx)
     PIT_LOADVAL0_SET(__resolve_time_200MHz__(pit_mgr));
   }
 
-  // Push callback to interrupt vector
-
   if (pit_timerx == PIT_TIMER_00) {
-    PIT_TCTRL0_IRQ_EN(ENABLE); // enable Timer 3 interrupts
+    PIT_TCTRL0_IRQ_EN(ENABLE); // enable  interrupts
     PIT_TCTRL0_TIMER_EN(ENABLE); // start Timer 3
   }
   if (pit_timerx == PIT_TIMER_01) {

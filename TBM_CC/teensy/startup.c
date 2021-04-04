@@ -67,15 +67,3 @@ memory_clear(uint32_t * dest, uint32_t * dest_end)
     *dest++ = 0;
   }
 }
-
-void __attribute__((used)) add_to_irq_v(irq_num_e irq, void_func function)
-{
-  __vectors_ram__[irq + 0x10] = function;
-  asm volatile("" : : : "memory");
-}
-
-void __attribute__((used)) remove_from_irq_v(irq_num_e irq, void_func function)
-{
-  __vectors_ram__[irq + 0x10] = ((void_func)0);
-  asm volatile("" : : : "memory");
-}

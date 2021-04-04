@@ -208,22 +208,29 @@ typedef enum
 typedef void (*void_func)(void);
 extern void (*__vectors_ram__[NVIC_IRQs + 0x10])(void);
 
-extern void
-add_to_irq_v(irq_num_e irq, void_func function);
-extern void
-remove_from_irq_v(irq_num_e irq, void_func function);
+static inline void
+add_to_irq_v(irq_num_e irq, void_func funcptr)
+    __attribute__((always_inline, unused));
 
-void __attribute__((used)) add_to_irq_vector(irq_num_e irq, void_func function);
-// {
-//   __vectors_ram__[irq + 0x10] = function;
-//   asm volatile("" : : : "memory");
-// }
+static inline void
+add_to_irq_v(irq_num_e irq, void_func funcptr)
+{
+  __vectors_ram__[irq + 0x10] = funcptr;
+  asm volatile("" : : : "memory");
+}
 
-void __attribute__((used))
-remove_from_irq_vector(irq_num_e irq, void_func function);
-// {
-//   __vectors_ram__[irq + 0x10] = ((void_func)0);
-//   asm volatile("" : : : "memory");
-// }
+static inline void
+remove_from_irq_v(irq_num_e irq) __attribute__((always_inline, unused));
+static inline void
+remove_from_irq_v(irq_num_e irq)
+{
+  __vectors_ram__[irq + 0x10] = ((void_func)0);
+  asm volatile("" : : : "memory");
+}
+
+void
+attach_irq(uint8_t pin, void_func funcptr, int mode);
+void
+detach_irq(uint8_t pin);
 
 #endif // IRQ_HANDLER_H

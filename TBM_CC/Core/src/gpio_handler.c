@@ -363,21 +363,40 @@ blinky_led_example(uint32_t seconds)
   set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
 
   timer_manager_cb blinker_callback = callback_gpt1_ch1;
-  timer_manager_t  gpt_mgr;
+  timer_manager_t  pit_mgr;
   timer_s          timer_container;
-  init_gptman(&gpt_mgr,
-              GPT2_E,
-              OCR_CH1,
-              GPT_IPG_CLK_24M,
-              SECONDS_E,
+  init_gptman(&pit_mgr,
+              0x0,
+              0x0,
+              0x0,
+              YOCTOS_E,
               timer_container,
-              0x10,
+              0xfffff,
               blinker_callback);
-  set_time(&gpt_mgr, SECONDS_E, 0x2);
-  add_to_irq_v(IRQ_GPT2, callback_gpt1_ch1);
-  // Above does not crash, so not doing anything too out of the ordinary.
-  // I'm guessing I am missing some step in setting the registers
-  // OR I am pushing the callback wrongly to the interrupt vector
+  pit_mgr.compval = 0xfffff; // seconds
+  pit_mgr.speedfield = PIT_SPEED_50MHz;
+  // setup_pit_timer(&pit_mgr, PIT_TIMER_00);
+
+  // According to CCM Clock Tree, in ref man.
+  // must not be all steps needed as it doesn't seem to work, as tested below
+  //
+  //  MUX(CSCMR1[PRECLK_CLK_SEL):
+  //  CLK_SRC (OSC or Periph.)
+  //  -> CSCMR1[PERCLK_PODF] [/1] (6-bit divider)
+  //  -> CCM_CCGR1[CG6] (CCM_SET_PIT_ENABLE)
+  //
+  // clksrc pit_ipg_clk from toor perclk_clk_root has a module override
+  // CMEOR[mod_en_ov_pit]
+  //
+  // Set Clock gating register 1 to Pit enable
+  CCM_SLCT_PERCLK_SRC(OSC_ROOT);
+  CCM_SCMUX1_DIV_SET(0x0);
+  CCM_SET_PIT_ENABLE(CLK_ON_ALL_MODES);
+
+  PIT_MCR_SET(MCR_RESET);
+  add_to_irq_v(IRQ_PIT, callback_gpt1_ch1);
+  PIT_LDVAL1 = 5000000U;
+  PIT_TCTRL1 |= 0x3;
 
   // blinky_led_original_example();
 }

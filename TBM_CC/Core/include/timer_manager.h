@@ -2,7 +2,9 @@
 #ifndef GP_TIMER_H
 #define GP_TIMER_H
 
+#include "clk_control.h"
 #include "irq_handler.h"
+#include "system_heap.h"
 #include "system_memory_map.h"
 
 /**
@@ -173,6 +175,10 @@ typedef struct {
 
 typedef void (*timer_manager_cb)(void);
 
+/**
+ * @todo Turn specific members into void* context memmbers,
+ * and cast to appropriate context when needed
+ **/
 typedef struct {
   timer_e          gpt_x;
   gpt_ocr_e        ocr_ch;
@@ -426,6 +432,58 @@ typedef enum
 #define PIT_TFLG3_CLR PIT_TFLG3 &= PIT_TFLG(0x1)
 
 /**
+ * @brief in-scope construct of timer_manager-t
+ * @details Construct timer manager in place on the stack
+ **/
+inline static timer_manager_t
+construct_timer_manager_stack(timer_e          gpt_x,
+                              gpt_ocr_e        ocr_ch,
+                              timetype_e       time_type,
+                              timer_s          time_container,
+                              clk_src_e        gpt_clk,
+                              uint32_t         compval,
+                              EPITSpeed        speedfield,
+                              timer_manager_cb callback)
+{
+  return (timer_manager_t){.gpt_x = gpt_x,
+                           .ocr_ch = ocr_ch,
+                           .time_type = time_type,
+                           .time_container = time_container,
+                           .gpt_clk = gpt_clk,
+                           .compval = compval,
+                           .speedfield = speedfield,
+                           .callback = callback};
+}
+
+/**
+ * @brief user-managed construct of timer_manager-t
+ * @details Construct timer manager in place on the heap
+ * @return timer_manager_t constructed on the heap
+ * @note It is user responsibiliy to free it afterwards.
+ **/
+inline static timer_manager_t *
+construct_timer_manager_heap(timer_e          gpt_x,
+                             gpt_ocr_e        ocr_ch,
+                             timetype_e       time_type,
+                             timer_s          time_container,
+                             clk_src_e        gpt_clk,
+                             uint32_t         compval,
+                             EPITSpeed        speedfield,
+                             timer_manager_cb callback)
+{
+  timer_manager_t * tobj = (timer_manager_t *)malloc_(sizeof(timer_manager_t));
+  *tobj = (timer_manager_t){.gpt_x = gpt_x,
+                            .ocr_ch = ocr_ch,
+                            .time_type = time_type,
+                            .time_container = time_container,
+                            .gpt_clk = gpt_clk,
+                            .compval = compval,
+                            .speedfield = speedfield,
+                            .callback = callback};
+  return tobj;
+}
+
+/**
  * @brief Setup a Pit Timer
  * @details Sets up a pit time based on the inputted pit_mgr
  * @param pit_mgr Type: timer_manager_t
@@ -434,5 +492,7 @@ typedef enum
  **/
 void
 setup_pit_timer(timer_manager_t * pit_mgr, EPITTimer pit_timerx);
+void
+reset_pit(timer_manager_t * pit_mgr, EPITTimer pit_timerx);
 
 #endif // PI_TIMER_H

@@ -2866,6 +2866,14 @@ typedef enum
 #define CCM_C_CGR7 CCM_BASE._0x0084 // Clock Gating Register 7
 #define CCM_C_MEOR CCM_BASE._0x0088 // Module Enable Overide Register
 
+typedef enum
+{
+  CLK_OFF_ALL_MODES = 0x0,
+  CLK_ON_RUN_MODE = 0x1,
+  CLK_ON_ALL_MODES = 0x3,
+} ECGR;
+#define CCM_SET_PIT_ENABLE(x) CCM_C_CGR1 |= ~(0x3 << 0xc) | ((x & 0x3) << 0xc)
+
 /**
  * @brief: CCM Analog Memory Map, 14.8, p.1096
  * The register reset values for CCM change depending on the boot configuration.
