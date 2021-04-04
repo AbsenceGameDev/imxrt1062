@@ -3,8 +3,8 @@
 
 #include "gpio_handler.h"
 
-#include "gp_timer.h"
 #include "registers.h"
+#include "timer_manager.h"
 /**
  * @brief TODO GPIO_HANDLER
  * 1. Only use ID's in span [0,8]
@@ -363,8 +363,8 @@ blinky_led_example(uint32_t seconds)
   set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
 
   timer_manager_cb blinker_callback = callback_gpt1_ch1;
-  gpt_manager      gpt_mgr;
-  gp_timer_s       timer_container;
+  timer_manager_t  gpt_mgr;
+  timer_s          timer_container;
   init_gptman(&gpt_mgr,
               GPT2_E,
               OCR_CH1,
@@ -401,7 +401,7 @@ blinky_led_abstracted_example()
   // inits mux with alt5, and sets pad at DSE 0x7, in padgroup B0 at control
   // register position 3, then sets GPR27 to control, du to pin being 0x7, and
   // will set it to input based on the io_type member
-  init_gpio(&stack_gpio_device, GDIR_DIR_REG, GPIO_B0, DSE_7_R0_7, 0x3);
+  init_gpio(&stack_gpio_device, GDIR_DIR_REG, GPIO_B0, PAD_DSE_R07, 0x3);
   uint8_t dir = stack_gpio_device.base_mux_device->ctrl_pos;
   // Loop the blinky example, if it works it also means malloc works btw, as
   // malloc is used internally in the init_muxmode() function which is called in

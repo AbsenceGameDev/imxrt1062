@@ -74,8 +74,8 @@ typedef enum
 
 typedef enum
 {
-  PAD_SLCT_KEEPER = 0x0,
-  PAD_SLCT_PULLER = 0x1
+  PAD_KEEPER = 0x0,
+  PAD_PULLER = 0x1
 } EBitMuxPad_PUE; // Pull/Keep Select Field
 
 typedef enum

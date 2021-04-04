@@ -1,8 +1,8 @@
 //#include "../include/gpio_handler.h"
 //#include "../include/system_memory_map.h"
-#include "gp_timer.h"
 #include "gpio_handler.h"
 #include "system_memory_map.h"
+#include "timer_manager.h"
 
 int
 main()

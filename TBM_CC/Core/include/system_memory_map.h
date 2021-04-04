@@ -5330,25 +5330,26 @@ typedef enum
  * PIT : 0x40084000
  *
  **/
-#define PIT_BASE MAP_8BIT_REGISTER(0x400b4000)
+
+#define PIT_BASE MAP_32BIT_REGISTER(0x400b4000)
 #define PIT_MCR PIT_BASE._0x0000 // Module Control Register
 #define PIT_LTMR64H PIT_BASE._0x00e0 // Upper Lifetime Timer Register
 #define PIT_LTMR64L PIT_BASE._0x00e4 // Lower Lifetime Timer Register
 #define PIT_LDVAL0 PIT_BASE._0x0100 // Timer Load Value Register
-#define PIT_CVAL0 PIT_BASE._0x0104 // Current Timer Value Register
-#define PIT_TCTRL0 PIT_BASE._0x0108 // Timer Control Register
-#define PIT_TFLG0 PIT_BASE._0x010c // Timer Flag Register
 #define PIT_LDVAL1 PIT_BASE._0x0110 // Timer Load Value Register
-#define PIT_CVAL1 PIT_BASE._0x0114 // Current Timer Value Register
-#define PIT_TCTRL1 PIT_BASE._0x0118 // Timer Control Register
-#define PIT_TFLG1 PIT_BASE._0x011c // Timer Flag Register
 #define PIT_LDVAL2 PIT_BASE._0x0120 // Timer Load Value Register
-#define PIT_CVAL2 PIT_BASE._0x0124 // Current Timer Value Register
-#define PIT_TCTRL2 PIT_BASE._0x0128 // Timer Control Register
-#define PIT_TFLG2 PIT_BASE._0x012c // Timer Flag Register
 #define PIT_LDVAL3 PIT_BASE._0x0130 // Timer Load Value Register
+#define PIT_CVAL0 PIT_BASE._0x0104 // Current Timer Value Register
+#define PIT_CVAL1 PIT_BASE._0x0114 // Current Timer Value Register
+#define PIT_CVAL2 PIT_BASE._0x0124 // Current Timer Value Register
 #define PIT_CVAL3 PIT_BASE._0x0134 // Current Timer Value Register
+#define PIT_TCTRL0 PIT_BASE._0x0108 // Timer Control Register
+#define PIT_TCTRL1 PIT_BASE._0x0118 // Timer Control Register
+#define PIT_TCTRL2 PIT_BASE._0x0128 // Timer Control Register
 #define PIT_TCTRL3 PIT_BASE._0x0138 // Timer Control Register
+#define PIT_TFLG0 PIT_BASE._0x010c // Timer Flag Register
+#define PIT_TFLG1 PIT_BASE._0x011c // Timer Flag Register
+#define PIT_TFLG2 PIT_BASE._0x012c // Timer Flag Register
 #define PIT_TFLG3 PIT_BASE._0x013c // Timer Flag Register
 
 /**
