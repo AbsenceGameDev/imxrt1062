@@ -45,9 +45,9 @@ configure_mpu()
   MPU_RASR_CLR_S; // Sets _a_ to non-shareable in TEX,C,B
 
   // Read TEX, C, B values
-  ETexEnc tex_attr = MPU_RASR_READ_ATTR_TEX;
-  ECEnc   c_attr = MPU_RASR_READ_ATTR_C;
-  EBEnc   b_attr = MPU_RASR_READ_ATTR_B;
+  tex_enc_e  tex_attr = MPU_RASR_READ_ATTR_TEX;
+  cbit_enc_e c_attr = MPU_RASR_READ_ATTR_C;
+  bbit_enc_e b_attr = MPU_RASR_READ_ATTR_B;
 
   MPU_CTRL_ENABLE_BIT_SET; // Set MPU_CTRL_ENABLE
   MPU_CTRL_ENABLE_BIT_CLR; // Set MPU_CTRL_ENABLE after all RASR regions settings

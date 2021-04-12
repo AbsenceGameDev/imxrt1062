@@ -8,14 +8,15 @@ ssd1306_create_interface()
 }
 
 void
-ssd1306_set_address_mode(EMemAddressMode memory_mode)
+ssd1306_set_address_mode(ssd1603_addr_mode_e memory_mode)
 {
   ssd1306_send_command_byte(0x20);
   ssd1306_send_data_byte(memory_mode);
 }
 
 void
-ssd1306_set_command_register(ECommandRegisters cmd_hex, unsigned char value)
+ssd1306_set_command_register(ssd1306_cmd_registers_e cmd_hex,
+                             unsigned char           value)
 {
   ssd1306_send_command_byte(cmd_hex);
   ssd1306_send_data_byte(value);

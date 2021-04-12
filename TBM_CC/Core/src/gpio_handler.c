@@ -4,7 +4,15 @@
 #include "gpio_handler.h"
 
 #include "registers.h"
-#include "timer_manager.h"
+
+#define __disable_irq() __asm__ volatile("CPSID i" ::: "memory");
+#define __enable_irq() __asm__ volatile("CPSIE i" ::: "memory");
+
+#define NVIC_ENABLE_IRQ(n)                                                     \
+  (*((vuint32_t *)0xE000E100 + ((n) >> 5)) = (1 << ((n)&31)))
+#define NVIC_DISABLE_IRQ(n)                                                    \
+  (*((vuint32_t *)0xE000E180 + ((n) >> 5)) = (1 << ((n)&31)))
+
 /**
  * @brief TODO GPIO_HANDLER
  * 1. Only use ID's in span [0,8]
@@ -17,7 +25,7 @@
 // Function pointer to send through some interfaces,
 // for now it only regards display driver interface
 trigger_gpio_fp_t tgpio_fp = trigger_gpio;
-SStoredGPIO current_gpio_devices[9]; // Make addDevice/removeDevice functions
+gpiodev_s current_gpio_devices[9]; // Make addDevice/removeDevice functions
 
 void
 trigger_gpio(const uint8_t gpio_device_id, const unsigned char pulse)
@@ -65,11 +73,11 @@ trigger_gpio(const uint8_t gpio_device_id, const unsigned char pulse)
  *
  **/
 void
-init_gpio(SStoredGPIO *  gpio_device,
-          EBaseGPIO      gpio_register,
-          EPadCR         pad_group,
-          EBitMuxPad_DSE dse_opt,
-          uint8_t        ctrl_pos)
+init_gpio(gpiodev_s *      gpio_device,
+          gpio_registers_e gpio_register,
+          muxpad_cr_e      pad_group,
+          muxpad_dse_e     dse_opt,
+          uint8_t          ctrl_pos)
 {
   switch (pad_group) {
     case GPIO_AD_B0:
@@ -151,7 +159,7 @@ init_gpio(SStoredGPIO *  gpio_device,
  * @brief: Set all MUX bits in the correct General Purpose Register (GPR)
  **/
 void
-set_gpr_gdir(SStoredGPIO * gpio_device)
+set_gpr_gdir(gpiodev_s * gpio_device)
 {
   uint8_t     LOW_HIGH = 0x0; // 0001 low, 0000 high
   vuint32_t * gdir_addr = ((vuint32_t *)0);
@@ -217,14 +225,14 @@ set_gpr_gdir(SStoredGPIO * gpio_device)
 
 void
 set_gpio_gdir(vuint32_t * gpio_gdir_addr,
-              ETypeIO     io_type,
+              gpio_io_e   io_type,
               uint8_t     direction_bit)
 {
   *gpio_gdir_addr |= ((0x1 * io_type) << direction_bit);
 };
 
 uint8_t
-handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register)
+handle_gpio(gpiodev_s * gpio_device, gpio_registers_e gpio_register)
 {
   vuint32_t * gpio_ptr = (gpio_device->base_addr + gpio_register);
   switch (gpio_register) {
@@ -253,47 +261,29 @@ handle_gpio(SStoredGPIO * gpio_device, EBaseGPIO gpio_register)
 };
 
 void
-set_icr1(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting)
+set_icr1(gpiodev_s * gpio_device, gpio_icr_e setting)
 {
   *(gpio_device->base_addr + ICR1_INTERRUPT_CONF_REG1) = setting;
 };
 
 void
-set_icr2(SStoredGPIO * gpio_device, E_ICRFIELDS_GPIO setting)
+set_icr2(gpiodev_s * gpio_device, gpio_icr_e setting)
 {
   *(gpio_device->base_addr + ICR2_INTERRUPT_CONF_REG2) = setting;
 };
 
-// E_ICRFIELDS_GPIO
+// gpio_icr_e
 
 uint32_t
-read_gpio(vuint32_t * gpio_base_ptr, EBaseGPIO gpio_register)
+read_gpio(vuint32_t * gpio_base_ptr, gpio_registers_e gpio_register)
 {
   return *((uint32_t *)(((uint8_t *)gpio_base_ptr) + gpio_register));
 };
 
 void
-set_gpio_muxmode(vuint32_t * gpio_addr, EMuxMode mux_mode)
+set_gpio_register(vuint32_t * gpio_reg_addr, uint_fast8_t direction_bit)
 {
-  *gpio_addr = mux_mode;
-}
-
-void
-set_gpio_datar(vuint32_t * gpio_dr_set_addr, uint_fast8_t direction_bit)
-{
-  *gpio_dr_set_addr = (0x1 << direction_bit);
-}
-
-void
-clr_gpio_datar(vuint32_t * gpio_dr_clr, uint_fast8_t direction_bit)
-{
-  *gpio_dr_clr = (0x1 << direction_bit);
-}
-
-void
-tog_gpio_datar(vuint32_t * gpio_dr_tog, uint_fast8_t direction_bit)
-{
-  *gpio_dr_tog = (0x1 << direction_bit);
+  *gpio_reg_addr = (0x1 << direction_bit);
 }
 
 void
@@ -319,7 +309,7 @@ flip_selected_gpr(vuint32_t * gpr_iomuxc_gpr)
 }
 
 void
-set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, EState set_state)
+set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, state_e set_state)
 {
   (*gpr_iomuxc_gpr) = (vuint32_t)(0xffffffff * (set_state));
 }
@@ -330,30 +320,16 @@ uint8_t GPT1_CH0_FAUXBOOL = 0x1;
 void
 callback_gpt1_ch1(void)
 {
-  if (GPT1_CH0_FAUXBOOL) {
-    // Set PIN 13 LOW
-    clr_gpio_datar(&GPIO7_DR_CLEAR, 0x3);
-    GPT1_CH0_FAUXBOOL = DISABLE;
-    return; // NULL;
-  }
-
-  // Set PIN 13 HIGH,
-  set_gpio_datar(&GPIO7_DR_SET, 0x3);
-  GPT1_CH0_FAUXBOOL = ENABLE;
-  // return NULL;
-
-  // Test with flipflop logic maybe, with a global state array for each gpt
-  // compare channel? Seems crude, but keep it as a last resort if no other
-  // ideas come to mind
-  //
-  // Ok lets try something liek a state machine
+  PIT_TFLG1_CLR;
+  // Toggle PIN 13 bewteen HIGH & LOW,
+  SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, 0x3);
 }
 
 /**
  * @brief: Blinky LED Example
  * Configure GPIO B0_03 (PIN 13) for output, ALT 5 according to p.511 */
 void
-blinky_led_example(uint32_t seconds)
+blinky_led_example(uint32_t seconds, timer_manager_t * pit_mgr)
 {
   IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
   IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
@@ -363,42 +339,32 @@ blinky_led_example(uint32_t seconds)
   set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
 
   timer_manager_cb blinker_callback = callback_gpt1_ch1;
-  timer_manager_t  pit_mgr;
   timer_s          timer_container;
-  init_gptman(&pit_mgr,
+  init_pitman(pit_mgr,
+              PIT_SPEED_50MHz,
               0x0,
-              0x0,
-              0x0,
+              SRC_IPG_CLK,
               YOCTOS_E,
               timer_container,
               0xfffff,
               blinker_callback);
-  pit_mgr.compval = 0xfffff; // seconds
-  pit_mgr.speedfield = PIT_SPEED_50MHz;
+
+  void * context = pit_mgr->timer_ctx->context;
+  pit_mgr->targetval = 0xfffff; // seconds
+  CONTEXT_TO_PIT(context)->speedfield = PIT_SPEED_50MHz;
   // setup_pit_timer(&pit_mgr, PIT_TIMER_00);
 
-  // According to CCM Clock Tree, in ref man.
-  // must not be all steps needed as it doesn't seem to work, as tested below
-  //
-  //  MUX(CSCMR1[PRECLK_CLK_SEL):
-  //  CLK_SRC (OSC or Periph.)
-  //  -> CSCMR1[PERCLK_PODF] [/1] (6-bit divider)
-  //  -> CCM_CCGR1[CG6] (CCM_SET_PIT_ENABLE)
-  //
-  // clksrc pit_ipg_clk from toor perclk_clk_root has a module override
-  // CMEOR[mod_en_ov_pit]
-  //
-  // Set Clock gating register 1 to Pit enable
   CCM_SLCT_PERCLK_SRC(OSC_ROOT);
   CCM_SCMUX1_DIV_SET(0x0);
   CCM_SET_PIT_ENABLE(CLK_ON_ALL_MODES);
+  CCM_C_MEOR |= 0x1;
 
-  PIT_MCR_SET(MCR_RESET);
+  PIT_MCR_SET(MCR_RESET); // 1.
+  PIT_LDVAL1 = 0x0; // 0x00ae35f0; // 2.
+  PIT_TCTRL1 |= 0x3; // 3. & 4.
   add_to_irq_v(IRQ_PIT, callback_gpt1_ch1);
-  PIT_LDVAL1 = 5000000U;
-  PIT_TCTRL1 |= 0x3;
-
-  // blinky_led_original_example();
+  NVIC_ENABLE_IRQ(IRQ_PIT);
+  //__enable_irq();
 }
 
 // void *
@@ -414,7 +380,7 @@ blinky_led_example(uint32_t seconds)
 void
 blinky_led_abstracted_example()
 {
-  SStoredGPIO stack_gpio_device = {.pin = 0x7};
+  gpiodev_s stack_gpio_device = {.pin = 0x7};
   stack_gpio_device.io_type = GDIR_IN;
 
   // inits mux with alt5, and sets pad at DSE 0x7, in padgroup B0 at control
@@ -430,7 +396,7 @@ blinky_led_abstracted_example()
     volatile unsigned int j = 0x0;
 
     // Set PIN 13 LOW
-    clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
+    set_gpio_register(&GPIO7_DR_CLEAR, dir);
 
     // Poor man's delay
     while (i < 0x1ffffff) {
@@ -443,7 +409,7 @@ blinky_led_abstracted_example()
     j = i = 0;
 
     // Set PIN 13 HIGH,
-    set_gpio_datar(&GPIO7_DR_SET, dir);
+    set_gpio_register(&GPIO7_DR_SET, dir);
 
     // Poor man's delay
     while (i < 0x1ffffff) {
@@ -475,7 +441,7 @@ blinky_led_original_example()
       volatile unsigned int j = 0x0;
 
       // Set PIN 13 LOW
-      clr_gpio_datar(&GPIO7_DR_CLEAR, dir);
+      set_gpio_register(&GPIO7_DR_CLEAR, dir);
 
       // Poor man's delay
       while (i < 0x1ffffff) {
@@ -488,7 +454,7 @@ blinky_led_original_example()
       j = i = 0;
 
       // Set PIN 13 HIGH,
-      set_gpio_datar(&GPIO7_DR_SET, dir);
+      set_gpio_register(&GPIO7_DR_SET, dir);
 
       // Poor man's delay
       while (i < 0x1ffffff) {

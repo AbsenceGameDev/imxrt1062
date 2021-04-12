@@ -2872,7 +2872,8 @@ typedef enum
   CLK_ON_RUN_MODE = 0x1,
   CLK_ON_ALL_MODES = 0x3,
 } ECGR;
-#define CCM_SET_PIT_ENABLE(x) CCM_C_CGR1 |= ~(0x3 << 0xc) | ((x & 0x3) << 0xc)
+#define CCM_SET_PIT_ENABLE(x)                                                  \
+  CCM_C_CGR1 = (CCM_C_CGR1 & ~(0x3 << 0xc)) | ((x & 0x3) << 0xc)
 
 /**
  * @brief: CCM Analog Memory Map, 14.8, p.1096
@@ -3354,23 +3355,7 @@ typedef enum
  * helpful for busarbitration and performance.
  *
  * NOTE: This chip supports up to 16 interrupt priority levels,
- * i.e. itimplements bits [7:4] of each NVIC Interrupt Priority Register
- *
- * These registers are NOT implemented on chip:
- * IB registers. Address region control registers.
- *
- * These are the available registers:
- * SIM_MAIN registers,
- * SIM_M registers,
- * SIM_M7 registers,
- * Periphial ID registers.
- * (The peripheral ID registers are implemented in SIM_MAIN, SIM_M,
- * and SIM_M7.For more details, please see the below mentioned document.)
- *
- *
- * For detailed descriptions of these registers,
- * see the ARMdocument which is in Resources/teenssy4_1_docs/:
- * DI0397I_corelink_network_interconnect_nic301_r2p3_trm.pdf.
+ * i.e. it implements bits [7:4] of each NVIC Interrupt Priority Register
  **/
 
 /**
@@ -3571,22 +3556,6 @@ typedef enum
 /**
  * @brief: LCDIF, Enhanced LCD Interface Memory Map/Register
  * 35.7, p.1861
- *
- *
- * Some of the LCDIF registers (XXX_SET, XXX_CLR, and XXX_TOG)
- * allow direct bitfield masking and access.
- * •  When writing 1 to XXX_SET bit fields, these registers allow
- *    setting the masked 1 bitfields, while keeping unchanged all
- *    bit fields which remain on 0 logic state.
-
- * •  When writing 1 to XXX_CLR bit fields, these registers allow
- *    clearing the masked 1bit fields, while keeping unchanged all
- *    other bit fields which remained on 0 logicstate.
- *
- * •  When writing 1 to XXX_TOG bit fields, these registers allow
- *    inverting the logicstate of all masked 1 bit fields, while
- *    they keep unchanged the remaining bit fields
- *    which were kept on 0 logic state.
  *
  * LCDIF base address: 0x402b8000
  **/
@@ -4171,15 +4140,6 @@ typedef enum
  * @brief: USB, Non-Core and Core Memory Map
  * 42.6 + 42.7, p.2376
  *
- *  There are two kinds of registers in the USB module: USB core registers and
- *  USB non-core registers. USB core registers are used to control USB core
- *  functions, and moreindependent of USB features. Each USB controller core has
- *  its own core registers. USBnon-core registers are additional to USB core
- *  registers, and more dependent on USBfeatures. i.MX series products vary in
- *  non-core registers.
- *
- *  USBNC denotes the Non Core mappings
- *
  **/
 #define USBCORE_BASE MAP_32BIT_REGISTER(0x402e0000)
 #define USBCB0 USBCORE_BASE._0x0000
@@ -4600,15 +4560,6 @@ typedef enum
 /**
  * @brief: CANFD/FlexCAN3, Flexible Data-rate Controller Area Network Memory Map
  * 45.6.2, p.2654
- *
- *  The address range from offset 0x80 to 0x47F allocates the sixty-four 128-bit
- *  message buffers (MBs).The memory maps for the message buffers are in FlexCAN
- *  message buffer memory map.
- *
- * USBPHY Hardware Register Format Summary
- * Base Address: 0x401d8000
- *
- * // 85 registers
  **/
 #define FLEXCANFD3_BASE00 MAP_32BIT_REGISTER(0x401d8000)
 #define CANFD_MCR FLEXCANFD3_BASE00._0x0000 // Module Configuration register
@@ -5285,26 +5236,6 @@ typedef enum
  * @brief: GPT, General Purpose Timers, Memory Map/Register
  * 52.7 p.2957
  *
- * The GPT has 10 user-accessible 32-bit registers,
- * which are used to configure, operate, and monitor the state of the GPT.
- * An IP bus write access to the GPT Control Register (GPT_CR)
- * and the GPT OutputCompare Register1 (GPT_OCR1)
- * results in one cycle of wait state, while other
- * valid IPbus accesses incur 0 wait states.
- *
- * Irrespective of the Response Select signal value,
- * a Write access to the GPT Status Registers
- * (Read-only registers GPT_ICR1, GPT_ICR2, GPT_CNT)
- * will generate a busexception.
- *
- * •  If the Response Select signal is driven Low, then the Read/Write
- *    access to theunimplemented address space of GPT (ips_addr is greater
- *    than or equal to $BASE +$028) will generate a bus exception.
- *
- * •  If the Response Select is driven High, then the Read/Write access to
- *    the unimplemented address space of GPT will not generate any error
- *    response (like a busexception)
- *
  **/
 #define GPT_BASE0 MAP_32BIT_REGISTER(0x401ec000)
 #define GPT1_CR GPT_BASE0._0x0000 // Control Register
@@ -5339,7 +5270,7 @@ typedef enum
  *
  **/
 
-#define PIT_BASE MAP_32BIT_REGISTER(0x400b4000)
+#define PIT_BASE MAP_32BIT_REGISTER(0x40084000)
 #define PIT_MCR PIT_BASE._0x0000 // Module Control Register
 #define PIT_LTMR64H PIT_BASE._0x00e0 // Upper Lifetime Timer Register
 #define PIT_LTMR64L PIT_BASE._0x00e4 // Lower Lifetime Timer Register
@@ -6637,101 +6568,6 @@ typedef enum
 #define AOI2_BFCRT013 AOI_BASE1._0x000c
 #define AOI2_BFCRT233 AOI_BASE1._0x000e
 
-/**
-
-
- * @brief Analog MUX Channel Mappings
- *
- * NOTE - Vin1 and Vin2 are all connected to VDDA, on this device.
- * ================ 65.2 ========================================
- *
- * The Analog MUX (ANMUX) provides a circuit for selecting an analog input
- * signal from eight channels. One signal is provided by the 6-bit
- * digital-to-analog converter (DAC). The mux circuit is designed to operate
- * across the full range of the supply voltage.
- *
- * The ANMUX has the following features:
- * • Two 8-to-1 channel mux
- * • Operational over the entire supply range
- *
- */
-
-/**
- * @brief DAC, Digital to Analog Converter
- *
- * NOTE - Vin1 and Vin2 are all connected to VDDA, on this device.
- * ================ 65.2 ========================================
- * The 6-bit DAC is 64-tap resistor ladder network which provides a selectable
- * voltagereference for applications where voltage reference is needed. The
- * 64-tap resistor laddernetwork divides the supply reference Vin into 64
- * voltage levels. A 6-bit digital signal input selects the output voltage
- * level, which varies from Vin to Vin/64. Vin can be selectedfrom two voltage
- * sources, Vin1 and Vin2. The 6-bit DAC from a comparator is availableas an
- * on-chip internal signal only and is not available externally to a pin.
- *
- * The 6-bit DAC has the following features:
- * • 6-bit resolution
- * • Selectable supply reference source
- * • Power Down mode to conserve power when not in use
- * • Option to route the output to internal comparator input
- *
- */
-
-/**
- * @brief ACMP, Analog Comparator, Memory Map/Register
- * 66.3, p.3302
- *
- * NOTE - Vin1 and Vin2 are all connected to VDDA, on this device.
- * ================ 65.2 ========================================
- * The comparator (CMP) module provides a circuit for comparing two analog
- * input voltages.
- * The comparator circuit is designed to operate across the full
- * range of the supply voltage, known as rail-to-rail operation.
- *
- * The CMP has the following features:
- * • Operational over the entire supply range
- * • Inputs may range from rail to rail
- * • Programmable hysteresis control
- * • Selectable interrupt on rising-edge, falling-edge, or both rising or
- *   falling edges of the comparator output
- * • Selectable inversion on comparator output
- * • Capability to produce a wide range of outputs such as:
- *    • Sampled
- *    • Windowed, which is ideal for certain PWM
- *      zero-crossing-detection applications
- *    • Digitally filtered:
- *        • Filter can be bypassed
- *        • Can be clocked via external SAMPLE signal or scaled bus clock
- *    • External hysteresis can be used at the same time that the output filter
- *      is used for internal functions
- *    • Two software selectable performance levels:
- *        • Shorter propagation delay at the expense of higher power
- *        •  Low power, with longer propagation delay
- *    • DMA transfer support
- *        •  A comparison event can be selected to trigger a DMA transfer
- *    • Functional in all modes of operation
- *    • The window and filter functions are not available in the following
- *      modes:
- *      • Stop
- *      • VLPS
- *
- * In the CMP block diagram (p. 3301):
- * • The Window Control block is bypassed when CR1[WE] = 0
- * • If CR1[WE] = 1, the comparator output will be sampled on every bus clock
- *   when WINDOW=1 to generate COUTA. Sampling does NOT occur when WINDOW = 0.
- * • The Filter block is bypassed when not in use.
- * • The Filter block acts as a simple sampler if the filter is bypassed
- *   and CR0[FILTER_CNT] is set to 0x01.
- * • The Filter block filters based on multiple samples when the filter is
- *   bypassed andCR0[FILTER_CNT] is set greater than 0x01.
- * • If CR1[SE] = 1, the external SAMPLE input is used as sampling clock
- * • If CR1[SE] = 0, the divided bus clock is used as sampling clock
- * • If enabled, the Filter block will incur up to one bus clock additional
- *   latency penalty on COUT due to the fact that COUT, which is crossing clock
- *   domain boundaries,must be resynchronized to the bus clock.
- * •  CR1[WE] and CR1[SE] are mutually exclusive.
- */
-
 // CMP CONTROL REGISTERS, p.3301 - p.3324 in
 // IMXRT1060_Processor_Reference_Manual CMP1
 #define CMP_BASE MAP_8BIT_REGISTER(0x40094000)
@@ -6770,34 +6606,6 @@ typedef enum
  * @brief ADC, Analog to Digital Converter p.3325
  * The analog-to-digital converter (ADC) is a successive approximation ADC
  * designed foroperation within an integrated microcontroller
- *
- * The features of the ADC are as follows:
- * • Configuration registers
- * • 32-bit, word aligned, byte enabled registers.
- *   (byte and half word access is not supported)
- * • Linear successive approximation algorithm with up
- *   to 12-bit resolution with 10/11bit accuracy.
- * • Up to 10 ENOB (dedicated single ended channels)
- * • Up to 1MS/s sampling rate
- * • Up to 16 single-ended external analog inputs
- * • Single or continuous conversion
- *   (automatic return to idle after single conversion)
- * • Output Modes: (in right-justified unsigned format)
- *    • 12-bit
- *    • 10-bit
- *    • 8-bit
- * • Configurable sample time and conversion speed/power
- * • Conversion complete and hardware average complete flag and interrupt
- * • Input clock selectable from up to three sources
- * • Asynchronous clock source for lower noise operation
- *   with option to output the clock
- * • Selectable asynchronous hardware conversion trigger
- *   with hardware channel select
- * • Automatic compare with interrupt for less-than, greater-than
- *   or equal-to, withinrange, or out-of-range, programmable value
- * • Operation in low power modes for lower noise operation
- * • Hardware average function
- * • Self-calibration mode
  */
 
 // ADC1
@@ -6862,55 +6670,6 @@ typedef enum
 
 /**
  * @brief ADC_ETC, Analog to Digital Converter p.3371
- *
- *  The ADC_ETC module enables multiple users to share the ADC modules in a
- *  TIME-Division-Multiplexing (TDM) way.
- *  The external triggers can be from the Cross BAR(XBAR) and
- *  TSC (Touch Screen Controller) in SOC.
- *  The ADC_ETC has one TSCexternal trigger and 8 external triggers from XBAR.
- *  The TSC external trigger is sharedby TSC0 and TSC1.
- *  The triggers trig0~trig3 from XBAR and TSC0 belong to
- *  channel 0 and control ADC1, and trig4~trig7 and TSC1 belong to
- *  channel 1 and share ADC2 with the TSC external trigger.
- *  When TSC_BYPASS is set, TSC external trigger will control ADC2 directly.
- *  The ADC_ETC also supports SyncMode.
- *  When set as SyncMode, the ADC_ETC trigger source will
- *  control ADC1 and ADC2 synchronously.
- *  In SyncMode, the initial delay is controlled by the registers of
- *  trig0~trig3, while other settings are independent.
- *  The SyncMode can not be used when TSC_BYPASS is active. TheADC_ETC can
- *  support interrupt mode and DMA mode (controlled independently).
- *
- * The ADC_ETC includes the following features:
- * • ADC trigger control interface with dual ADCs, support up to 8 Hardware
- *   External Trigger (ext_hwts[7:0]) control for each ADC
- * • Capable of triggering dual ADC in SyncMode or AsyncMode:
- *    • In SyncMode ADC1 and ADC2 are controlled by the
- *      same trigger source of ADC_ETC.
- *    • In AsyncMode ADC1 and ADC2 are controlled by
- *      separate trigger source of ADC_ETC.
- * • Support up to four external trigger inputs for each ADC
- *   (trig0~trig3 for ADC1, andtrig4~trig7 for ADC2):
- *    • Four single to multiple (up to 8) trigger sources.
- *    One external trigger of ADC_ETC results in multiple sequential triggers,
- *    which are named as triggerchain, to ADC.
- *    • Flexible ADC trigger interval and initial delay control.
- *    • Each trigger sources can be configured as HW or SW trigger mode.
- *
- * • ADC result holding and status reporting
- * • External trigger auto hold and arbitration
- * • Each external trigger can be configured with a fixed priority.
- *   External trigger with the highest priority is severed first.
- *
- * • Hold one trigger event upon arbitration lose or ADC busy.
- * • Support ADC trigger interface cascading
- * • Support interrupt mode. When interrupt mode is selected and one
- *   ADC conversion is done, an interrupt request signal will be
- *   generated on one of the Done0~Done2 interrupt outputs.
- *
- * • Support DMA mode. When DMA is enabled and one ADC conversion is done,
- *   aDMA request will be sent. 2 trigger modes of DMA can be selected by
- *   configuring DMA_MODE_SEL bitfield.
  */
 // ADC_ETC
 // ADC_ETC MEMORY ADDRESS MAPPINGS p.3376-p.3398
@@ -7019,28 +6778,6 @@ typedef enum
 
 /**
  * @brief TSC, Touch Screen Controller p.3399
- *
- * This block describes the Touch Screen Controller (TSC), which is used for ADC
- * and touch screen analogue block. TSC is responsible for providing control of
- * ADC and touch screen analogue block toform a touch screen system, which
- * achieves function of touch detection and touchlocation detection. The
- * controller utilizes ADC hardware trigger function and controlswitches in
- * touch screen analogue block. The controller only supports 4-wire of
- * 5-wirescreen touch modes
- *
- * The features of TSC controller are following.
- * • Configure registers: 32-bit, fully support sky-blue bus interface
- * • 4-wire or 5-wire mode of touch screen
- * • Low power wake up functions
- * • ADC average function and custom 8-bit, 10-bit, and 12-bit conversion result
- * • Custom pre-charge and de-glitch threshold time setting
- * • Total control five analogue groups of switches
- * • Fully asynchronous interface to ADC and analogue switches
- * • Easy software operation
- * • Software takes control of operation flow
- * • Strong debug functions—enable software recognize the IP as a transparent
- *   box and operation ouput directly
- * • Software reset function
  */
 
 // TSC MEMORY ADDRESS MAPPINGS p.3352-p.3370
@@ -7064,168 +6801,6 @@ typedef enum
  * In Resources/./DDI0403E_d_armv7m_arm.pdf:
  * A3.5(p.78), A3.6(p.87), A3.7(p.89) & B3.5(p.632)
  *
- * B3.5.1(p.633):
- * Relation of the MPU to the system memory map.
- * When implemented, an MPU’s relation to the system memory map described in The
- * system address map on B3 (p.592) is as follows:
- * • MPU support provides control of access rights on physical addresses. It
- *   does not perform address translation.
- *
- * • When the MPU is disabled or not present, the system adopts the default
- *   system memory map listed in Table B3-1 on B3(p.592). When the MPU is
- *   enabled, the enabled regions define the system address map with the
- *   following provisos:
- *   — Accesses to the Private Peripheral Bus (PPB) always use the
- *     default system address map.
- *
- *   — Exception vector reads from the Vector Address Table always
- *     use the default system address map.
- *   — The MPU is restricted in how it can change the default memory map
- *     attributes associated with System space, that is, for addresses
- *     0xE0000000 and higher.
- *     System space is always marked as XN, Execute Never.
- *   — When the execution priority is less than 0, MPU_CTRL.HFNMIENA determines
- *     whether memory accesses use the MPU or the default memory map attributes.
- *     The execution priority is less than 0 if the processor is executing the
- *     NMI or HardFault handler, or if FAULTMASK is set to 1.
- *   — The default system memory map can be configured to provide a background
- *     region for privileged accesses.
- *   — Accesses with an address match in more than one region use the highest
- *     matching region number for the access attributes.
- *   — Accesses that do not match all access conditions of a region address
- *     match (with the MPU enabled) or a background/default memory map match
- *     generate a fault.
- *
- * B3.5.2  Behavior when the MPU is disabled.
- * Disabling the MPU, by setting the MPU_CTRL.ENABLE bit to 0, means that
- * privileged and unprivileged accesses use the default memory map.
- *
- * When the MPU is disabled:
- * • Instruction accesses use the default memory map and attributes shown in
- *   Table B3-1 on B3(p.592). An access to a memory region with the
- *   execute-never attribute generates a MemManage fault, see Execute Never
- *   encoding on B3(p.642). No other permission checks are performed. Additional
- *   control of the Cacheability is made by:
- *   — The CCR.IC bit if separate instruction and data caches are implemented.
- *   — The CCR.DC bit if unified caches are implemented.
- *
- * • Data accesses use the default memory map and attributes shown in Table B3-1
- *   on B3(p.592). No memory access permission checks are performed, and no
- *   aborts can be generated.
- * • Program flow prediction functions as normal, controlled by the
- *   value of the CCR.BP bit.
- *
- * • Speculative instruction and data fetch operations work as normal, based on
- *   the default memory map:
- *   — Speculative data read operations have no effect if the
- *     data cache is disabled.
- *   — Speculative instruction fetch operations have no effect if the
- *     instruction cache is disabled.
- *
- *
- * MPU pseudocode:
- * The following pseudocode defines the operation of an ARMv7-M MPU.
- * The terms used align with the MPU register names and bit field names
- * described in Register support for PMSAv7 in the SCS on page B3-635.
- *
- * // ValidateAddress()
- * // =================
- * AddressDescriptor
- * ValidateAddress(bits(32) address, AccType acctype, boolean iswrite)
- *    ispriv = acctype != AccType_UNPRIV && FindPriv();
- *    AddressDescriptor result;
- *    Permissions perms;
- *    result.physicaladdress = address;
- *    result.memattrs = DefaultMemoryAttributes(address);
- *    perms = DefaultPermissions(address);
- *    hit = FALSE; //Assume no valid MPU region and not using default memory map
- *    isPPBaccess = (address<31:20> == ‘111000000000’);
- *    if acctype == AccType_VECTABLE || isPPBaccess then
- *        hit = TRUE; // use default map for PPB and vector table lookups
- *    elsif MPU_CTRL.ENABLE == ‘0’ then
- *        if MPU_CTRL.HFNMIENA == ‘1’ then UNPREDICTABLE;
- *        else hit = TRUE; // always use default map if MPU disabled
- *    elsif MPU_CTRL.HFNMIENA == ‘0’ && ExecutionPriority() < 0 then
- *        hit = TRUE; // optionally use default for HardFault, NMI and FAULTMASK
- *
- *    else  // MPU is enabled so check each individual region
- *        if (MPU_CTRL.PRIVDEFENA == ‘1’) && ispriv then
- *            hit = TRUE; // opt. default as background for Privileged accesses
- *        for r = 0 to (UInt(MPU_TYPE.DREGION) - 1) // top matching region wins
- *            bits(16) size_enable    = MPU_RASR[r]<15:0>;
- *            bits(32) base_address   = MPU_RBAR[r];
- *            bits(16) access_control = MPU_RASR[r]<31:16>;
- *        if size_enable<0> == ‘1’ then  // MPU region enabled so perform checks
- *            lsbit = UInt(size_enable<5:1>) + 1;
- *            if lsbit < 5 then UNPREDICTABLE;
- *            if (lsbit < 8) && (!IsZero(size_enable<15:8>)) then UNPREDICTABLE;
- *            if lsbit == 32 || address<31:lsbit> == base_address<31:lsbit> then
- *                subregion = UInt(address<lsbit-1:lsbit-3>);
- *                if size_enable<subregion+8> == ‘0’ then
- *                    texcb = access_control<5:3,1:0>;
- *                    S = access_control<2>;
- *                    perms.ap = access_control<10:8>;
- *                    perms.xn = access_control<12>;
- *                    result.memattrs = DefaultTEXDecode(texcb,S);
- *                    hit = TRUE;
- *    if address<31:29> == ‘111’ then  // enforce System space execute never
- *        perms.xn = ‘1’;
- *    if hit then  // perform check of acquired access permissions
- *        CheckPermission(perms, address, acctype, iswrite);
- *    else  // generate fault if no MPU match or use of default not enabled
- *        if acctype == AccType_IFETCH then
- *            MMFSR.IACCVIOL = ‘1’;
- *            MMFSR.MMARVALID = ‘0’;
- *        else
- *            MMFSR.DACCVIOL = ‘1’;
- *            MMAR = address;
- *            MMFSR.MMARVALID = ‘1’;
- *        ExceptionTaken(MemManage);
- *    return result;
- *
- * // DefaultPermissions()
- * // ====================
- * Permissions DefaultPermissions(bits(32) address)
- *    Permissions perms;
- *    perms.ap = ‘011’;
- *    case address<31:29> of
- *        when ‘000’
- *            perms.xn = ‘0’;
- *        when ‘001’
- *            perms.xn = ‘0’;
- *         when ‘010’
- *            perms.xn = ‘1’;
- *         when ‘011’
- *            perms.xn = ‘0’;
- *         when ‘100’
- *            perms.xn = ‘0’;
- *         when ‘101’
- *            perms.xn = ‘1’;
- *         when ‘110’
- *            perms.xn = ‘1’;
- *         when ‘111’
- *            perms.xn = ‘1’;
- * return perms;
- *
- *
- * =====================
- * (TABLE B3-11) MPU Registers in DDI0403E_darmv7m_arm.pdf:
- * PAGE  ADDRESS     NAME       ACCESS   RESETVAL  REGISTER DESCR.
- * p.636 0xE000ED90  MPU_TYPE   RO        IMPL.    MPU Type Reg.
- *                                        DEFINED
- * p.637 0xE000ED94  MPU_CTRL    RW     0x00000000  MPU Control Reg.
- * p.638 0xE000ED98  MPU_RNR     RW     UNKNOWNMPU  Region Number Reg.
- * p.639 0xE000ED9C  MPU_RBAR    RW     UNKNOWNMPU  Region Base Addr. Reg.
- * p.640 0xE000EDA0  MPU_RASR    RW     UNKNOWNMPU  Region Attr. and Size Reg.
- * p.642 0xE000EDA4  MPU_RBAR_A1 RW         -       Alias 1 of MPU_RBAR
- * p.642 0xE000EDA8  MPU_RASR_A1 RW         -       Alias 1 of MPU_RASR
- * p.642 0xE000EDAC  MPU_RBAR_A2 RW         -       Alias 2 of MPU_RBAR
- * p.642 0xE000EDB0  MPU_RASR_A2 RW         -       Alias 2 of MPU_RASR
- * p.642 0xE000EDB4  MPU_RBAR_A3 RW         -       Alias 3 of MPU_RBAR
- * p.642 0xE000EDB8  MPU_RASR_A3 RW         -       Alias 3 of MPU_RASR
- *
- *        0xE000EDBC-    -         ...         -         Reserved.
- *        0xE000EDEC
  * @note The values of the MPU_RASR registers from reset are UNKNOWN. All
  * MPU_RASR registers must be programmed as either enabled or disabled, before
  * enabling the MPU using the MPU_CTRL register.
@@ -7569,7 +7144,7 @@ typedef enum
   PRIVL_RO = 0x5,
   FULL_RO = 0x6,
   FULL_RO_2 = 0x7
-} EAccPermEnc;
+} access_enc_e;
 #define MPU_RASR_SET_AP(acc_perm_enc)                                          \
   (MPU_RASR = (MPU_RASR & ~(0x7 << 0x18)) | (((acc_perm_enc)&0x7) << 0x18))
 #define MPU_RASR_AP_NO_RW (MPU_RASR &= ~(0x7 << 0x18))
@@ -7627,7 +7202,7 @@ typedef enum
   WRITEBACK_RW_ALOC = 0x1,
   WRITETHROUGH_NO_W_ALOC = 0x2,
   WRITEBACK_NO_W_ALOC = 0x3
-} ECachePolicy;
+} cache_policy_e;
 
 /**
  * @brief TEX bit-field
@@ -7648,7 +7223,7 @@ typedef enum
   TEX_a_CMEM_NC_WB_RW_ALOC = 0x4 | WRITEBACK_RW_ALOC,
   TEX_a_CMEM_NC_WT_NO_W_ALOC = 0x4 | WRITETHROUGH_NO_W_ALOC,
   TEX_a_CMEM_WB_NO_W_ALOC = 0x4 | WRITEBACK_NO_W_ALOC
-} ETexEnc;
+} tex_enc_e;
 
 /** @brief Input should be of above type */
 #define MPU_RASR_SET_ATTR_TEX(texenc)                                          \
@@ -7674,7 +7249,7 @@ typedef enum
   C_a_CMEM_NC_WB_RW_ALOC = ((WRITEBACK_RW_ALOC >> 0x2) & 0x1),
   C_a_CMEM_NC_WT_NO_W_ALOC = ((WRITETHROUGH_NO_W_ALOC >> 0x2) & 0x1),
   C_a_CMEM_WB_NO_W_ALOC = ((WRITEBACK_NO_W_ALOC >> 0x2) & 0x1)
-} ECEnc;
+} cbit_enc_e;
 
 /** @brief Input should be of above type */
 #define MPU_RASR_SET_ATTR_C(cenc)                                              \
@@ -7700,7 +7275,7 @@ typedef enum
   B_a_CMEM_NC_WB_RW_ALOC = WRITEBACK_RW_ALOC & 0x1,
   B_a_CMEM_NC_WT_NO_W_ALOC = WRITETHROUGH_NO_W_ALOC & 0x1,
   B_a_CMEM_WB_NO_W_ALOC = WRITEBACK_NO_W_ALOC & 0x1
-} EBEnc;
+} bbit_enc_e;
 
 /** @brief Input should be of above type */
 #define MPU_RASR_SET_ATTR_B(benc)                                              \

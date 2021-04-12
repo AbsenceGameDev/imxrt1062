@@ -7,10 +7,13 @@
 int
 main()
 {
-  init_gptman_arr(); // zero-init global gpt_manager struct array
-
-  uint32_t seconds = 0x1;
-  blinky_led_example(seconds);
+  uint32_t        seconds = 0x1;
+  pit_context_t   pit_context;
+  timer_context_t timer_context;
+  timer_context.context = (void *)&pit_context;
+  timer_manager_t pit_timer;
+  pit_timer.timer_ctx = &timer_context;
+  blinky_led_example(seconds, &pit_timer);
   // blinky_led_abstracted_example();
   // blinky_led_original_example();
 

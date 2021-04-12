@@ -645,13 +645,13 @@ typedef enum
 {
   high = 0x0,
   low = 0x1
-} EAnalogState;
+} analog_state_e;
 
 typedef enum
 {
   A_ = 0x0,
   B_ = 0x1
-} EState;
+} state_e;
 
 #define MAP_8BIT_REGISTER(ADDRESS) (*((imxrt_8t_offset *)(ADDRESS)))
 #define MAP_16BIT_REGISTER(ADDRESS) (*((imxrt_16t_offset *)(ADDRESS)))

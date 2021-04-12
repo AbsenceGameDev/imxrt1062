@@ -192,7 +192,7 @@ typedef enum
   VERT_ADDRESSING = 0x1,
   HORZ_ADDRESSING = 0x0,
   INVALID = 0x3
-} EMemAddressMode;
+} ssd1603_addr_mode_e;
 
 typedef enum
 {
@@ -239,8 +239,8 @@ typedef enum
   E_SET_VCOM_DESLCT_LVL = 0xdb,
   E_NO_OP_CMD = 0xe3,
 
-} ECommandRegisters; // Please refer to the command table at chapter 9
-                     // (p.28-p.32) for register bit field descriptions
+} ssd1306_cmd_registers_e; // Please refer to the command table at chapter 9
+                           // (p.28-p.32) for register bit field descriptions
 #define ARM_M7
 //#define ATMETGA32
 //#define ...
@@ -307,18 +307,18 @@ ssd1306_intf *
 ssd1306_create_interface();
 
 void
-ssd1306_set_address_mode(EMemAddressMode memory_mode);
+ssd1306_set_address_mode(ssd1603_addr_mode_e memory_mode);
 void
-ssd1306_send_command_byte(ECommandRegisters cmd_hex);
+ssd1306_send_command_byte(ssd1306_cmd_registers_e cmd_hex);
 void
-ssd1306_set_command_register_byte(ECommandRegisters cmd_hex,
-                                  unsigned char     value);
+ssd1306_set_command_register_byte(ssd1306_cmd_registers_e cmd_hex,
+                                  unsigned char           value);
 void
-ssd1306_set_command_register_word(ECommandRegisters cmd_hex,
-                                  unsigned short    value);
+ssd1306_set_command_register_word(ssd1306_cmd_registers_e cmd_hex,
+                                  unsigned short          value);
 void
-ssd1306_set_command_register_dword(ECommandRegisters cmd_hex,
-                                   unsigned long     value);
+ssd1306_set_command_register_dword(ssd1306_cmd_registers_e cmd_hex,
+                                   unsigned long           value);
 void
 ssd1306_send_data_byte(unsigned char data);
 void

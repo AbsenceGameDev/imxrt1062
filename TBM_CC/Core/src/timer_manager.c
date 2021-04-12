@@ -6,23 +6,8 @@ vuint32_t *     glob_gpt_ptrs[6] = {
     &GPT1_OCR1, &GPT1_OCR2, &GPT1_OCR3, &GPT2_OCR1, &GPT2_OCR2, &GPT2_OCR3};
 
 void
-init_gptman_arr()
-{
-  for (unsigned char idx = 0; idx < 6; idx++) {
-    glob_gptman[idx].time_container.steps = 0x0;
-    glob_gptman[idx].time_container.count.s = 0x0;
-    glob_gptman[idx].time_type = SECONDS_E;
-    glob_gptman[idx].callback =
-        ((timer_manager_cb)0); // firs setting a null callback
-    glob_gptman[idx].gpt_x = (GPT1_E * (idx < 3)) + (GPT2_E * !(idx < 3));
-    glob_gptman[idx].compval = 0x0;
-    glob_gptman[idx].gpt_clk = GPT_NO_CLK;
-  }
-}
-
-void
 init_gptman(timer_manager_t * gptman,
-            timer_e           gpt_x,
+            gptx_e            gpt_x,
             gpt_ocr_e         ocr_ch,
             clk_src_e         gpt_clk,
             timetype_e        time_type,
@@ -30,13 +15,34 @@ init_gptman(timer_manager_t * gptman,
             uint32_t          compval,
             timer_manager_cb  callback)
 {
-  gptman->gpt_x = gpt_x;
-  gptman->ocr_ch = ocr_ch;
-  gptman->gpt_clk = gpt_clk;
+  void * context = gptman->timer_ctx->context;
+  CONTEXT_TO_GPT(context)->gpt_x = gpt_x;
+  CONTEXT_TO_GPT(context)->ocr_ch = ocr_ch;
+  gptman->clk_src = gpt_clk;
   gptman->time_type = time_type;
   gptman->time_container = time_container;
-  gptman->compval = compval;
+  gptman->targetval = compval;
   gptman->callback = callback;
+}
+
+void
+init_pitman(timer_manager_t * pitman,
+            pit_speed_e       speedfield,
+            pit_ch_e          pit_ch,
+            clk_src_e         pit_clk,
+            timetype_e        time_type,
+            timer_s           time_container,
+            uint32_t          ldval,
+            timer_manager_cb  callback)
+{
+  void * context = pitman->timer_ctx->context;
+  CONTEXT_TO_PIT(context)->pit_ch = pit_ch;
+  CONTEXT_TO_PIT(context)->speedfield = speedfield;
+  pitman->clk_src = pit_clk;
+  pitman->time_type = time_type;
+  pitman->time_container = time_container;
+  pitman->targetval = ldval;
+  pitman->callback = callback;
 }
 
 /**
@@ -50,7 +56,8 @@ init_gptman(timer_manager_t * gptman,
 void
 __slct_clksrc_gpt__(timer_manager_t * timer)
 {
-  switch (timer->gpt_x) {
+  void * context = timer->timer_ctx->context;
+  switch (CONTEXT_TO_GPT(context)->gpt_x) {
     case GPT1_E:
 
       // Enable clock in CCM
@@ -63,7 +70,7 @@ __slct_clksrc_gpt__(timer_manager_t * timer)
       GPT1_CR_SET_OM2(DISABLE);
       GPT1_CR_SET_OM3(DISABLE);
       GPT1_CR_IM_CLR;
-      GPT1_CR_CLKSRC(timer->gpt_clk);
+      GPT1_CR_CLKSRC(CONTEXT_TO_GPT(context)->gpt_clk);
       GPT1_CR_SWR(ENABLE);
       GPT1_SR_CLR;
       GPT1_CR_SET_ENMOD(ENABLE);
@@ -78,7 +85,7 @@ __slct_clksrc_gpt__(timer_manager_t * timer)
       GPT2_CR_SET_OM2(DISABLE);
       GPT2_CR_SET_OM3(DISABLE);
       GPT2_CR_IM_CLR;
-      GPT2_CR_CLKSRC(timer->gpt_clk);
+      GPT2_CR_CLKSRC(CONTEXT_TO_GPT(context)->gpt_clk);
       GPT2_CR_SWR(ENABLE);
       GPT2_SR_CLR;
       GPT2_CR_SET_ENMOD(ENABLE);
@@ -217,7 +224,7 @@ __resolve_time_24MHz__(timer_manager_t * gptimer_mgr)
   timetype_e timetype = gptimer_mgr->time_type;
   // ensuring safety
   uint32_t time_og_unit =
-      __time_clamp_24MHz__(gptimer_mgr->compval, gptimer_mgr->time_type);
+      __time_clamp_24MHz__(gptimer_mgr->targetval, gptimer_mgr->time_type);
   if (time_og_unit == 0) {
     return 0x0;
   }
@@ -241,7 +248,7 @@ __resolve_time_50MHz__(timer_manager_t * timer_mgr)
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
   uint32_t time_og_unit =
-      __time_clamp_50MHz__(timer_mgr->compval, timer_mgr->time_type);
+      __time_clamp_50MHz__(timer_mgr->targetval, timer_mgr->time_type);
   if (time_og_unit == 0) {
     return 0x0;
   }
@@ -264,7 +271,7 @@ __resolve_time_100MHz__(timer_manager_t * timer_mgr)
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
   uint32_t time_og_unit =
-      __time_clamp_100MHz__(timer_mgr->compval, timer_mgr->time_type);
+      __time_clamp_100MHz__(timer_mgr->targetval, timer_mgr->time_type);
   if (time_og_unit == 0) {
     return 0x0;
   }
@@ -287,7 +294,7 @@ __resolve_time_150MHz__(timer_manager_t * timer_mgr)
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
   uint32_t time_og_unit =
-      __time_clamp_150MHz__(timer_mgr->compval, timer_mgr->time_type);
+      __time_clamp_150MHz__(timer_mgr->targetval, timer_mgr->time_type);
   if (time_og_unit == 0) {
     return 0x0;
   }
@@ -310,7 +317,7 @@ __resolve_time_200MHz__(timer_manager_t * timer_mgr)
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
   uint32_t time_og_unit =
-      __time_clamp_200MHz__(timer_mgr->compval, timer_mgr->time_type);
+      __time_clamp_200MHz__(timer_mgr->targetval, timer_mgr->time_type);
   if (time_og_unit == 0) {
     return 0x0;
   }
@@ -329,15 +336,18 @@ __resolve_time_200MHz__(timer_manager_t * timer_mgr)
 void
 __set_comparator_gpt__(timer_manager_t * timer)
 {
-  switch (timer->gpt_x) {
+  void * context = timer->timer_ctx->context;
+  switch (CONTEXT_TO_GPT(context)->gpt_x) {
     case GPT1_E:
       // set GPT1f_IR fields: {ROVIE,IF1IE,IF2IE,OF1IE,OF2IE,OF3IE} = 1
       GPT1_IR_EN(ENABLE);
 
-      // Point to internal callback in irq vector table
-      add_to_irq_v(IRQ_GPT1, timer->callback);
+      /**
+       * @todo @at Point to internal callback in irq vector table
+       **/
+      // add_to_irq_v(IRQ_GPT2, callback_gpt2);
 
-      switch (timer->ocr_ch) {
+      switch (CONTEXT_TO_GPT(context)->ocr_ch) {
         case OCR_CH1:
           GPT1_CR_SET_OM1(0x3);
           //*glob_gpt_ptrs[0] = __resolve_time__(timer); // timer->compval;
@@ -361,10 +371,12 @@ __set_comparator_gpt__(timer_manager_t * timer)
       // set GPT2_IR fields: {ROVIE,IF1IE,IF2IE,OF1IE,OF2IE,OF3IE} = 1
       GPT2_IR_EN(ENABLE);
 
-      // Point to internal callback in irq vector table
-      add_to_irq_v(IRQ_GPT2, callback_gpt2);
+      /**
+       * @todo @at Point to internal callback in irq vector table
+       **/
+      // add_to_irq_v(IRQ_GPT2, callback_gpt2);
 
-      switch (timer->ocr_ch) {
+      switch (CONTEXT_TO_GPT(context)->ocr_ch) {
         case OCR_CH1:
           GPT2_CR_SET_OM1(0x3);
           // *glob_gpt_ptrs[3] = __resolve_time__(timer); // timer->compval;
@@ -382,9 +394,6 @@ __set_comparator_gpt__(timer_manager_t * timer)
           break;
         default: break;
       }
-      break;
-
-    default: break;
   }
 }
 
@@ -407,61 +416,12 @@ __set_comparator_gpt__(timer_manager_t * timer)
 void
 set_time(timer_manager_t * timer, timetype_e time_type, gpt_ocr_t compareval)
 {
-  timer->compval = compareval;
+  timer->targetval = compareval;
   timer->time_type = time_type;
   __slct_clksrc_gpt__(timer);
   __set_comparator_gpt__(timer);
   __setup_gpt2__(); // test for now, will make a general version for both gpt1
                     // and 2 maybe
-}
-
-/**
- * GPT External Signals table
- *| NAME            | PAD          | MODE |
- *|=================|==============|======|
- *| GPT1_COMPARE1   | GPIO_EMC_35  | ALT2 |
- *|                 | GPIO_B1_07   | ALT8 |
- *|=================|==============|======|
- *| GPT1_COMPARE2   | GPIO_EMC_35  | ALT2 |
- *|                 | GPIO_B1_07   | ALT8 |
- *|=================|==============|======|
- *| GPT1_COMPARE3   | GPIO_EMC_35  | ALT2 |
- *|                 | GPIO_B1_07   | ALT8 |
- *|=================|==============|======|
- *| GPT2_COMPARE1   | GPIO_EMC_35  | ALT2 |
- *|                 | GPIO_B1_07   | ALT8 |
- *|=================|==============|======|
- *| GPT2_COMPARE2   | GPIO_EMC_35  | ALT2 |
- *|                 | GPIO_B1_07   | ALT8 |
- *|=================|==============|======|
- *| GPT2_COMPARE3   | GPIO_EMC_35  | ALT2 |
- *|                 | GPIO_B1_07   | ALT8 |
- *|=================|==============|======|
- */
-void
-callback_gpt1(void)
-{
-  for (uint8_t idx = 0; idx < 3; idx++) {
-    if (glob_gptman[idx].compval == *glob_gpt_ptrs[idx]) {
-      glob_gptman[idx].callback(); // Trigger manager interface callback
-      set_time(&glob_gptman[idx],
-               glob_gptman[idx].time_type,
-               ++(glob_gptman[idx].compval));
-    }
-  }
-}
-
-void
-callback_gpt2(void)
-{
-  for (uint8_t idx = 3; idx < 6; idx++) {
-    if (glob_gptman[idx].compval == *glob_gpt_ptrs[idx]) {
-      glob_gptman[idx].callback(); // Trigger manager interface callback
-      set_time(&glob_gptman[idx],
-               glob_gptman[idx].time_type,
-               ++(glob_gptman[idx].compval));
-    }
-  }
 }
 
 void
@@ -482,39 +442,40 @@ __setup_gpt2__()
 
   GPT2_SR_CLR; // clear all prior status
   GPT2_IR_EN(ENABLE);
-  GPT2_CR = GPT_CR_SET_EN(ENABLE) | GPT_CR_CLKSRC(GPT_IPG_CLK) |
-            GPT_CR_MODE(RESTARTMODE_E) | GPT_CR_IM1_SET(ENABLE);
+  GPT2_CR = GPT_CR_SET_EN(GPT2_CR, ENABLE) |
+            GPT_CR_CLKSRC(GPT2_CR, SRC_IPG_CLK) | GPT_CR_MODE(RESTARTMODE_E) |
+            GPT_CR_IM1_SET(GPT2_CR, ENABLE);
 
   // NVIC_ENABLE_IRQ(IRQ_GPT2);
 }
 
 void
-setup_pit_timer(timer_manager_t * pit_mgr, EPITTimer pit_timerx)
+setup_pit_timer(timer_manager_t * pit_mgr, pit_timer_e pit_timerx)
 {
   add_to_irq_v(IRQ_PIT, pit_mgr->callback);
   reset_pit(pit_mgr, pit_timerx);
 }
 
 void
-reset_pit(timer_manager_t * pit_mgr, EPITTimer pit_timerx)
+reset_pit(timer_manager_t * pit_mgr, pit_timer_e pit_timerx)
 {
   // turn on PIT
   PIT_MCR_SET(MCR_RESET);
   // Push callback to interrupt vector
-
-  if (pit_mgr->speedfield == PIT_SPEED_50MHz) {
+  pit_context_t * pitctx = CONTEXT_TO_PIT(pit_mgr->timer_ctx->context);
+  if (pitctx->speedfield == PIT_SPEED_50MHz) {
     PIT_LOADVAL0_SET(__resolve_time_50MHz__(pit_mgr));
   }
 
-  if (pit_mgr->speedfield == PIT_SPEED_100MHz) {
+  if (pitctx->speedfield == PIT_SPEED_100MHz) {
     PIT_LOADVAL0_SET(__resolve_time_100MHz__(pit_mgr));
   }
 
-  if (pit_mgr->speedfield == PIT_SPEED_150MHz) {
+  if (pitctx->speedfield == PIT_SPEED_150MHz) {
     PIT_LOADVAL0_SET(__resolve_time_150MHz__(pit_mgr));
   }
 
-  if (pit_mgr->speedfield == PIT_SPEED_200MHz) {
+  if (pitctx->speedfield == PIT_SPEED_200MHz) {
     PIT_LOADVAL0_SET(__resolve_time_200MHz__(pit_mgr));
   }
 

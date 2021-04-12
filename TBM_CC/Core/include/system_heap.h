@@ -173,19 +173,19 @@ typedef enum
 {
   FUSE_VAL_CONF,
   GPR17_BANK_CFG
-} EFlexSrcSelect;
+} flex_src_select_e;
 
 typedef enum
 {
   TCM_DISABLE = 0x0,
   TCM_ENABLE = 0x1
-} EInitTCM;
+} init_tcm_e;
 
 typedef enum
 {
   TZ_DISABLE = 0x0,
   TZ_ENABLE = 0x1
-} ETrustZoneState;
+} trustzone_state_e;
 
 /**
  * @brief Memory Allocation

@@ -228,9 +228,4 @@ remove_from_irq_v(irq_num_e irq)
   asm volatile("" : : : "memory");
 }
 
-void
-attach_irq(uint8_t pin, void_func funcptr, int mode);
-void
-detach_irq(uint8_t pin);
-
 #endif // IRQ_HANDLER_H

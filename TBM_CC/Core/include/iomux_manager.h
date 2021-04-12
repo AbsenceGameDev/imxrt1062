@@ -16,9 +16,9 @@ typedef union {
   // SStoredDEVICE _device;
   // SStoredDEVICE _device;
   // SStoredDEVICE _device;
-  SStoredGPIO gpio_device;
+  gpiodev_s gpio_device;
   // SStoredDEVICE _device;
   // SStoredDEVICE _device;
-} iomux_manager;
+} iomux_manager_t;
 
 #endif // IOMUX_MANAGER_H
