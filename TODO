@@ -1,0 +1,51 @@
+@DISCLAIMER! 
+This todo is missing alot of finished entries. 
+Some entries have been added after the fact and thus have been marked unknown on start/end timestamp.
+It will be updated regularly from the point of upload to github. 
+
+
+@NOTE: Maybe move to jira if things become too messy, but until then try to seperate with sections.  
+
+// SYSTEM
+✔ Get code compiled and sucessfully run a simple test program @done(21-02-08 11:40)
+✔ Write code to handle the MPU @started(unknown) @done(unknown) @lasted()
+✔ Move MPU code to a seperate file @started(21-04-12 13:49) @done(21-04-14 07:25) @lasted(1d17h36m5s)
+✔ Set up interrupt vector @started(21-03-01 08:02) @done(21-03-02 18:19) @lasted(1d10h17m44s)
+✔ Set up interrupt callbacks @started(21-03-01 12:20) @done(21-03-02 18:20) @lasted(1d6h38s)
+☐ Set up a glopal pin array, will be used by the pin manager to notify which pins are already in use. Will need to keep track using arrays of pin_IDs @started(21-03-04 22:55)
+
+
+// HEAP
+☐ Regarding heap; why is READ_HEAP_FREEBLOCKS() reading 0 free blocks? INVESTIGATE, URGENT! @started(21-02-11 00:02)
+
+
+// TIMERS
+✔ Create a struct for managing timers @started(unknown) @done(unknown) @lasted()
+✔ Fix timer manager to work properly with the different contexts @started(21-04-12 10:20) @done(21-04-12 13:48) @lasted(3h28m23s)
+
+✔ Wirte code to handle PIT and GPT registers @started(unknown) @done(unknown) @lasted()
+☐ PIT timers: Find out why they are not triggering the callback. Certainty is high that the issue lies with the callbacks. 
+    Setting all the correct registers (I am pretty sure) and still nothing. I thought I had figured it out when I realized that 
+    I had forgotten to tell teh ccm to enable pit clocks, but it did not change the fact that the callbacks does not seem to be triggered
+    I still need to find which register to set to tell it at which speed to run the PIT timer
+    I am also quite certain that I have written some incorrect bitoperation macros for the pit and gpt registers 
+
+    Ok so bitoperations have been fixed, and everything I have done seems to be in the correct order but it might be a power gating issue putting the clocks in inactive/disabled mode?
+
+    "The boot ROM configures the PIT channel 0 and channel 1
+     registers but does not restore them before jumping to bootimage. 
+     The user application needs to re-configure the PIT 
+     channels explicitly instead of relying on the default register values" - p.200 in imxrt1060 ref man, rev.2
+
+
+// GLYPHS 4x4
+✔ Glyphs 4x4 digits @started(21-02-17 01:32) @done(21-02-17 01:47) @lasted(15m46s)
+✔ Glyphs 4x4 letters @started(21-02-17 01:33) @done(21-02-17 02:27) @lasted(54m14s)
+✔ Glyphs 4x4 selected special characters @started(21-02-17 01:33) @done(21-03-02 18:18) @lasted(1w6d16h45m37s)
+☐ Glyphs 4x4 defines to point to the glyphs @started(21-02-17 02:27)
+☐ Glyphs 4x4 function or macro to split properly @started(21-02-17 01:47)
+
+// GLYPHS 8x8
+✔ Glyphs 8x8 digits @started(21-02-17 01:34) @done(21-03-08 15:40) @lasted(2w5d14h6m7s)
+✔ Glyphs 8x8 letters @started(21-02-17 01:34) @done(21-03-08 15:40) @lasted(2w5d14h6m11s)
+✔ Glyphs 8x8 selected special characters @started(21-02-17 01:34) @done(21-03-08 15:40) @lasted(2w5d14h6m14s)

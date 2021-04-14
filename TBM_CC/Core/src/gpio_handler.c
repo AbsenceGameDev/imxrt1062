@@ -317,8 +317,12 @@ set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, state_e set_state)
 // GLOBALS
 uint8_t GPT1_CH0_FAUXBOOL = 0x1;
 
+/**
+ * @brief Callback to toggle LED at pin13
+ * @note Callback should produce two instructions, meaning it will offset
+ * accuracy by atleast one core-cycle each callback */
 void
-callback_gpt1_ch1(void)
+callback_pit1_ch1(void)
 {
   PIT_TFLG1_CLR;
   // Toggle PIN 13 bewteen HIGH & LOW,
@@ -338,7 +342,7 @@ blinky_led_example(uint32_t seconds, timer_manager_t * pit_mgr)
   const uint_fast8_t dir = 0x3;
   set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
 
-  timer_manager_cb blinker_callback = callback_gpt1_ch1;
+  timer_manager_cb blinker_callback = callback_pit1_ch1;
   timer_s          timer_container;
   init_pitman(pit_mgr,
               PIT_SPEED_50MHz,
@@ -360,11 +364,12 @@ blinky_led_example(uint32_t seconds, timer_manager_t * pit_mgr)
   CCM_C_MEOR |= 0x1;
 
   PIT_MCR_SET(MCR_RESET); // 1.
-  PIT_LDVAL1 = 0x0; // 0x00ae35f0; // 2.
+  PIT_LDVAL1 = 0x00ae35f0; // 2.
   PIT_TCTRL1 |= 0x3; // 3. & 4.
-  add_to_irq_v(IRQ_PIT, callback_gpt1_ch1);
+  add_to_irq_v(IRQ_PIT, pit_mgr->callback);
+  // __enable_irq();
   NVIC_ENABLE_IRQ(IRQ_PIT);
-  //__enable_irq();
+  // blinky_led_original_example();
 }
 
 // void *
