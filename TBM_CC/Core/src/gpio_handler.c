@@ -364,10 +364,10 @@ blinky_led_example(uint32_t seconds, timer_manager_t * pit_mgr)
   CCM_C_MEOR |= 0x1;
 
   PIT_MCR_SET(MCR_RESET); // 1.
-  PIT_LDVAL1 = 0x00ae35f0; // 2.
+  PIT_LDVAL1 = 0xff; // ae35f0; // 2.
   PIT_TCTRL1 |= 0x3; // 3. & 4.
   add_to_irq_v(IRQ_PIT, pit_mgr->callback);
-  // __enable_irq();
+  __enable_irq();
   NVIC_ENABLE_IRQ(IRQ_PIT);
   // blinky_led_original_example();
 }
