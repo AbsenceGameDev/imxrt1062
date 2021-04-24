@@ -1,0 +1,60 @@
+//Thoughts regarding PIT Timers:
+  "The boot ROM configures the PIT channel 0 and channel 1
+   registers but does not restore them before jumping to bootimage. 
+   The user application needs to re-configure the PIT 
+   channels explicitly instead of relying on the default register values" - p.200 in imxrt1060 ref man, rev.2
+   I am guessing speed is determined by the muxpad (or a related muxpad) which is used for muxing the PITs
+
+
+
+
+//////////////////////////////////////////////////
+//Things that caught my interest in IOMUXC chapter:
+// Remember that the "IOMUXC_SW_PAD..." registers are tied 
+// to the corresponding "IOMUXC_SW_MUX..." in IOMUXC which has the same id/suffix 
+
+// Interrupts, IOMUXC
+(GPR1, GINT [12]) Global Interrupt bit, connected to IRQ0 and GPC
+
+// CCM, IOMUXC
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_12, MUX_MODE[2,0] = ALT1)
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_01, MUX_MODE[2,0] = ALT4)
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_08, MUX_MODE[2,0] = ALT3)
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B0_05, MUX_MODE[2,0] = ALT5)
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B1_02, MUX_MODE[2,0] = ALT6)
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B1_03, MUX_MODE[2,0] = ALT6)
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_SD_B1_04, MUX_MODE[2,0] = ALT6)
+(IOMUXC_CCM_PMIC_READY_SELECT_INPUT,  DAISY[2,0])
+
+// REF CLK 24M
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_13, MUX_MODE[2,0] = ALT7)
+
+// PIT TIMERS, IOMUXC
+(GPR4, PIT_STOP_ACK [26])
+(GPR4, PIT_STOP_REQ [10])
+(IOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_04, MUX_MODE[2,0] = ALT6)
+(IOMUXC_SW_PAD_CTL_PAD_GPIO_AD_B0_04. SPEED[7.6] = 0/1/2/3 = 50/100/150/200 MHz)
+
+//XBAR, IOMUXC
+(GPR6), A group pf XBAR direction select bits, 
+       will need to look at the DMA-XBAR mappings to make sure 
+
+// MPU, IOMUXC
+(GPR11) Memory region access protection, 
+        will be needed when getting back to writing the MPU software controller
+(GPR14, [23,16]) DTCM & ITCM total size config
+(GPR16, [2,0]) FlexRAM bank config src select, 
+(GPR17, [31,0]) FlexRAM bank config value, 
+(GPR33) OCRAM Trust Zone register, bits correspond to different settings
+
+// VTABLE, IOMUXC
+(GPR16, VTOR [31,7]) Vector Table Offset Register
+
+// GPIO, IOMUXC
+(GPR26) Select GPIO1/GPIO6, for bit N to correspond to channel N 
+(GPR27) Select GPIO2/GPIO7, for bit N to correspond to channel N 
+(GPR28) Select GPIO3/GPIO8, for bit N to correspond to channel N 
+(GPR29) Select GPIO4/GPIO9, for bit N to correspond to channel N 
+
+
+//////////////////////////////////////////////////

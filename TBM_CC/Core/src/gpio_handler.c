@@ -87,7 +87,7 @@ init_gpio(gpiodev_s *      gpio_device,
                           &IOMUXC_PAD_PAD_GPIO_AD_B0_CR00,
                           dse_opt,
                           ctrl_pos,
-                          ALT5_GPIOx_IOx);
+                          MM_ALT5);
       break;
     case GPIO_AD_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [16,31] (ctrl_postion + 1) */
@@ -96,7 +96,7 @@ init_gpio(gpiodev_s *      gpio_device,
                           &IOMUXC_PAD_PAD_GPIO_AD_B1_CR00,
                           dse_opt,
                           ctrl_pos,
-                          ALT5_GPIOx_IOx);
+                          MM_ALT5);
       break;
     case GPIO_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [0,15] (ctrl_postion + 1) */
@@ -105,7 +105,7 @@ init_gpio(gpiodev_s *      gpio_device,
                           &IOMUXC_PAD_PAD_GPIO_B0_CR00,
                           dse_opt,
                           ctrl_pos,
-                          ALT5_GPIOx_IOx);
+                          MM_ALT5);
       break;
     case GPIO_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO2_IOx x: [16,31] (ctrl_postion + 1) */
@@ -114,7 +114,7 @@ init_gpio(gpiodev_s *      gpio_device,
                           &IOMUXC_PAD_PAD_GPIO_B1_CR00,
                           dse_opt,
                           ctrl_pos,
-                          ALT5_GPIOx_IOx);
+                          MM_ALT5);
       break;
     case GPIO_SD_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [12,17] (ctrl_position + 1) */
@@ -123,7 +123,7 @@ init_gpio(gpiodev_s *      gpio_device,
                           &IOMUXC_PAD_PAD_GPIO_SD_B0_CR00,
                           dse_opt,
                           ctrl_pos,
-                          ALT5_GPIOx_IOx);
+                          MM_ALT5);
       break;
     case GPIO_SD_B1:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [0,11] (ctrl_position + 1) */
@@ -132,7 +132,7 @@ init_gpio(gpiodev_s *      gpio_device,
                           &IOMUXC_PAD_PAD_GPIO_SD_B1_CR00,
                           dse_opt,
                           ctrl_pos,
-                          ALT5_GPIOx_IOx);
+                          MM_ALT5);
       break;
     default: break;
   }
@@ -363,12 +363,24 @@ blinky_led_example(uint32_t seconds, timer_manager_t * pit_mgr)
   CCM_SET_PIT_ENABLE(CLK_ON_ALL_MODES);
   CCM_C_MEOR |= 0x1;
 
+  IOMUXC_MUX_PAD_GPIO_AD_B0_CR04 &= (~0x7 | MM_ALT6);
+  IOMUXC_PAD_PAD_GPIO_AD_B0_CR04 &= (~(0x3 << 0x6) | (PAD_SPEED_50MHz << 0x6));
+
+  // According to the ref manual, on the front page of chapter 53 (PIT)
+  // CCM -> PMU -> IOMUXC
+  // I am pretty sure all CCM registers have been set,
+  //
+  // No PMU registers have been set yet, according to ref man. PMU_MISC2n
+  // register is shared between CCM and PMU, also seems to be the only relevant
+  // register in the PMU
+  //
+  IOMUXC_GPR_GPR01 = (IOMUXC_GPR_GPR01 & ~(0x1 << 0xc)) | (0x1 << 0xc);
   PIT_MCR_SET(MCR_RESET); // 1.
   PIT_LDVAL1 = 0xff; // ae35f0; // 2.
   PIT_TCTRL1 |= 0x3; // 3. & 4.
   add_to_irq_v(IRQ_PIT, pit_mgr->callback);
   __enable_irq();
-  NVIC_ENABLE_IRQ(IRQ_PIT);
+  // NVIC_ENABLE_IRQ(IRQ_PIT);
   // blinky_led_original_example();
 }
 

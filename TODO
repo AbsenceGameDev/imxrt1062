@@ -26,16 +26,11 @@ It will be updated regularly from the point of upload to github.
 ✔ Wirte code to handle PIT and GPT registers @started(unknown) @done(unknown) @lasted()
 ☐ PIT timers: Find out why they are not triggering the callback. Certainty is high that the issue lies with the callbacks. 
     Setting all the correct registers (I am pretty sure) and still nothing. I thought I had figured it out when I realized that 
-    I had forgotten to tell teh ccm to enable pit clocks, but it did not change the fact that the callbacks does not seem to be triggered
+    I had forgotten to tell the ccm to enable pit clocks, but it did not change the fact that the callbacks does not seem to be triggered
     I still need to find which register to set to tell it at which speed to run the PIT timer
     I am also quite certain that I have written some incorrect bitoperation macros for the pit and gpt registers 
 
     Ok so bitoperations have been fixed, and everything I have done seems to be in the correct order but it might be a power gating issue putting the clocks in inactive/disabled mode?
-
-    "The boot ROM configures the PIT channel 0 and channel 1
-     registers but does not restore them before jumping to bootimage. 
-     The user application needs to re-configure the PIT 
-     channels explicitly instead of relying on the default register values" - p.200 in imxrt1060 ref man, rev.2
 
 
 // GLYPHS 4x4

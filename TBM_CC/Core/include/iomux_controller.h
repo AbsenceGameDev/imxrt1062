@@ -9,14 +9,14 @@
 
 typedef enum
 {
-  ALT0_LCD_DATAx = 0x0, // LCD_DATAx
-  ALT1_QTIMERx_TIMERx = 0x1, // QTIMERx_TIMERx
-  ALT2_FLEXPWMx_PWMBx = 0x2, // FLEXPWMx_PWMBx
-  ALT3_ARM_TRACEx = 0x3, // ARM_TRACEx
-  ALT4_FLEXIOx_FLEXIOx = 0x4, // FLEXIOx_FLEXIOx
-  ALT5_GPIOx_IOx = 0x5, // GPIOx_IOx
-  ALT6_SRC_BOOT_CFGx = 0x6, // SRC_BOOT_CFGx
-  ALT8_ENET = 0x8 // ENET2_TX_ER
+  MM_ALT0 = 0x0,
+  MM_ALT1 = 0x1,
+  MM_ALT2 = 0x2,
+  MM_ALT3 = 0x3,
+  MM_ALT4 = 0x4,
+  MM_ALT5 = 0x5,
+  MM_ALT6 = 0x6,
+  MM_ALT8 = 0x8
 } muxmode_e;
 
 typedef enum
