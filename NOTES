@@ -5,7 +5,10 @@
    channels explicitly instead of relying on the default register values" - p.200 in imxrt1060 ref man, rev.2
    I am guessing speed is determined by the muxpad (or a related muxpad) which is used for muxing the PITs
 
-
+Possible areas of issue:
+        CCM source and gating setup  --> Have taken a pretty long look into it but some things are not clear yet
+        PIT register order of execution --> Have gone through thoroughly and have seemingly not missed any step of the setup 
+        Interrupt attachment  --> Should work but I can't know for sure until I know whether CCM and PIT setup is correct.
 
 
 //////////////////////////////////////////////////

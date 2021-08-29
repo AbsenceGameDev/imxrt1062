@@ -1,3 +1,14 @@
+/**
+ * @file      display_driver.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef DISPLAY_DRIVER_H
 #define DISPLAY_DRIVER_H
 
@@ -207,9 +218,9 @@ typedef enum
 
   // 2. Scrolling Command Table
   E_RIGHT_HORIZONTAL_SCROLL = 0x26, // Scroll by 1 column
-  E_LEFT_HORIZONTAL_SCROLL = 0x27, // Scroll by 1 column
-  E_VERT_HORIZONTAL_SCROLL = 0x29, // Scroll by 1 column
-  E_HORZ_HORIZONTAL_SCROLL = 0x2a, // Scroll by 1 column (table at p.29)
+  E_LEFT_HORIZONTAL_SCROLL = 0x27,  // Scroll by 1 column
+  E_VERT_HORIZONTAL_SCROLL = 0x29,  // Scroll by 1 column
+  E_HORZ_HORIZONTAL_SCROLL = 0x2a,  // Scroll by 1 column (table at p.29)
   E_STOP_SCROLL = 0x2e,
   E_ACTIVATE_SCROLL = 0x2f,
   E_SET_VERT_SCROLL_AREA = 0xa3,
@@ -224,13 +235,13 @@ typedef enum
 
   // 4. HW Config (Panel resolution & layour related) Command Table
   E_SET_DISPLAY_START_LINE = 0x40, /** 0x40 - 0x7f */
-  E_SET_SEGMENT_REMAP_0 = 0xa0, // Col 0 is mapped to SEG0
-  E_SET_SEGMENT_REMAP_127 = 0xa0, // Col 127 is mapped to SEG0
-  E_SET_MUX_RATIO = 0xa8, // Set mux ratio to N+1 MUX,
-                          // [0,14]invalid, [16,63]valid
-  E_SET_COM_NORMAL_SCAN = 0xc0, // COM output scan direction
-  E_SET_COM_REMAPPED_SCAN = 0xc8, // COM output scan direction
-  E_SET_DISPLAY_OFFSET = 0xd3, // Vertical shift by COM, [0,63]
+  E_SET_SEGMENT_REMAP_0 = 0xa0,    // Col 0 is mapped to SEG0
+  E_SET_SEGMENT_REMAP_127 = 0xa0,  // Col 127 is mapped to SEG0
+  E_SET_MUX_RATIO = 0xa8,          // Set mux ratio to N+1 MUX,
+                                   // [0,14]invalid, [16,63]valid
+  E_SET_COM_NORMAL_SCAN = 0xc0,    // COM output scan direction
+  E_SET_COM_REMAPPED_SCAN = 0xc8,  // COM output scan direction
+  E_SET_DISPLAY_OFFSET = 0xd3,     // Vertical shift by COM, [0,63]
   E_SET_COM_PINS_HWCONF = 0xda,
 
   // 5. Timing & Driving Scheme Setting Command Table
@@ -256,11 +267,11 @@ typedef enum
 
 /** Section, which defines I2C timings for SSD1306 display from datasheet */
 #define SSD1306_I2C_START_STOP_DELAY 600
-#define SSD1306_I2C_RISE_TIME 300
-#define SSD1306_I2C_FALL_TIME 300
-#define SSD1306_I2C_DATA_HOLD_TIME 300
-#define SSD1306_I2C_IDLE_TIME 1300
-#define SSD1306_I2C_CLOCK 2500
+#define SSD1306_I2C_RISE_TIME        300
+#define SSD1306_I2C_FALL_TIME        300
+#define SSD1306_I2C_DATA_HOLD_TIME   300
+#define SSD1306_I2C_IDLE_TIME        1300
+#define SSD1306_I2C_CLOCK            2500
 
 /** Send Start to SSD1306 display. */
 typedef void (*start_fp_t)(void);

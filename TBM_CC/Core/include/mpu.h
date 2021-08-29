@@ -1,3 +1,14 @@
+/**
+ * @file      mpu.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef MPU_H
 #define MPU_H
 #include "system_memory_map.h"
@@ -16,11 +27,11 @@
  * enabling the MPU using the MPU_CTRL register.
  **/
 typedef struct {
-  vuint32_t TYPE; // RO
-  vuint32_t CTRL; // RW
-  vuint32_t RNR; // RW
-  vuint32_t RBAR; // RW
-  vuint32_t RASR; // RW
+  vuint32_t TYPE;    // RO
+  vuint32_t CTRL;    // RW
+  vuint32_t RNR;     // RW
+  vuint32_t RBAR;    // RW
+  vuint32_t RASR;    // RW
   vuint32_t RBAR_A1; // RW
   vuint32_t RASR_A1; // RW
   vuint32_t RBAR_A2; // RW
@@ -30,11 +41,11 @@ typedef struct {
 } SReg_MPU;
 
 #define MPU_BASE_ADDR MAP_32BIT_ANYREG(SReg_MPU, 0x0e00ed90)
-#define MPU_TYPE (MPU_BASE_ADDR.TYPE)
-#define MPU_CTRL (MPU_BASE_ADDR.CTRL)
-#define MPU_RNR (MPU_BASE_ADDR.RNR)
-#define MPU_RBAR (MPU_BASE_ADDR.RBAR)
-#define MPU_RASR (MPU_BASE_ADDR.RASR)
+#define MPU_TYPE      (MPU_BASE_ADDR.TYPE)
+#define MPU_CTRL      (MPU_BASE_ADDR.CTRL)
+#define MPU_RNR       (MPU_BASE_ADDR.RNR)
+#define MPU_RBAR      (MPU_BASE_ADDR.RBAR)
+#define MPU_RASR      (MPU_BASE_ADDR.RASR)
 /**
  * ==========================================================================
  * The MPU_TYPE register characteristics are:
@@ -273,7 +284,7 @@ typedef struct {
  *           Enabling a region has no effect unless the MPU_CTRL.ENABLE
  *           bit is set to 1, to enable the MPU.
  **/
-#define MPU_RASR_ENABLE (MPU_RASR |= (0x1)) // 0x1
+#define MPU_RASR_ENABLE  (MPU_RASR |= (0x1))  // 0x1
 #define MPU_RASR_DISABLE (MPU_RASR &= ~(0x1)) // 0x0
 
 /**
@@ -297,8 +308,8 @@ typedef struct {
  * 1  |Execution of an instruction fetched from this region not permitted
  * ==========================================================================
  **/
-#define MPU_RASR_NOT_PERMIT_EXEC MPU_RASR |= (0x1 << 0x1c) // 0x1
-#define MPU_RASR_PERMIT_EXEC MPU_RASR &= ~(0x1 << 0x1c) // 0x0
+#define MPU_RASR_NOT_PERMIT_EXEC MPU_RASR |= (0x1 << 0x1c)  // 0x1
+#define MPU_RASR_PERMIT_EXEC     MPU_RASR &= ~(0x1 << 0x1c) // 0x0
 
 /**
  * @brief SRD:   [15,8]  Subregion Enable/Disable.
@@ -316,7 +327,7 @@ typedef struct {
  *    See Sub-region support on page B3-633 for more information.
  **/
 #define MPU_RASR_DIS_SUBREGION(region) (MPU_RASR |= (0x1 << (0x8 + (region))))
-#define MPU_RASR_EN_SUBREGION(region) (MPU_RASR &= ~(0x1 << (0x8 + (region))))
+#define MPU_RASR_EN_SUBREGION(region)  (MPU_RASR &= ~(0x1 << (0x8 + (region))))
 
 /**
  * @brief S bit-field
@@ -324,8 +335,8 @@ typedef struct {
  * _a_ values in TEX,C & B fields are Shareable if the S bit is set to 1,
  *  Non-shareable if the S bit is set to 0
  **/
-#define MPU_RASR_SET_S (MPU_RASR |= (0x1 << 0x12)) // 0x1
-#define MPU_RASR_CLR_S (MPU_RASR &= ~(0x1 << 0x12)) // 0x0
+#define MPU_RASR_SET_S  (MPU_RASR |= (0x1 << 0x12))  // 0x1
+#define MPU_RASR_CLR_S  (MPU_RASR &= ~(0x1 << 0x12)) // 0x0
 #define MPU_RASR_READ_S ((MPU_RASR >> 0x12) & 0x1)
 
 /**
@@ -357,13 +368,13 @@ typedef enum
 } access_enc_e;
 #define MPU_RASR_SET_AP(acc_perm_enc)                                          \
   (MPU_RASR = (MPU_RASR & ~(0x7 << 0x18)) | (((acc_perm_enc)&0x7) << 0x18))
-#define MPU_RASR_AP_NO_RW (MPU_RASR &= ~(0x7 << 0x18))
-#define MPU_RASR_AP_PRIVL_RW MPU_RASR_SET_AP(0x1)
+#define MPU_RASR_AP_NO_RW      (MPU_RASR &= ~(0x7 << 0x18))
+#define MPU_RASR_AP_PRIVL_RW   MPU_RASR_SET_AP(0x1)
 #define MPU_RASR_AP_PARTIAL_RW MPU_RASR_SET_AP(0x2)
-#define MPU_RASR_AP_FULL_RW MPU_RASR_SET_AP(0x3)
-#define MPU_RASR_AP_PRIVL_RO MPU_RASR_SET_AP(0x5)
-#define MPU_RASR_AP_FULL_RO MPU_RASR_SET_AP(0x6)
-#define MPU_RASR_AP_FULL_RO2 (MPU_RASR |= (0x7 << 0x18))
+#define MPU_RASR_AP_FULL_RW    MPU_RASR_SET_AP(0x3)
+#define MPU_RASR_AP_PRIVL_RO   MPU_RASR_SET_AP(0x5)
+#define MPU_RASR_AP_FULL_RO    MPU_RASR_SET_AP(0x6)
+#define MPU_RASR_AP_FULL_RO2   (MPU_RASR |= (0x7 << 0x18))
 
 /**
  * @brief ATTRS:  The MPU Region Attribute fields.

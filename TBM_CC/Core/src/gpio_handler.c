@@ -1,17 +1,37 @@
-//#include "../include/gpio_handler.h"
-//#include "../include/registers.h"
+/**
+ * @file      gpio_handler.c
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
 
 #include "gpio_handler.h"
 
 #include "registers.h"
 
-#define __disable_irq() __asm__ volatile("CPSID i" ::: "memory");
-#define __enable_irq() __asm__ volatile("CPSIE i" ::: "memory");
+#define __disable_irq() __asm__ volatile("CPSID i" ::: "memory")
+#define __enable_irq()  __asm__ volatile("CPSIE i" ::: "memory")
 
-#define NVIC_ENABLE_IRQ(n)                                                     \
-  (*((vuint32_t *)0xE000E100 + ((n) >> 5)) = (1 << ((n)&31)))
-#define NVIC_DISABLE_IRQ(n)                                                    \
-  (*((vuint32_t *)0xE000E180 + ((n) >> 5)) = (1 << ((n)&31)))
+// According to arm m7 arcitechture ref manual,
+// interrupt set enable and interrupt set clear are laid out in this manner:
+// [31,0] + 32*n, where n is [15,0].
+// When n == 15, bits [31,16] are reserved
+//
+// implement by dividing input irq by 16 to get group, modulo 16 to get position
+#define NVIC_ENABLE_IRQ(irqnum)                                                \
+  *((vuint32_t *)0xe000e100 + ((irqnum) >> 0x5)) = (0x1 << ((irqnum)&0x1f))
+#define NVIC_DISABLE_IRQ(irqnum)                                               \
+  *((vuint32_t *)0xe000e180 + ((irqnum) >> 0x5)) = (0x1 << ((irqnum)&0x1f))
+
+// 0 = highest priority
+// Cortex-M7: 0,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240
+#define NVIC_SET_PRIORITY(irqnum, priority)                                    \
+  (*((volatile uint8_t *)0xe000e400 + ((irqnum) + 0x10)) = (uint8_t)(priority))
+#define NVIC_GET_PRIORITY(irqnum) (*((uint8_t *)0xe000e400 + ((irqnum) + 0x10)))
 
 /**
  * @brief TODO GPIO_HANDLER
@@ -242,9 +262,9 @@ handle_gpio(gpiodev_s * gpio_device, gpio_registers_e gpio_register)
       return 0;
     case PSR_PAD_STATUS_REG:
       return 0x3 | ((*gpio_ptr) >> gpio_device->bit_id); // Read Only
-    case DR_SET: // WO
-    case DR_CLEAR: // WO
-    case DR_TOGGLE: // WO
+    case DR_SET:                                         // WO
+    case DR_CLEAR:                                       // WO
+    case DR_TOGGLE:                                      // WO
       *gpio_ptr = (0x1 << gpio_device->bit_id);
       return 0;
     case ICR1_INTERRUPT_CONF_REG1: // regards GPIO [0,15]
@@ -314,74 +334,68 @@ set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, state_e set_state)
   (*gpr_iomuxc_gpr) = (vuint32_t)(0xffffffff * (set_state));
 }
 
-// GLOBALS
-uint8_t GPT1_CH0_FAUXBOOL = 0x1;
-
 /**
  * @brief Callback to toggle LED at pin13
  * @note Callback should produce two instructions, meaning it will offset
  * accuracy by atleast one core-cycle each callback */
 void
-callback_pit1_ch1(void)
+callback_toggle_led()
 {
-  PIT_TFLG1_CLR;
-  // Toggle PIN 13 bewteen HIGH & LOW,
   SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, 0x3);
+  PIT_TFLG0_CLR;
+  asm volatile("dsb");
 }
 
-/**
- * @brief: Blinky LED Example
- * Configure GPIO B0_03 (PIN 13) for output, ALT 5 according to p.511 */
 void
-blinky_led_example(uint32_t seconds, timer_manager_t * pit_mgr)
+init_onboard_led()
 {
   IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
   IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+
   // GPR27, Set it to Control
   IOMUXC_GPR_GPR27 = 0xffffffff;
   const uint_fast8_t dir = 0x3;
   set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
+}
 
-  timer_manager_cb blinker_callback = callback_pit1_ch1;
+/**
+ * @brief   Blinky LED Example
+ *          Configure GPIO B0_03 (PIN 13) for output, ALT 5 according to p.511
+ *
+ * @note    PIT timer is working and deceremetning as expected,
+ *          calling the interrupt vector causes a major crash though.
+ **/
+void
+blinky_led_example_PIT(uint32_t seconds, timer_manager_t * pit_mgr)
+{
+  init_onboard_led();
+
+  timer_manager_cb blinker_callback = callback_toggle_led;
   timer_s          timer_container;
   init_pitman(pit_mgr,
               PIT_SPEED_50MHz,
               0x0,
               SRC_IPG_CLK,
-              YOCTOS_E,
+              SECONDS_E,
               timer_container,
-              0xfffff,
+              0x1,
               blinker_callback);
 
-  void * context = pit_mgr->timer_ctx->context;
-  pit_mgr->targetval = 0xfffff; // seconds
-  CONTEXT_TO_PIT(context)->speedfield = PIT_SPEED_50MHz;
-  // setup_pit_timer(&pit_mgr, PIT_TIMER_00);
+  setupPITx(pit_mgr);
 
-  CCM_SLCT_PERCLK_SRC(OSC_ROOT);
-  CCM_SCMUX1_DIV_SET(0x0);
-  CCM_SET_PIT_ENABLE(CLK_ON_ALL_MODES);
-  CCM_C_MEOR |= 0x1;
+  while (1) {
+    if (PIT_CVAL0 < 0x4) {
+      setupPITx(pit_mgr);
+      SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, 0x3);
+    }
+  }
 
-  IOMUXC_MUX_PAD_GPIO_AD_B0_CR04 &= (~0x7 | MM_ALT6);
-  IOMUXC_PAD_PAD_GPIO_AD_B0_CR04 &= (~(0x3 << 0x6) | (PAD_SPEED_50MHz << 0x6));
-
-  // According to the ref manual, on the front page of chapter 53 (PIT)
-  // CCM -> PMU -> IOMUXC
-  // I am pretty sure all CCM registers have been set,
-  //
-  // No PMU registers have been set yet, according to ref man. PMU_MISC2n
-  // register is shared between CCM and PMU, also seems to be the only relevant
-  // register in the PMU
-  //
-  IOMUXC_GPR_GPR01 = (IOMUXC_GPR_GPR01 & ~(0x1 << 0xc)) | (0x1 << 0xc);
-  PIT_MCR_SET(MCR_RESET); // 1.
-  PIT_LDVAL1 = 0xff; // ae35f0; // 2.
-  PIT_TCTRL1 |= 0x3; // 3. & 4.
+  /*
+  SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, 0x3);
   add_to_irq_v(IRQ_PIT, pit_mgr->callback);
-  __enable_irq();
-  // NVIC_ENABLE_IRQ(IRQ_PIT);
-  // blinky_led_original_example();
+  NVIC_SET_PRIORITY(IRQ_PIT, 0x0);
+  NVIC_ENABLE_IRQ(IRQ_PIT);
+  */
 }
 
 // void *
@@ -452,13 +466,14 @@ blinky_led_original_example()
   set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
 
   void * test = malloc_(0x10); // "malloc"
-  if (test == NULL) { // MAKESHIFT DEBUG; BLINK LED TO INDICATE STUFF
+  if (test == NULL) {          // MAKESHIFT DEBUG; BLINK LED TO INDICATE STUFF
     for (;;) {
       volatile unsigned int i = 0x0;
       volatile unsigned int j = 0x0;
 
       // Set PIN 13 LOW
-      set_gpio_register(&GPIO7_DR_CLEAR, dir);
+      // set_gpio_register(&GPIO7_DR_CLEAR, dir);
+      SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, dir);
 
       // Poor man's delay
       while (i < 0x1ffffff) {
@@ -471,7 +486,8 @@ blinky_led_original_example()
       j = i = 0;
 
       // Set PIN 13 HIGH,
-      set_gpio_register(&GPIO7_DR_SET, dir);
+      // set_gpio_register(&GPIO7_DR_SET, dir);
+      SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, dir);
 
       // Poor man's delay
       while (i < 0x1ffffff) {

@@ -1,4 +1,4 @@
-#include "irq_handler.h"
+//#include "irq_handler.h"
 #include "system_memory_map.h"
 
 extern unsigned long _stextload;
@@ -12,6 +12,10 @@ extern unsigned long _ebss;
 extern unsigned long _flexram_bank_config;
 extern unsigned long _estack;
 
+#ifndef NVIC_IRQs
+  #define NVIC_IRQs 0xa0
+#endif
+
 typedef void (*void_func)(void);
 
 static void
@@ -22,8 +26,12 @@ memory_clear(uint32_t * dest, uint32_t * dest_end);
 void
 main();
 
-__attribute__((used,
-               aligned(0x400))) void (*__vectors_ram__[NVIC_IRQs + 0x10])(void);
+__attribute__((
+    /*
+    section(".vectors"),
+     */
+    used,
+    aligned(0x400))) void (*volatile __vectors_ram__[NVIC_IRQs + 0x10])(void);
 
 __attribute__((section(".startup"),
                optimize("no-tree-loop-distribute-patterns"),
@@ -43,6 +51,7 @@ startup()
 
   // enable FPU
   // SCB_CPACR = 0x00F00000;
+  __asm__ volatile("CPSIE i" ::: "memory"); // enable irqs
 
   // Call the `main()` function defined in `main.c`.
   main();

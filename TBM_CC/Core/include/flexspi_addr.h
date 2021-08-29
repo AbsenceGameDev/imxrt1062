@@ -1,3 +1,14 @@
+/**
+ * @file      flexspi_addr.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef FLEXSPI_ADDR_H
 #define FLEXSPI_ADDR_H
 #include "registers.h"
@@ -18,18 +29,18 @@
  * FlexSPI2 base address: 402A_4000h
  **/
 // 32bit access to FlexSPI + FlexSPI2
-#define FLEXSPI_32BASE0x0 MAP_32BIT_REGISTER(0x402a8000) // FLEXSPI 32bit
+#define FLEXSPI_32BASE0x0  MAP_32BIT_REGISTER(0x402a8000) // FLEXSPI 32bit
 #define FLEXSPI2_32BASE0x0 MAP_32BIT_REGISTER(0x402a4000) // FLEXSPI2 32bit
 
 // 16 bit access to FlexSPI + FlexSPI2
-#define FLEXSPI_16BASE0x0 MAP_16BIT_REGISTER(0x402a8000) // FLEXSPI 16bit
+#define FLEXSPI_16BASE0x0  MAP_16BIT_REGISTER(0x402a8000) // FLEXSPI 16bit
 #define FLEXSPI2_16BASE0x0 MAP_16BIT_REGISTER(0x402a4000) // FLEXSPI2 16bit
 
 // 8bit access to FlexSPI
-#define FLEXSPI_8BASE0x0 MAP_8BIT_REGISTER(0x402a8000) // FLEXSPI 8bit 0x0
-#define FLEXSPI_8BASE0x60 MAP_8BIT_REGISTER(0x402a8060) // FLEXSPI 8bit 0x60
-#define FLEXSPI_8BASE0xa0 MAP_8BIT_REGISTER(0x402a80a0) // FLEXSPI 8bit 0xa0
-#define FLEXSPI_8BASE0xe0 MAP_8BIT_REGISTER(0x402a80e0) // FLEXSPI 8bit 0xe0
+#define FLEXSPI_8BASE0x0   MAP_8BIT_REGISTER(0x402a8000) // FLEXSPI 8bit 0x0
+#define FLEXSPI_8BASE0x60  MAP_8BIT_REGISTER(0x402a8060) // FLEXSPI 8bit 0x60
+#define FLEXSPI_8BASE0xa0  MAP_8BIT_REGISTER(0x402a80a0) // FLEXSPI 8bit 0xa0
+#define FLEXSPI_8BASE0xe0  MAP_8BIT_REGISTER(0x402a80e0) // FLEXSPI 8bit 0xe0
 #define FLEXSPI_8BASE0x120 MAP_8BIT_REGISTER(0x402a8120) // FLEXSPI 8bit 0x120
 #define FLEXSPI_8BASE0x160 MAP_8BIT_REGISTER(0x402a8160) // FLEXSPI 8bit 0x160
 #define FLEXSPI_8BASE0x1a0 MAP_8BIT_REGISTER(0x402a81a0) // FLEXSPI 8bit 0x1a0
@@ -41,10 +52,10 @@
 #define FLEXSPI_8BASE0x320 MAP_8BIT_REGISTER(0x402a8320) // FLEXSPI 8bit 0x320
 
 // 8bit access to FlexSPI2
-#define FLEXSPI2_8BASE0x0 MAP_8BIT_REGISTER(0x402a4000) // FLEXSPI2 8bit 0x0
-#define FLEXSPI2_8BASE0x60 MAP_8BIT_REGISTER(0x402a4060) // FLEXSPI2 8bit 0x60
-#define FLEXSPI2_8BASE0xa0 MAP_8BIT_REGISTER(0x402a40a0) // FLEXSPI2 8bit 0xa0
-#define FLEXSPI2_8BASE0xe0 MAP_8BIT_REGISTER(0x402a40e0) // FLEXSPI2 8bit 0xe0
+#define FLEXSPI2_8BASE0x0   MAP_8BIT_REGISTER(0x402a4000) // FLEXSPI2 8bit 0x0
+#define FLEXSPI2_8BASE0x60  MAP_8BIT_REGISTER(0x402a4060) // FLEXSPI2 8bit 0x60
+#define FLEXSPI2_8BASE0xa0  MAP_8BIT_REGISTER(0x402a40a0) // FLEXSPI2 8bit 0xa0
+#define FLEXSPI2_8BASE0xe0  MAP_8BIT_REGISTER(0x402a40e0) // FLEXSPI2 8bit 0xe0
 #define FLEXSPI2_8BASE0x120 MAP_8BIT_REGISTER(0x402a4120) // FLEXSPI2 8bit 0x120
 #define FLEXSPI2_8BASE0x160 MAP_8BIT_REGISTER(0x402a4160) // FLEXSPI2 8bit 0x160
 #define FLEXSPI2_8BASE0x1a0 MAP_8BIT_REGISTER(0x402a41a0) // FLEXSPI2 8bit 0x1a0
@@ -60,18 +71,18 @@
  * (Add offsets on a 4/1, meaning 4 per 1 already defined below)
  **/
 // 8BIT Register pointers to FLEXSPI2
-#define b8t_FLEXSPI_MCR0 FLEXSPI_8BASE0x0._0x000 // Module Control Register 0
-#define b8t_FLEXSPI_MCR1 FLEXSPI_8BASE0x0._0x004 // Module Control Register 1
-#define b8t_FLEXSPI_MCR2 FLEXSPI_8BASE0x0._0x008 // Module Control Register 2
-#define b8t_FLEXSPI_AHBCR FLEXSPI_8BASE0x0._0x00c // AHB Bus Control Register
-#define b8t_FLEXSPI_INTEN FLEXSPI_8BASE0x0._0x010 // Interrupt Enable Register
-#define b8t_FLEXSPI_INTR FLEXSPI_8BASE0x0._0x014 // Interrupt Register
-#define b8t_FLEXSPI_LUTKEY FLEXSPI_8BASE0x0._0x018 // LUT Key Register
-#define b8t_FLEXSPI_LUTCR FLEXSPI_8BASE0x0._0x01c // LUT Control Register
-#define b8t_FLEXSPI_AHB_RXBUF0 FLEXSPI_8BASE0x0._0x020 // RXBUF0 Ctrl. Reg.
-#define b8t_FLEXSPI_AHB_RXBUF1 FLEXSPI_8BASE0x0._0x024 // RXBUF1 Ctrl. Reg.
-#define b8t_FLEXSPI_AHB_RXBUF2 FLEXSPI_8BASE0x0._0x028 // RXBUF2 Ctrl. Reg.
-#define b8t_FLEXSPI_AHB_RXBUF3 FLEXSPI_8BASE0x0._0x02c // RXBUF3 Ctrl. Reg.
+#define b8t_FLEXSPI_MCR0       FLEXSPI_8BASE0x0._0x000 // Module Control Register 0
+#define b8t_FLEXSPI_MCR1       FLEXSPI_8BASE0x0._0x004 // Module Control Register 1
+#define b8t_FLEXSPI_MCR2       FLEXSPI_8BASE0x0._0x008 // Module Control Register 2
+#define b8t_FLEXSPI_AHBCR      FLEXSPI_8BASE0x0._0x00c // AHB Bus Control Register
+#define b8t_FLEXSPI_INTEN      FLEXSPI_8BASE0x0._0x010 // Interrupt Enable Register
+#define b8t_FLEXSPI_INTR       FLEXSPI_8BASE0x0._0x014  // Interrupt Register
+#define b8t_FLEXSPI_LUTKEY     FLEXSPI_8BASE0x0._0x018  // LUT Key Register
+#define b8t_FLEXSPI_LUTCR      FLEXSPI_8BASE0x0._0x01c  // LUT Control Register
+#define b8t_FLEXSPI_AHB_RXBUF0 FLEXSPI_8BASE0x0._0x020  // RXBUF0 Ctrl. Reg.
+#define b8t_FLEXSPI_AHB_RXBUF1 FLEXSPI_8BASE0x0._0x024  // RXBUF1 Ctrl. Reg.
+#define b8t_FLEXSPI_AHB_RXBUF2 FLEXSPI_8BASE0x0._0x028  // RXBUF2 Ctrl. Reg.
+#define b8t_FLEXSPI_AHB_RXBUF3 FLEXSPI_8BASE0x0._0x02c  // RXBUF3 Ctrl. Reg.
 #define b8t_FLEXSPI_FLSHA1_CR0 FLEXSPI_8BASE0x60._0x000 // Flash Ctrl Reg. 0
 #define b8t_FLEXSPI_FLSHA2_CR0 FLEXSPI_8BASE0x60._0x004 // Flash Ctrl Reg. 0
 #define b8t_FLEXSPI_FLSHB1_CR0 FLEXSPI_8BASE0x60._0x008 // Flash Ctrl Reg. 0
@@ -84,17 +95,17 @@
 #define b8t_FLEXSPI_FLSHA2_CR2 FLEXSPI_8BASE0x60._0x024 // Flash Ctrl Reg. 2
 #define b8t_FLEXSPI_FLSHB1_CR2 FLEXSPI_8BASE0x60._0x028 // Flash Ctrl Reg. 2
 #define b8t_FLEXSPI_FLSHB2_CR2 FLEXSPI_8BASE0x60._0x02c // Flash Ctrl Reg. 2
-#define b8t_FLEXSPI_FLSH_CR4 FLEXSPI_8BASE0x60._0x034 // Flash Control Reg. 4
-#define b8t_FLEXSPI_IPCR0 FLEXSPI_8BASE0xa0._0x000 // IP Control Register
-#define b8t_FLEXSPI_IPCR1 FLEXSPI_8BASE0xa0._0x004 // IP Control Register
-#define b8t_FLEXSPI_IPCMD FLEXSPI_8BASE0xa0._0x010 // IP CMD Register
-#define b8t_FLEXSPI_IPRXCR FLEXSPI_8BASE0xa0._0x018 // RX FIFO Control Register
-#define b8t_FLEXSPI_IPTXCR FLEXSPI_8BASE0xa0._0x01c // TX FIFO Control Register
-#define b8t_FLEXSPI_DLLACR FLEXSPI_8BASE0xa0._0x020 // DDLA Control Register
-#define b8t_FLEXSPI_DLLBCR FLEXSPI_8BASE0xa0._0x024 // DDLB Control Register
-#define b8t_FLEXSPI_STAT0 FLEXSPI_8BASE0xe0._0x000 // Status Register 0
-#define b8t_FLEXSPI_STAT1 FLEXSPI_8BASE0xe0._0x004 // Status Register 1
-#define b8t_FLEXSPI_STAT2 FLEXSPI_8BASE0xe0._0x008 // Status Register 2
+#define b8t_FLEXSPI_FLSH_CR4   FLEXSPI_8BASE0x60._0x034 // Flash Control Reg. 4
+#define b8t_FLEXSPI_IPCR0      FLEXSPI_8BASE0xa0._0x000 // IP Control Register
+#define b8t_FLEXSPI_IPCR1      FLEXSPI_8BASE0xa0._0x004 // IP Control Register
+#define b8t_FLEXSPI_IPCMD      FLEXSPI_8BASE0xa0._0x010 // IP CMD Register
+#define b8t_FLEXSPI_IPRXCR     FLEXSPI_8BASE0xa0._0x018 // RX FIFO Control Register
+#define b8t_FLEXSPI_IPTXCR     FLEXSPI_8BASE0xa0._0x01c // TX FIFO Control Register
+#define b8t_FLEXSPI_DLLACR     FLEXSPI_8BASE0xa0._0x020 // DDLA Control Register
+#define b8t_FLEXSPI_DLLBCR     FLEXSPI_8BASE0xa0._0x024 // DDLB Control Register
+#define b8t_FLEXSPI_STAT0      FLEXSPI_8BASE0xe0._0x000 // Status Register 0
+#define b8t_FLEXSPI_STAT1      FLEXSPI_8BASE0xe0._0x004 // Status Register 1
+#define b8t_FLEXSPI_STAT2      FLEXSPI_8BASE0xe0._0x008 // Status Register 2
 #define b8t_FLEXSPI_AHB_SUSPND FLEXSPI_8BASE0xe0._0x00c // Suspend Stat. Reg.
 
 // FLEXSPI2 FIFO Status Register
@@ -103,14 +114,14 @@
 
 // FLEXSPI2 RX FIFO Data Register 0-31
 // Offset:  100h + (a × 4h), a = [0,31]
-#define b8t_FLEXSPI_RX_FDR00 FLEXSPI_8BASE0xe0._0x020 // RX FIFO, IPS bus 00
-#define b8t_FLEXSPI_RX_FDR01 FLEXSPI_8BASE0xe0._0x024 // RX FIFO, IPS bus 01
-#define b8t_FLEXSPI_RX_FDR02 FLEXSPI_8BASE0xe0._0x028 // RX FIFO, IPS bus 02
-#define b8t_FLEXSPI_RX_FDR03 FLEXSPI_8BASE0xe0._0x02c // RX FIFO, IPS bus 03
-#define b8t_FLEXSPI_RX_FDR04 FLEXSPI_8BASE0xe0._0x030 // RX FIFO, IPS bus 04
-#define b8t_FLEXSPI_RX_FDR05 FLEXSPI_8BASE0xe0._0x034 // RX FIFO, IPS bus 05
-#define b8t_FLEXSPI_RX_FDR06 FLEXSPI_8BASE0xe0._0x038 // RX FIFO, IPS bus 06
-#define b8t_FLEXSPI_RX_FDR07 FLEXSPI_8BASE0xe0._0x03c // RX FIFO, IPS bus 07
+#define b8t_FLEXSPI_RX_FDR00 FLEXSPI_8BASE0xe0._0x020  // RX FIFO, IPS bus 00
+#define b8t_FLEXSPI_RX_FDR01 FLEXSPI_8BASE0xe0._0x024  // RX FIFO, IPS bus 01
+#define b8t_FLEXSPI_RX_FDR02 FLEXSPI_8BASE0xe0._0x028  // RX FIFO, IPS bus 02
+#define b8t_FLEXSPI_RX_FDR03 FLEXSPI_8BASE0xe0._0x02c  // RX FIFO, IPS bus 03
+#define b8t_FLEXSPI_RX_FDR04 FLEXSPI_8BASE0xe0._0x030  // RX FIFO, IPS bus 04
+#define b8t_FLEXSPI_RX_FDR05 FLEXSPI_8BASE0xe0._0x034  // RX FIFO, IPS bus 05
+#define b8t_FLEXSPI_RX_FDR06 FLEXSPI_8BASE0xe0._0x038  // RX FIFO, IPS bus 06
+#define b8t_FLEXSPI_RX_FDR07 FLEXSPI_8BASE0xe0._0x03c  // RX FIFO, IPS bus 07
 #define b8t_FLEXSPI_RX_FDR08 FLEXSPI_8BASE0x120._0x000 // RX FIFO, IPS bus 09
 #define b8t_FLEXSPI_RX_FDR09 FLEXSPI_8BASE0x120._0x004 // RX FIFO, IPS bus 09
 #define b8t_FLEXSPI_RX_FDR10 FLEXSPI_8BASE0x120._0x008 // RX FIFO, IPS bus 10
@@ -241,14 +252,14 @@
  * @brief: FLEXSPI2
  **/
 // 8BIT Register pointers to FLEXSPI2
-#define b8t_FLEXSPI2_MCR0 FLEXSPI2_8BASE0x0._0x000 // Module Control Register 0
-#define b8t_FLEXSPI2_MCR1 FLEXSPI2_8BASE0x0._0x004 // Module Control Register 1
-#define b8t_FLEXSPI2_MCR2 FLEXSPI2_8BASE0x0._0x008 // Module Control Register 2
-#define b8t_FLEXSPI2_AHBCR FLEXSPI2_8BASE0x0._0x00c // AHB Bus Control Register
-#define b8t_FLEXSPI2_INTEN FLEXSPI2_8BASE0x0._0x010 // Interrupt Enable Register
-#define b8t_FLEXSPI2_INTR FLEXSPI2_8BASE0x0._0x014 // Interrupt Register
-#define b8t_FLEXSPI2_LUTKEY FLEXSPI2_8BASE0x0._0x018 // LUT Key Register
-#define b8t_FLEXSPI2_LUTCR FLEXSPI2_8BASE0x0._0x01c // LUT Control Register
+#define b8t_FLEXSPI2_MCR0       FLEXSPI2_8BASE0x0._0x000 // Module Control Register 0
+#define b8t_FLEXSPI2_MCR1       FLEXSPI2_8BASE0x0._0x004 // Module Control Register 1
+#define b8t_FLEXSPI2_MCR2       FLEXSPI2_8BASE0x0._0x008 // Module Control Register 2
+#define b8t_FLEXSPI2_AHBCR      FLEXSPI2_8BASE0x0._0x00c // AHB Bus Control Register
+#define b8t_FLEXSPI2_INTEN      FLEXSPI2_8BASE0x0._0x010 // Interrupt Enable Register
+#define b8t_FLEXSPI2_INTR       FLEXSPI2_8BASE0x0._0x014 // Interrupt Register
+#define b8t_FLEXSPI2_LUTKEY     FLEXSPI2_8BASE0x0._0x018 // LUT Key Register
+#define b8t_FLEXSPI2_LUTCR      FLEXSPI2_8BASE0x0._0x01c // LUT Control Register
 #define b8t_FLEXSPI2_AHB_RXBUF0 FLEXSPI2_8BASE0x0._0x020 // RXBUF0 Ctrl. Reg.
 #define b8t_FLEXSPI2_AHB_RXBUF1 FLEXSPI2_8BASE0x0._0x024 // RXBUF1 Ctrl. Reg.
 #define b8t_FLEXSPI2_AHB_RXBUF2 FLEXSPI2_8BASE0x0._0x028 // RXBUF2 Ctrl. Reg.
@@ -265,18 +276,18 @@
 #define b8t_FLEXSPI2_FLSHA2_CR2 FLEXSPI2_8BASE0x60._0x024 // Flash Ctrl Reg. 2
 #define b8t_FLEXSPI2_FLSHB1_CR2 FLEXSPI2_8BASE0x60._0x028 // Flash Ctrl Reg. 2
 #define b8t_FLEXSPI2_FLSHB2_CR2 FLEXSPI2_8BASE0x60._0x02c // Flash Ctrl Reg. 2
-#define b8t_FLEXSPI2_FLSH_CR4 FLEXSPI2_8BASE0x60._0x034 // Flash Control Reg. 4
-#define b8t_FLEXSPI2_IPCR0 FLEXSPI2_8BASE0xa0._0x000 // IP Control Register
-#define b8t_FLEXSPI2_IPCR1 FLEXSPI2_8BASE0xa0._0x004 // IP Control Register
-#define b8t_FLEXSPI2_IPCMD FLEXSPI2_8BASE0xa0._0x010 // IP CMD Register
+#define b8t_FLEXSPI2_FLSH_CR4   FLEXSPI2_8BASE0x60._0x034 // Flash Control Reg. 4
+#define b8t_FLEXSPI2_IPCR0      FLEXSPI2_8BASE0xa0._0x000 // IP Control Register
+#define b8t_FLEXSPI2_IPCR1      FLEXSPI2_8BASE0xa0._0x004 // IP Control Register
+#define b8t_FLEXSPI2_IPCMD      FLEXSPI2_8BASE0xa0._0x010 // IP CMD Register
 #define b8t_FLEXSPI2_IPRXCR                                                    \
   FLEXSPI2_8BASE0xa0._0x018 // RX FIFO Control Register
-#define b8t_FLEXSPI2_IPTXCR FLEXSPI2_8BASE0xa0._0x01c // TX FIFO Ctrl Reg.
-#define b8t_FLEXSPI2_DLLACR FLEXSPI2_8BASE0xa0._0x020 // DDLA Control Register
-#define b8t_FLEXSPI2_DLLBCR FLEXSPI2_8BASE0xa0._0x024 // DLLB Control Register
-#define b8t_FLEXSPI2_STAT0 FLEXSPI2_8BASE0xe0._0x000 // Status Register 0
-#define b8t_FLEXSPI2_STAT1 FLEXSPI2_8BASE0xe0._0x004 // Status Register 1
-#define b8t_FLEXSPI2_STAT2 FLEXSPI2_8BASE0xe0._0x008 // Status Register 2
+#define b8t_FLEXSPI2_IPTXCR     FLEXSPI2_8BASE0xa0._0x01c // TX FIFO Ctrl Reg.
+#define b8t_FLEXSPI2_DLLACR     FLEXSPI2_8BASE0xa0._0x020 // DDLA Control Register
+#define b8t_FLEXSPI2_DLLBCR     FLEXSPI2_8BASE0xa0._0x024 // DLLB Control Register
+#define b8t_FLEXSPI2_STAT0      FLEXSPI2_8BASE0xe0._0x000 // Status Register 0
+#define b8t_FLEXSPI2_STAT1      FLEXSPI2_8BASE0xe0._0x004 // Status Register 1
+#define b8t_FLEXSPI2_STAT2      FLEXSPI2_8BASE0xe0._0x008 // Status Register 2
 #define b8t_FLEXSPI2_AHB_SUSPND FLEXSPI2_8BASE0xe0._0x00c // Suspend Stat. Reg.
 
 // FLEXSPI2 FIFO Status Register
@@ -285,14 +296,14 @@
 
 // FLEXSPI2 RX FIFO Data Register 0-31
 // Offset:  100h + (a × 4h), a = [0,31]
-#define b8t_FLEXSPI2_RX_FDR00 FLEXSPI2_8BASE0xe0._0x020 // RX FIFO, IPS bus 00
-#define b8t_FLEXSPI2_RX_FDR01 FLEXSPI2_8BASE0xe0._0x024 // RX FIFO, IPS bus 01
-#define b8t_FLEXSPI2_RX_FDR02 FLEXSPI2_8BASE0xe0._0x028 // RX FIFO, IPS bus 02
-#define b8t_FLEXSPI2_RX_FDR03 FLEXSPI2_8BASE0xe0._0x02c // RX FIFO, IPS bus 03
-#define b8t_FLEXSPI2_RX_FDR04 FLEXSPI2_8BASE0xe0._0x030 // RX FIFO, IPS bus 04
-#define b8t_FLEXSPI2_RX_FDR05 FLEXSPI2_8BASE0xe0._0x034 // RX FIFO, IPS bus 05
-#define b8t_FLEXSPI2_RX_FDR06 FLEXSPI2_8BASE0xe0._0x038 // RX FIFO, IPS bus 06
-#define b8t_FLEXSPI2_RX_FDR07 FLEXSPI2_8BASE0xe0._0x03c // RX FIFO, IPS bus 07
+#define b8t_FLEXSPI2_RX_FDR00 FLEXSPI2_8BASE0xe0._0x020  // RX FIFO, IPS bus 00
+#define b8t_FLEXSPI2_RX_FDR01 FLEXSPI2_8BASE0xe0._0x024  // RX FIFO, IPS bus 01
+#define b8t_FLEXSPI2_RX_FDR02 FLEXSPI2_8BASE0xe0._0x028  // RX FIFO, IPS bus 02
+#define b8t_FLEXSPI2_RX_FDR03 FLEXSPI2_8BASE0xe0._0x02c  // RX FIFO, IPS bus 03
+#define b8t_FLEXSPI2_RX_FDR04 FLEXSPI2_8BASE0xe0._0x030  // RX FIFO, IPS bus 04
+#define b8t_FLEXSPI2_RX_FDR05 FLEXSPI2_8BASE0xe0._0x034  // RX FIFO, IPS bus 05
+#define b8t_FLEXSPI2_RX_FDR06 FLEXSPI2_8BASE0xe0._0x038  // RX FIFO, IPS bus 06
+#define b8t_FLEXSPI2_RX_FDR07 FLEXSPI2_8BASE0xe0._0x03c  // RX FIFO, IPS bus 07
 #define b8t_FLEXSPI2_RX_FDR08 FLEXSPI2_8BASE0x120._0x000 // RX FIFO, IPS bus 09
 #define b8t_FLEXSPI2_RX_FDR09 FLEXSPI2_8BASE0x120._0x004 // RX FIFO, IPS bus 09
 #define b8t_FLEXSPI2_RX_FDR10 FLEXSPI2_8BASE0x120._0x008 // RX FIFO, IPS bus 10
@@ -424,14 +435,14 @@
  * (Add offsets on a 2/1, meaning 2 per 1 already defined below)
  **/
 // 16BIT Register pointers to FLEXSPI
-#define b16t_FLEXSPI_MCR0 FLEXSPI_16BASE0x0._0x0000 // Module Control Register 0
-#define b16t_FLEXSPI_MCR1 FLEXSPI_16BASE0x0._0x0004 // Module Control Register 1
-#define b16t_FLEXSPI_MCR2 FLEXSPI_16BASE0x0._0x0008 // Module Control Register 2
-#define b16t_FLEXSPI_AHBCR FLEXSPI_16BASE0x0._0x000c // AHB Bus Control Register
-#define b16t_FLEXSPI_INTEN FLEXSPI_16BASE0x0._0x0010 // Interrupt Enable Reg.
-#define b16t_FLEXSPI_INTR FLEXSPI_16BASE0x0._0x0014 // Interrupt Register
-#define b16t_FLEXSPI_LUTKEY FLEXSPI_16BASE0x0._0x0018 // LUT Key Register
-#define b16t_FLEXSPI_LUTCR FLEXSPI_16BASE0x0._0x001c // LUT Control Register
+#define b16t_FLEXSPI_MCR0       FLEXSPI_16BASE0x0._0x0000 // Module Control Register 0
+#define b16t_FLEXSPI_MCR1       FLEXSPI_16BASE0x0._0x0004 // Module Control Register 1
+#define b16t_FLEXSPI_MCR2       FLEXSPI_16BASE0x0._0x0008 // Module Control Register 2
+#define b16t_FLEXSPI_AHBCR      FLEXSPI_16BASE0x0._0x000c // AHB Bus Control Register
+#define b16t_FLEXSPI_INTEN      FLEXSPI_16BASE0x0._0x0010 // Interrupt Enable Reg.
+#define b16t_FLEXSPI_INTR       FLEXSPI_16BASE0x0._0x0014 // Interrupt Register
+#define b16t_FLEXSPI_LUTKEY     FLEXSPI_16BASE0x0._0x0018 // LUT Key Register
+#define b16t_FLEXSPI_LUTCR      FLEXSPI_16BASE0x0._0x001c // LUT Control Register
 #define b16t_FLEXSPI_AHB_RXBUF0 FLEXSPI_16BASE0x0._0x0020 // RXBUF0 Ctrl. Reg.
 #define b16t_FLEXSPI_AHB_RXBUF1 FLEXSPI_16BASE0x0._0x0024 // RXBUF1 Ctrl. Reg.
 #define b16t_FLEXSPI_AHB_RXBUF2 FLEXSPI_16BASE0x0._0x0028 // RXBUF2 Ctrl. Reg.
@@ -448,17 +459,17 @@
 #define b16t_FLEXSPI_FLSHA2_CR2 FLEXSPI_16BASE0x0._0x0084 // Flash Ctrl Reg. 2
 #define b16t_FLEXSPI_FLSHB1_CR2 FLEXSPI_16BASE0x0._0x0088 // Flash Ctrl Reg. 2
 #define b16t_FLEXSPI_FLSHB2_CR2 FLEXSPI_16BASE0x0._0x008c // Flash Ctrl Reg. 2
-#define b16t_FLEXSPI_FLSH_CR4 FLEXSPI_16BASE0x0._0x0094 // Flash Control Reg. 4
-#define b16t_FLEXSPI_IPCR0 FLEXSPI_16BASE0x0._0x00a0 // IP Control Register
-#define b16t_FLEXSPI_IPCR1 FLEXSPI_16BASE0x0._0x00a4 // IP Control Register
-#define b16t_FLEXSPI_IPCMD FLEXSPI_16BASE0x0._0x00b0 // IP CMD Register
-#define b16t_FLEXSPI_IPRXCR FLEXSPI_16BASE0x0._0x00b8 // RX FIFO Ctrl Reg.
-#define b16t_FLEXSPI_IPTXCR FLEXSPI_16BASE0x0._0x00bc // TX FIFO Ctrl Reg.
-#define b16t_FLEXSPI_DLLACR FLEXSPI_16BASE0x0._0x00c0 // DDLA Control Register
-#define b16t_FLEXSPI_DLLBCR FLEXSPI_16BASE0x0._0x00c4 // DLLB Control Register
-#define b16t_FLEXSPI_STAT0 FLEXSPI_16BASE0x0._0x00e0 // Status Register 0
-#define b16t_FLEXSPI_STAT1 FLEXSPI_16BASE0x0._0x00e4 // Status Register 1
-#define b16t_FLEXSPI_STAT2 FLEXSPI_16BASE0x0._0x00e8 // Status Register 2
+#define b16t_FLEXSPI_FLSH_CR4   FLEXSPI_16BASE0x0._0x0094 // Flash Control Reg. 4
+#define b16t_FLEXSPI_IPCR0      FLEXSPI_16BASE0x0._0x00a0 // IP Control Register
+#define b16t_FLEXSPI_IPCR1      FLEXSPI_16BASE0x0._0x00a4 // IP Control Register
+#define b16t_FLEXSPI_IPCMD      FLEXSPI_16BASE0x0._0x00b0 // IP CMD Register
+#define b16t_FLEXSPI_IPRXCR     FLEXSPI_16BASE0x0._0x00b8 // RX FIFO Ctrl Reg.
+#define b16t_FLEXSPI_IPTXCR     FLEXSPI_16BASE0x0._0x00bc // TX FIFO Ctrl Reg.
+#define b16t_FLEXSPI_DLLACR     FLEXSPI_16BASE0x0._0x00c0 // DDLA Control Register
+#define b16t_FLEXSPI_DLLBCR     FLEXSPI_16BASE0x0._0x00c4 // DLLB Control Register
+#define b16t_FLEXSPI_STAT0      FLEXSPI_16BASE0x0._0x00e0 // Status Register 0
+#define b16t_FLEXSPI_STAT1      FLEXSPI_16BASE0x0._0x00e4 // Status Register 1
+#define b16t_FLEXSPI_STAT2      FLEXSPI_16BASE0x0._0x00e8 // Status Register 2
 #define b16t_FLEXSPI_AHB_SUSPND FLEXSPI_16BASE0x0._0x00ec // Suspend Stat. Reg.
 
 // FLEXSPI2 FIFO Status Register
@@ -606,14 +617,14 @@
  **/
 
 // 16BIT Register pointers to FLEXSPI2
-#define b16t_FLEXSPI2_MCR0 FLEXSPI_16BASE0x0._0x0000 // Module Control Reg. 0
-#define b16t_FLEXSPI2_MCR1 FLEXSPI_16BASE0x0._0x0004 // Module Control Reg. 1
-#define b16t_FLEXSPI2_MCR2 FLEXSPI_16BASE0x0._0x0008 // Module Control Reg. 2
-#define b16t_FLEXSPI2_AHBCR FLEXSPI_16BASE0x0._0x000c // AHB Bus Ctrl Reg.
-#define b16t_FLEXSPI2_INTEN FLEXSPI_16BASE0x0._0x0010 // Interrupt Enable Reg.
-#define b16t_FLEXSPI2_INTR FLEXSPI_16BASE0x0._0x0014 // Interrupt Register
-#define b16t_FLEXSPI2_LUTKEY FLEXSPI_16BASE0x0._0x0018 // LUT Key Register
-#define b16t_FLEXSPI2_LUTCR FLEXSPI_16BASE0x0._0x001c // LUT Control Register
+#define b16t_FLEXSPI2_MCR0       FLEXSPI_16BASE0x0._0x0000 // Module Control Reg. 0
+#define b16t_FLEXSPI2_MCR1       FLEXSPI_16BASE0x0._0x0004 // Module Control Reg. 1
+#define b16t_FLEXSPI2_MCR2       FLEXSPI_16BASE0x0._0x0008 // Module Control Reg. 2
+#define b16t_FLEXSPI2_AHBCR      FLEXSPI_16BASE0x0._0x000c // AHB Bus Ctrl Reg.
+#define b16t_FLEXSPI2_INTEN      FLEXSPI_16BASE0x0._0x0010 // Interrupt Enable Reg.
+#define b16t_FLEXSPI2_INTR       FLEXSPI_16BASE0x0._0x0014 // Interrupt Register
+#define b16t_FLEXSPI2_LUTKEY     FLEXSPI_16BASE0x0._0x0018 // LUT Key Register
+#define b16t_FLEXSPI2_LUTCR      FLEXSPI_16BASE0x0._0x001c // LUT Control Register
 #define b16t_FLEXSPI2_AHB_RXBUF0 FLEXSPI_16BASE0x0._0x0020 // RXBUF0 Ctrl. Reg.
 #define b16t_FLEXSPI2_AHB_RXBUF1 FLEXSPI_16BASE0x0._0x0024 // RXBUF1 Ctrl. Reg.
 #define b16t_FLEXSPI2_AHB_RXBUF2 FLEXSPI_16BASE0x0._0x0028 // RXBUF2 Ctrl. Reg.
@@ -630,17 +641,17 @@
 #define b16t_FLEXSPI2_FLSHA2_CR2 FLEXSPI_16BASE0x0._0x0084 // Flash Ctrl Reg. 2
 #define b16t_FLEXSPI2_FLSHB1_CR2 FLEXSPI_16BASE0x0._0x0088 // Flash Ctrl Reg. 2
 #define b16t_FLEXSPI2_FLSHB2_CR2 FLEXSPI_16BASE0x0._0x008c // Flash Ctrl Reg. 2
-#define b16t_FLEXSPI2_FLSH_CR4 FLEXSPI_16BASE0x0._0x0094 // Flash Control Reg. 4
-#define b16t_FLEXSPI2_IPCR0 FLEXSPI_16BASE0x0._0x00a0 // IP Control Register
-#define b16t_FLEXSPI2_IPCR1 FLEXSPI_16BASE0x0._0x00a4 // IP Control Register
-#define b16t_FLEXSPI2_IPCMD FLEXSPI_16BASE0x0._0x00b0 // IP CMD Register
-#define b16t_FLEXSPI2_IPRXCR FLEXSPI_16BASE0x0._0x00b8 // RX FIFO Ctrl Reg.
-#define b16t_FLEXSPI2_IPTXCR FLEXSPI_16BASE0x0._0x00bc // TX FIFO Ctrl Reg.
-#define b16t_FLEXSPI2_DLLACR FLEXSPI_16BASE0x0._0x00c0 // DDLA Control Register
-#define b16t_FLEXSPI2_DLLBCR FLEXSPI_16BASE0x0._0x00c4 // DLLB Control Register
-#define b16t_FLEXSPI2_STAT0 FLEXSPI_16BASE0x0._0x00e0 // Status Register 0
-#define b16t_FLEXSPI2_STAT1 FLEXSPI_16BASE0x0._0x00e4 // Status Register 1
-#define b16t_FLEXSPI2_STAT2 FLEXSPI_16BASE0x0._0x00e8 // Status Register 2
+#define b16t_FLEXSPI2_FLSH_CR4   FLEXSPI_16BASE0x0._0x0094 // Flash Control Reg. 4
+#define b16t_FLEXSPI2_IPCR0      FLEXSPI_16BASE0x0._0x00a0 // IP Control Register
+#define b16t_FLEXSPI2_IPCR1      FLEXSPI_16BASE0x0._0x00a4 // IP Control Register
+#define b16t_FLEXSPI2_IPCMD      FLEXSPI_16BASE0x0._0x00b0 // IP CMD Register
+#define b16t_FLEXSPI2_IPRXCR     FLEXSPI_16BASE0x0._0x00b8 // RX FIFO Ctrl Reg.
+#define b16t_FLEXSPI2_IPTXCR     FLEXSPI_16BASE0x0._0x00bc // TX FIFO Ctrl Reg.
+#define b16t_FLEXSPI2_DLLACR     FLEXSPI_16BASE0x0._0x00c0 // DDLA Control Register
+#define b16t_FLEXSPI2_DLLBCR     FLEXSPI_16BASE0x0._0x00c4 // DLLB Control Register
+#define b16t_FLEXSPI2_STAT0      FLEXSPI_16BASE0x0._0x00e0 // Status Register 0
+#define b16t_FLEXSPI2_STAT1      FLEXSPI_16BASE0x0._0x00e4 // Status Register 1
+#define b16t_FLEXSPI2_STAT2      FLEXSPI_16BASE0x0._0x00e8 // Status Register 2
 #define b16t_FLEXSPI2_AHB_SUSPND FLEXSPI_16BASE0x0._0x00ec // Suspend Stat. Reg.
 
 // FLEXSPI2 FIFO Status Register
@@ -789,14 +800,14 @@
  **/
 
 // 16BIT Register pointers to FLEXSPI
-#define b32t_FLEXSPI_MCR0 FLEXSPI_32BASE0x0._0x0000 // Module Control Register 0
-#define b32t_FLEXSPI_MCR1 FLEXSPI_32BASE0x0._0x0004 // Module Control Register 1
-#define b32t_FLEXSPI_MCR2 FLEXSPI_32BASE0x0._0x0008 // Module Control Register 2
-#define b32t_FLEXSPI_AHBCR FLEXSPI_32BASE0x0._0x000c // AHB Bus Control Register
-#define b32t_FLEXSPI_INTEN FLEXSPI_32BASE0x0._0x0010 // Interrupt Enable Reg.
-#define b32t_FLEXSPI_INTR FLEXSPI_32BASE0x0._0x0014 // Interrupt Register
-#define b32t_FLEXSPI_LUTKEY FLEXSPI_32BASE0x0._0x0018 // LUT Key Register
-#define b32t_FLEXSPI_LUTCR FLEXSPI_32BASE0x0._0x001c // LUT Control Register
+#define b32t_FLEXSPI_MCR0       FLEXSPI_32BASE0x0._0x0000 // Module Control Register 0
+#define b32t_FLEXSPI_MCR1       FLEXSPI_32BASE0x0._0x0004 // Module Control Register 1
+#define b32t_FLEXSPI_MCR2       FLEXSPI_32BASE0x0._0x0008 // Module Control Register 2
+#define b32t_FLEXSPI_AHBCR      FLEXSPI_32BASE0x0._0x000c // AHB Bus Control Register
+#define b32t_FLEXSPI_INTEN      FLEXSPI_32BASE0x0._0x0010 // Interrupt Enable Reg.
+#define b32t_FLEXSPI_INTR       FLEXSPI_32BASE0x0._0x0014 // Interrupt Register
+#define b32t_FLEXSPI_LUTKEY     FLEXSPI_32BASE0x0._0x0018 // LUT Key Register
+#define b32t_FLEXSPI_LUTCR      FLEXSPI_32BASE0x0._0x001c // LUT Control Register
 #define b32t_FLEXSPI_AHB_RXBUF0 FLEXSPI_32BASE0x0._0x0020 // RXBUF0 Ctrl. Reg.
 #define b32t_FLEXSPI_AHB_RXBUF1 FLEXSPI_32BASE0x0._0x0024 // RXBUF1 Ctrl. Reg.
 #define b32t_FLEXSPI_AHB_RXBUF2 FLEXSPI_32BASE0x0._0x0028 // RXBUF2 Ctrl. Reg.
@@ -813,18 +824,18 @@
 #define b32t_FLEXSPI_FLSHA2_CR2 FLEXSPI_32BASE0x0._0x0084 // Flash Ctrl Reg. 2
 #define b32t_FLEXSPI_FLSHB1_CR2 FLEXSPI_32BASE0x0._0x0088 // Flash Ctrl Reg. 2
 #define b32t_FLEXSPI_FLSHB2_CR2 FLEXSPI_32BASE0x0._0x008c // Flash Ctrl Reg. 2
-#define b32t_FLEXSPI_FLSH_CR4 FLEXSPI_32BASE0x0._0x0094 // Flash Control Reg. 4
-#define b32t_FLEXSPI_IPCR0 FLEXSPI_32BASE0x0._0x00a0 // IP Control Register
-#define b32t_FLEXSPI_IPCR1 FLEXSPI_32BASE0x0._0x00a4 // IP Control Register
-#define b32t_FLEXSPI_IPCMD FLEXSPI_32BASE0x0._0x00b0 // IP CMD Register
+#define b32t_FLEXSPI_FLSH_CR4   FLEXSPI_32BASE0x0._0x0094 // Flash Control Reg. 4
+#define b32t_FLEXSPI_IPCR0      FLEXSPI_32BASE0x0._0x00a0 // IP Control Register
+#define b32t_FLEXSPI_IPCR1      FLEXSPI_32BASE0x0._0x00a4 // IP Control Register
+#define b32t_FLEXSPI_IPCMD      FLEXSPI_32BASE0x0._0x00b0 // IP CMD Register
 #define b32t_FLEXSPI_IPRXCR                                                    \
   FLEXSPI_32BASE0x0._0x00b8 // RX FIFO Control Register
-#define b32t_FLEXSPI_IPTXCR FLEXSPI_32BASE0x0._0x00bc // TX FIFO Ctrl Reg.
-#define b32t_FLEXSPI_DLLACR FLEXSPI_32BASE0x0._0x00b0 // DDLA Control Register
-#define b32t_FLEXSPI_DLLBCR FLEXSPI_32BASE0x0._0x00c4 // DLLB Control Register
-#define b32t_FLEXSPI_STAT0 FLEXSPI_32BASE0x0._0x00e0 // Status Register 0
-#define b32t_FLEXSPI_STAT1 FLEXSPI_32BASE0x0._0x00e4 // Status Register 1
-#define b32t_FLEXSPI_STAT2 FLEXSPI_32BASE0x0._0x00e8 // Status Register 2
+#define b32t_FLEXSPI_IPTXCR     FLEXSPI_32BASE0x0._0x00bc // TX FIFO Ctrl Reg.
+#define b32t_FLEXSPI_DLLACR     FLEXSPI_32BASE0x0._0x00b0 // DDLA Control Register
+#define b32t_FLEXSPI_DLLBCR     FLEXSPI_32BASE0x0._0x00c4 // DLLB Control Register
+#define b32t_FLEXSPI_STAT0      FLEXSPI_32BASE0x0._0x00e0 // Status Register 0
+#define b32t_FLEXSPI_STAT1      FLEXSPI_32BASE0x0._0x00e4 // Status Register 1
+#define b32t_FLEXSPI_STAT2      FLEXSPI_32BASE0x0._0x00e8 // Status Register 2
 #define b32t_FLEXSPI_AHB_SUSPND FLEXSPI_32BASE0x0._0x00ec // Suspend Stat. Reg.
 
 // FLEXSPI2 FIFO Status Register
@@ -970,14 +981,14 @@
  * @brief: FLEXSPI2 32BIT ADDRESSES
  **/
 // 16BIT Register pointers to FLEXSPI2
-#define b32t_FLEXSPI2_MCR0 FLEXSPI2_32BASE0x0._0x0000 // Module Control Reg. 0
-#define b32t_FLEXSPI2_MCR1 FLEXSPI2_32BASE0x0._0x0004 // Module Control Reg. 1
-#define b32t_FLEXSPI2_MCR2 FLEXSPI2_32BASE0x0._0x0008 // Module Control Reg. 2
-#define b32t_FLEXSPI2_AHBCR FLEXSPI2_32BASE0x0._0x000c // AHB Bus Ctrl Reg.
-#define b32t_FLEXSPI2_INTEN FLEXSPI2_32BASE0x0._0x0010 // Interrupt Enable Reg.
-#define b32t_FLEXSPI2_INTR FLEXSPI2_32BASE0x0._0x0014 // Interrupt Register
-#define b32t_FLEXSPI2_LUTKEY FLEXSPI2_32BASE0x0._0x0018 // LUT Key Register
-#define b32t_FLEXSPI2_LUTCR FLEXSPI2_32BASE0x0._0x001c // LUT Control Register
+#define b32t_FLEXSPI2_MCR0       FLEXSPI2_32BASE0x0._0x0000 // Module Control Reg. 0
+#define b32t_FLEXSPI2_MCR1       FLEXSPI2_32BASE0x0._0x0004 // Module Control Reg. 1
+#define b32t_FLEXSPI2_MCR2       FLEXSPI2_32BASE0x0._0x0008 // Module Control Reg. 2
+#define b32t_FLEXSPI2_AHBCR      FLEXSPI2_32BASE0x0._0x000c // AHB Bus Ctrl Reg.
+#define b32t_FLEXSPI2_INTEN      FLEXSPI2_32BASE0x0._0x0010 // Interrupt Enable Reg.
+#define b32t_FLEXSPI2_INTR       FLEXSPI2_32BASE0x0._0x0014 // Interrupt Register
+#define b32t_FLEXSPI2_LUTKEY     FLEXSPI2_32BASE0x0._0x0018 // LUT Key Register
+#define b32t_FLEXSPI2_LUTCR      FLEXSPI2_32BASE0x0._0x001c // LUT Control Register
 #define b32t_FLEXSPI2_AHB_RXBUF0 FLEXSPI2_32BASE0x0._0x0020 // RXBUF0 Ctrl. Reg.
 #define b32t_FLEXSPI2_AHB_RXBUF1 FLEXSPI2_32BASE0x0._0x0024 // RXBUF1 Ctrl. Reg.
 #define b32t_FLEXSPI2_AHB_RXBUF2 FLEXSPI2_32BASE0x0._0x0028 // RXBUF2 Ctrl. Reg.
@@ -994,17 +1005,17 @@
 #define b32t_FLEXSPI2_FLSHA2_CR2 FLEXSPI2_32BASE0x0._0x0084 // Flash Ctrl Reg. 2
 #define b32t_FLEXSPI2_FLSHB1_CR2 FLEXSPI2_32BASE0x0._0x0088 // Flash Ctrl Reg. 2
 #define b32t_FLEXSPI2_FLSHB2_CR2 FLEXSPI2_32BASE0x0._0x008c // Flash Ctrl Reg. 2
-#define b32t_FLEXSPI2_FLSH_CR4 FLEXSPI2_32BASE0x0._0x0094 // Flash Ctrl Reg. 4
-#define b32t_FLEXSPI2_IPCR0 FLEXSPI2_32BASE0x0._0x00a0 // IP Control Register
-#define b32t_FLEXSPI2_IPCR1 FLEXSPI2_32BASE0x0._0x00a4 // IP Control Register
-#define b32t_FLEXSPI2_IPCMD FLEXSPI2_32BASE0x0._0x00b0 // IP CMD Register
-#define b32t_FLEXSPI2_IPRXCR FLEXSPI2_32BASE0x0._0x00b8 // RX FIFO Ctrl Reg.
-#define b32t_FLEXSPI2_IPTXCR FLEXSPI2_32BASE0x0._0x00bc // TX FIFO Ctrl Reg.
-#define b32t_FLEXSPI2_DLLACR FLEXSPI2_32BASE0x0._0x00b0 // DDLA Control Register
-#define b32t_FLEXSPI2_DLLBCR FLEXSPI2_32BASE0x0._0x00c4 // DLLB Control Register
-#define b32t_FLEXSPI2_STAT0 FLEXSPI2_32BASE0x0._0x00e0 // Status Register 0
-#define b32t_FLEXSPI2_STAT1 FLEXSPI2_32BASE0x0._0x00e4 // Status Register 1
-#define b32t_FLEXSPI2_STAT2 FLEXSPI2_32BASE0x0._0x00e8 // Status Register 2
+#define b32t_FLEXSPI2_FLSH_CR4   FLEXSPI2_32BASE0x0._0x0094 // Flash Ctrl Reg. 4
+#define b32t_FLEXSPI2_IPCR0      FLEXSPI2_32BASE0x0._0x00a0 // IP Control Register
+#define b32t_FLEXSPI2_IPCR1      FLEXSPI2_32BASE0x0._0x00a4 // IP Control Register
+#define b32t_FLEXSPI2_IPCMD      FLEXSPI2_32BASE0x0._0x00b0 // IP CMD Register
+#define b32t_FLEXSPI2_IPRXCR     FLEXSPI2_32BASE0x0._0x00b8 // RX FIFO Ctrl Reg.
+#define b32t_FLEXSPI2_IPTXCR     FLEXSPI2_32BASE0x0._0x00bc // TX FIFO Ctrl Reg.
+#define b32t_FLEXSPI2_DLLACR     FLEXSPI2_32BASE0x0._0x00b0 // DDLA Control Register
+#define b32t_FLEXSPI2_DLLBCR     FLEXSPI2_32BASE0x0._0x00c4 // DLLB Control Register
+#define b32t_FLEXSPI2_STAT0      FLEXSPI2_32BASE0x0._0x00e0 // Status Register 0
+#define b32t_FLEXSPI2_STAT1      FLEXSPI2_32BASE0x0._0x00e4 // Status Register 1
+#define b32t_FLEXSPI2_STAT2      FLEXSPI2_32BASE0x0._0x00e8 // Status Register 2
 #define b32t_FLEXSPI2_AHB_SUSPND                                               \
   FLEXSPI2_32BASE0x0._0x00ec // Suspend Stat. Reg.
 
@@ -1147,6 +1158,5 @@
 #define b32t_FLEXSPI2_LUT61 FLEXSPI2_32BASE0x0._0x02f4 // LookUpTable 61
 #define b32t_FLEXSPI2_LUT62 FLEXSPI2_32BASE0x0._0x02f8 // LookUpTable 62
 #define b32t_FLEXSPI2_LUT63 FLEXSPI2_32BASE0x0._0x02fc // LookUpTable 63
-
 
 #endif // FLEXSPI_ADDR_H

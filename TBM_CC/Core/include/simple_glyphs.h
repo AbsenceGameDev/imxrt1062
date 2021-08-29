@@ -1,3 +1,14 @@
+/**
+ * @file      simple_glyphs.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef SIMPLE_GLYPHS_H
 #define SIMPLE_GLYPHS_H
 
@@ -295,8 +306,8 @@ extern const _8x8_ _Z_8x8;
 // Move these to more appropriate places later
 #define GLYPHBYTE_UPPERNYBBLE(byte) (((byte) >> 0x4) & 0x4)
 #define GLYPHBYTE_LOWERNYBBLE(byte) ((byte)&0x4)
-#define MSG_MAX_LENGTH 0xff
-#define LOGIC_XOR(a, b) (((a) || (b)) && ~((a) && (b)))
+#define MSG_MAX_LENGTH              0xff
+#define LOGIC_XOR(a, b)             (((a) || (b)) && ~((a) && (b)))
 
 extern char const h2a_const[];
 #define hex2ascii(hexd) (h2a_const[hexd])

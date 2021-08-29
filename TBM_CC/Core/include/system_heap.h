@@ -1,10 +1,21 @@
+/**
+ * @file      system_heap.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef SYSTEM_HEAP_H
 #define SYSTEM_HEAP_H
 
 #include "system_memory_map.h"
 
 #ifndef NULL
-#define NULL ((void *)0)
+  #define NULL ((void *)0)
 #endif
 
 #define NULL_ADDR ((volatile void *)0)
@@ -24,7 +35,7 @@
 
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
 #define MEM_START SYSMEM_OCRAM_FLEX_S
-#define MEM_END SYSMEM_OCRAM_FLEX_E
+#define MEM_END   SYSMEM_OCRAM_FLEX_E
 extern volatile void * free_heap_ptr;
 #define MEM_OFFS(x) (MEM_START + (x))
 
@@ -90,11 +101,11 @@ typedef uint8_t heap_group_t;
  * @param _blocks 32-bit field:  USED BLOCKS [0,15].  FREE BLOCKS [16,31].
  **/
 struct heap_group_s {
-  volatile struct heap_group_s * prev; // 4 Bytes
-  volatile struct heap_group_s * next; // 4 Bytes
+  volatile struct heap_group_s * prev;     // 4 Bytes
+  volatile struct heap_group_s * next;     // 4 Bytes
   heap_group_t                   group_id; // 1 Bytes
-  uint32_t                       _size; // 4 Bytes
-  uint32_t                       _blocks; // 4 Bytes
+  uint32_t                       _size;    // 4 Bytes
+  uint32_t                       _blocks;  // 4 Bytes
 };
 typedef struct heap_group_s heap_group;
 typedef volatile heap_group vheap_group;
@@ -115,8 +126,8 @@ typedef volatile heap_group vheap_group;
   ((sp) = ((sp)&0xffff) | (((sp) & ~0xffff) + (add)))
 #define SUB_HEAP_FREE(sp, sub)                                                 \
   ((sp) = ((sp)&0xffff) | (((sp) & ~0xffff) - (sub)))
-#define READ_HEAP_FREE(heap_g) (((heap_g)->_size >> 0x10) & 0x10)
-#define READ_HEAP_TOTAL(heap_g) ((heap_g)->_size & 0x10)
+#define READ_HEAP_FREE(heap_g)       (((heap_g)->_size >> 0x10) & 0x10)
+#define READ_HEAP_TOTAL(heap_g)      ((heap_g)->_size & 0x10)
 #define READ_HEAP_FREEBLOCKS(heap_g) ((heap_g->_blocks >> 0x10) & 0xff)
 #define READ_HEAP_USEDBLOCKS(heap_g) ((heap_g)->_blocks & 0x10)
 
@@ -135,25 +146,25 @@ typedef volatile heap_group vheap_group;
  *
  **/
 struct heap_block_s {
-  volatile struct heap_block_s * prev; // 4 Bytes
-  volatile struct heap_block_s * next; // 4 Bytes
-  uint16_t                       data_size; // 2 Bytes
+  volatile struct heap_block_s * prev;       // 4 Bytes
+  volatile struct heap_block_s * next;       // 4 Bytes
+  uint16_t                       data_size;  // 2 Bytes
   uint8_t                        id_n_freed; // 1 Byte
 };
 typedef struct heap_block_s heap_block;
 typedef volatile heap_block vheap_block;
 
-#define HB_HEADER_SIZE 0xb
+#define HB_HEADER_SIZE             0xb
 #define READ_BLOCK_FREE(heapblock) ((heapblock)->id_n_freed & 0x1)
 #define SET_BLOCK_FREE(heap_b)                                                 \
   (heap_b)->id_n_freed = (((heap_b)->id_n_freed & ~0x1) | 0x1)
 #define SET_BLOCK_USED(heap_b)                                                 \
   (heap_b)->id_n_freed = (((heap_b)->id_n_freed & ~0x1) | 0x0)
-#define SET_GROUP_ID(field, id) field = ((((id) << 0x4) & ~0x1) | ((field)&0x1))
-#define READ_BLOCK_GID(idfreed) (((idfreed) >> 0x4) & 0x4)
-#define BLOCK_END(hb_cptr) ((hb_cptr) + (hb_cptr)->data_size + HB_HEADER_SIZE)
-#define MAX_HB_DATA_SIZE (0x8000 - HB_HEADER_SIZE - HG_HEADER_SIZE)
-#define HBHG_INCR_ADDR(heapb, n) (vheap_block *)(((vuint8_t *)(heapb)) + (n))
+#define SET_GROUP_ID(field, id)     field = ((((id) << 0x4) & ~0x1) | ((field)&0x1))
+#define READ_BLOCK_GID(idfreed)     (((idfreed) >> 0x4) & 0x4)
+#define BLOCK_END(hb_cptr)          ((hb_cptr) + (hb_cptr)->data_size + HB_HEADER_SIZE)
+#define MAX_HB_DATA_SIZE            (0x8000 - HB_HEADER_SIZE - HG_HEADER_SIZE)
+#define HBHG_INCR_ADDR(heapb, n)    (vheap_block *)(((vuint8_t *)(heapb)) + (n))
 #define VOID_INCR_ADDR(any_type, n) (void *)(((vuint8_t *)(any_type)) + (n))
 
 extern uint16_t g_free_blocks[0x10];

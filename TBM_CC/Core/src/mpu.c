@@ -1,3 +1,14 @@
+/**
+ * @file      mpu.c
+ * @author    Ario@Permadev
+ * @brief     Memory Protection Unit impl.
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #include "mpu.h"
 
 /**
@@ -15,7 +26,7 @@ configure_mpu()
   // Preamble
   MPU_RNR_REQ_REGIONS(region); // request sepcific region
 
-  MPU_RBAR_VALID_W_0; // Apply base addr. to RBAR from RNR
+  MPU_RBAR_VALID_W_0;        // Apply base addr. to RBAR from RNR
   MPU_RBAR_REGION_W(region); // Sets RBAR region directly
 
   MPU_RASR_SET_REGION_SIZE(power); // sets region size to (2^(x+1)) bytes
@@ -23,20 +34,20 @@ configure_mpu()
   MPU_RASR_DISABLE; // Disables region, has no effect until MPU_CTRL.ENABLE is set
 
   // Preamble, if region size is over  2^8 (256) Bytes
-  MPU_RASR_EN_SUBREGION(0x0); // Enables subregion x, x = [0,7]
+  MPU_RASR_EN_SUBREGION(0x0);  // Enables subregion x, x = [0,7]
   MPU_RASR_DIS_SUBREGION(0x0); // Disable subregion x, x = [0,7]
   // ...
 
   // Lock/Unlock execution
   MPU_RASR_NOT_PERMIT_EXEC; // Lock region
-  MPU_RASR_PERMIT_EXEC; // Unlock region
+  MPU_RASR_PERMIT_EXEC;     // Unlock region
 
   // Access privilege
-  MPU_RASR_AP_NO_RW; // Sets: No Read/Write access
+  MPU_RASR_AP_NO_RW;    // Sets: No Read/Write access
   MPU_RASR_AP_PRIVL_RW; // Sets: Read/Write Privileged access
-  MPU_RASR_AP_FULL_RW; // Sets: Read/Write, Full access
+  MPU_RASR_AP_FULL_RW;  // Sets: Read/Write, Full access
   MPU_RASR_AP_PRIVL_RO; // Sets: Read Only, Privileged access
-  MPU_RASR_AP_FULL_RO; // Sets: Read Only, Full access
+  MPU_RASR_AP_FULL_RO;  // Sets: Read Only, Full access
   MPU_RASR_AP_FULL_RO2; // Sets: Read Only, Full access
 
   // Decide whether to have shareable bits in the S field

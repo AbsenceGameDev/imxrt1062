@@ -1,3 +1,14 @@
+/**
+ * @file      simple_glyphs.c
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #include "simple_glyphs.h"
 
 char const h2a_const[] = "0123456789abcdefghijklmnopqrstuvwxyz";

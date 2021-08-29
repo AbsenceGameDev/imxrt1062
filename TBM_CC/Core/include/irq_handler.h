@@ -1,7 +1,16 @@
+/**
+ * @file      irq_handler.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef IRQ_HANDLER_H
 #define IRQ_HANDLER_H
-
-#include "system_memory_map.h"
 
 /**
  *  @brief 4.3 CM7 interrupts (p.43 - p.52), IMXRT1060 Processor Ref Manual
@@ -67,8 +76,8 @@ typedef enum
          ipi_int_rxwarning, ipi_int_txwarning andipi_int_wakein.*/
 
   // SAI
-  IRQ_SAI1 = 56, /** Interrupt for SAI1, RX or TX, async or not */
-  IRQ_SAI2 = 57, /** Interrupt for SAI2, RX or TX, async or not */
+  IRQ_SAI1 = 56,    /** Interrupt for SAI1, RX or TX, async or not */
+  IRQ_SAI2 = 57,    /** Interrupt for SAI2, RX or TX, async or not */
   IRQ_SAI3_RX = 58, /** Interrupt for SAI3 RX, async or not */
   IRQ_SAI3_TX = 59, /** Interrupt for SAI3 TX, async or not */
 
@@ -95,7 +104,7 @@ typedef enum
 
   // Analog Modules
   IRQ_TSC_DIG = 40, /** TSC interrupt */
-  IRQ_ADC1 = 67, /** @todo Continue commenting later. */
+  IRQ_ADC1 = 67,    /** @todo Continue commenting later. */
   IRQ_ADC2 = 68,
   IRQ_ADC_ETC0 = 118,
   IRQ_ADC_ETC1 = 119,
@@ -149,27 +158,27 @@ typedef enum
   IRQ_ENET2_TIMER_SYNC = 153,
 
   // MISC
-  IRQ_KPAD = 39, /** Keypad interrupt */
-  IRQ_GPR_IRQ = 41, /** Used to notify cores on exception cond. while boot */
-  IRQ_LCDIF = 42, /** LCDIF Sync Interrupt */
-  IRQ_CSI = 43, /** CSI Interrupt */
-  IRQ_PXP = 44, /** PXP Interrupt */
+  IRQ_KPAD = 39,     /** Keypad interrupt */
+  IRQ_GPR_IRQ = 41,  /** Used to notify cores on exception cond. while boot */
+  IRQ_LCDIF = 42,    /** LCDIF Sync Interrupt */
+  IRQ_CSI = 43,      /** CSI Interrupt */
+  IRQ_PXP = 44,      /** PXP Interrupt */
   IRQ_SNVS_IRQ = 46, /** SVNS Functional Interrupt */
-  IRQ_SNVS_SECURITY = 47, /** SVNS Security Interrupt */
+  IRQ_SNVS_SECURITY = 47,   /** SVNS Security Interrupt */
   IRQ_SNVS_ONOFF_5SEC = 48, /** ON-OFF btn press < 5 seconds (pulse event) */
-  IRQ_CSU = 49, /** CSU Interrupt Request 1, indicates to the core that 1 or
-                   more alarm inputs were asserted */
+  IRQ_CSU = 49,  /** CSU Interrupt Request 1, indicates to the core that 1 or
+                    more alarm inputs were asserted */
   IRQ_DCP0 = 50, /** Combined DCP ch. irq's (except ch. 0) and CRC irq */
   IRQ_DCP1 = 51, /** IRQ DCP ch. 0 */
   IRQ_DCP2 = 52, /** Reserved */
   IRQ_TRNG = 53, /** True-RNG Interrupt */
-  IRQ_BEE = 55, /** BEE Interrupt */
-  IRQ_SPDIF_TRX = 60, /** SPDIF RX or TX Interrupt */
+  IRQ_BEE = 55,  /** BEE Interrupt */
+  IRQ_SPDIF_TRX = 60,     /** SPDIF RX or TX Interrupt */
   IRQ_PMU_BROWNOUT0 = 61, /** Brownout on either 1.1, 2.5 or 3.0 regulators */
-  IRQ_TEMPERATURE = 63, /** Low or High temp IRQ */
+  IRQ_TEMPERATURE = 63,   /** Low or High temp IRQ */
   IRQ_TEMPERATURE_PANIC = 64, /** Panic temperature IRQ (High or Low) */
-  IRQ_USBPHY0 = 65, /** UTMI0 Interrupt */
-  IRQ_USBPHY1 = 66, /** UTMI1 Interrupt */
+  IRQ_USBPHY0 = 65,           /** UTMI0 Interrupt */
+  IRQ_USBPHY1 = 66,           /** UTMI1 Interrupt */
   IRQ_DCDC = 69,
   IRQ_FLEXIO1 = 90,
   IRQ_FLEXIO2 = 91,
@@ -205,8 +214,9 @@ typedef enum
 
 } irq_num_e;
 
+#define NVIC_IRQs 0xa0
+extern void (*volatile __vectors_ram__[NVIC_IRQs + 0x10])(void);
 typedef void (*void_func)(void);
-extern void (*__vectors_ram__[NVIC_IRQs + 0x10])(void);
 
 static inline void
 add_to_irq_v(irq_num_e irq, void_func funcptr)

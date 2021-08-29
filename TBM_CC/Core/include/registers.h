@@ -1,13 +1,21 @@
+/**
+ * @file      registers.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef REGISTERS_H
 #define REGISTERS_H
 /* Following assumes long is 32-bits */
 typedef volatile unsigned long  vuint32_t;
 typedef volatile unsigned short vuint16_t;
 typedef volatile unsigned char  vuint8_t;
-// void *                          DMAMUX_BASE_ADDR = 0x40094000;
 
-//
-//
 //
 // 32BIT REGISTER  OFFSETS
 //
@@ -653,23 +661,23 @@ typedef enum
   B_ = 0x1
 } state_e;
 
-#define MAP_8BIT_REGISTER(ADDRESS) (*((imxrt_8t_offset *)(ADDRESS)))
-#define MAP_16BIT_REGISTER(ADDRESS) (*((imxrt_16t_offset *)(ADDRESS)))
-#define MAP_32BIT_REGISTER(ADDRESS) (*((imxrt_32t_offset *)(ADDRESS)))
+#define MAP_8BIT_REGISTER(ADDRESS)      (*((imxrt_8t_offset *)(ADDRESS)))
+#define MAP_16BIT_REGISTER(ADDRESS)     (*((imxrt_16t_offset *)(ADDRESS)))
+#define MAP_32BIT_REGISTER(ADDRESS)     (*((imxrt_32t_offset *)(ADDRESS)))
 #define MAP_32BIT_ANYREG(TYPE, ADDRESS) (*((TYPE *)(ADDRESS)))
-#define B_OFFSET(A, B) ((A) + (B))
+#define B_OFFSET(A, B)                  ((A) + (B))
 
-#define FLEXRAM_ITCM_EN(n) ((uint32_t)((n)&0x1))
-#define FLEXRAM_DTCM_EN(n) ((uint32_t)(((n)&0x1) << 1))
+#define FLEXRAM_ITCM_EN(n)      ((uint32_t)((n)&0x1))
+#define FLEXRAM_DTCM_EN(n)      ((uint32_t)(((n)&0x1) << 1))
 #define FLEXRAM_BANK_CFG_SEL(n) ((uint32_t)(((n)&0x1) << 2))
 
-#define IOMUXC_PAD_SRE ((uint32_t)(1 << 0))
-#define IOMUXC_PAD_DSE(n) ((uint32_t)(((n)&0x07) << 3))
+#define IOMUXC_PAD_SRE      ((uint32_t)(1 << 0))
+#define IOMUXC_PAD_DSE(n)   ((uint32_t)(((n)&0x07) << 3))
 #define IOMUXC_PAD_SPEED(n) ((uint32_t)(((n)&0x03) << 6))
-#define IOMUXC_PAD_ODE ((uint32_t)(1 << 11))
-#define IOMUXC_PAD_PKE ((uint32_t)(1 << 12))
-#define IOMUXC_PAD_PUE ((uint32_t)(1 << 13))
-#define IOMUXC_PAD_PUS(n) ((uint32_t)(((n)&0x03) << 14))
-#define IOMUXC_PAD_HYS ((uint32_t)(1 << 16))
+#define IOMUXC_PAD_ODE      ((uint32_t)(1 << 11))
+#define IOMUXC_PAD_PKE      ((uint32_t)(1 << 12))
+#define IOMUXC_PAD_PUE      ((uint32_t)(1 << 13))
+#define IOMUXC_PAD_PUS(n)   ((uint32_t)(((n)&0x03) << 14))
+#define IOMUXC_PAD_HYS      ((uint32_t)(1 << 16))
 
 #endif // REGISTERS_H

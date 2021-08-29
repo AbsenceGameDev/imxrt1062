@@ -1,3 +1,14 @@
+/**
+ * @file      gpio_handler.h
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #ifndef GPIO_HANDLER_H
 #define GPIO_HANDLER_H
 
@@ -5,21 +16,30 @@
 #include "timer_manager.h"
 
 // ENUMS
+
+/**
+ * @enum gpio_registers_e
+ *
+ */
 typedef enum
 {
-  DR_DATA_REG = 0x0, // RW
-  GDIR_DIR_REG = 0x4, // RW
-  PSR_PAD_STATUS_REG = 0x8, // RO
-  ICR1_INTERRUPT_CONF_REG1 = 0xc, // RW
-  ICR2_INTERRUPT_CONF_REG2 = 0x10, // RW
-  IMR_INTERRUPT_MASK_REG = 0x14, // RW
-  ISR_INTERRUPT_STAT_REG = 0x18, // W1C
-  EDGE_SEL = 0x1c, // RW
-  DR_SET = 0x84, // WO
-  DR_CLEAR = 0x88, // WO
-  DR_TOGGLE = 0x8c, // WO
+  DR_DATA_REG = 0x0,               /** @brief Access-rights: RW  */
+  GDIR_DIR_REG = 0x4,              /** @brief Access-rights: RW  */
+  PSR_PAD_STATUS_REG = 0x8,        /** @brief Access-rights: RO  */
+  ICR1_INTERRUPT_CONF_REG1 = 0xc,  /** @brief Access-rights: RW  */
+  ICR2_INTERRUPT_CONF_REG2 = 0x10, /** @brief Access-rights: RW  */
+  IMR_INTERRUPT_MASK_REG = 0x14,   /** @brief Access-rights: RW  */
+  ISR_INTERRUPT_STAT_REG = 0x18,   /** @brief Access-rights: W1C */
+  EDGE_SEL = 0x1c,                 /** @brief Access-rights: RW  */
+  DR_SET = 0x84,                   /** @brief Access-rights: WO  */
+  DR_CLEAR = 0x88,                 /** @brief Access-rights: WO  */
+  DR_TOGGLE = 0x8c,                /** @brief Access-rights: WO  */
 } gpio_registers_e;
 
+/**
+ * @enum gpio_gdir_e
+ *
+ */
 typedef enum
 {
   EGPIO_IN = 0x0,
@@ -148,7 +168,10 @@ void
 set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, state_e set_state);
 
 void
-blinky_led_example(uint32_t seconds, timer_manager_t * pit_mgr);
+init_onboard_led();
+
+void
+blinky_led_example_PIT(uint32_t seconds, timer_manager_t * pit_mgr);
 
 void
 blinky_led_abstracted_example();

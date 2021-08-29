@@ -1,5 +1,14 @@
-//#include "../include/gpio_handler.h"
-//#include "../include/system_memory_map.h"
+/**
+ * @file      main.c
+ * @author    Ario@Permadev
+ * @brief
+ * @version   0.1
+ * @date      2021-08-29
+ *
+ * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
+ *
+ */
+
 #include "gpio_handler.h"
 #include "system_memory_map.h"
 #include "timer_manager.h"
@@ -13,16 +22,10 @@ main()
   timer_context.context = (void *)&pit_context;
   timer_manager_t pit_timer;
   pit_timer.timer_ctx = &timer_context;
-  blinky_led_example(seconds, &pit_timer);
-  // blinky_led_abstracted_example();
-  // blinky_led_original_example();
 
-  // __init_ram_heap__();
-  // if (heapb_current->id_n_freed > 1 || heapg_current->_blocks > 1) {
-  // }
+  blinky_led_example_PIT(seconds, &pit_timer);
 
-  // keep main alive
-  while (0x1) {
+  while (1) {
   }
 
   return 0;
