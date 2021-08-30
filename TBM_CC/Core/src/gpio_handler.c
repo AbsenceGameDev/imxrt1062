@@ -99,6 +99,9 @@ init_gpio(gpiodev_s *      gpio_device,
           muxpad_dse_e     dse_opt,
           uint8_t          ctrl_pos)
 {
+  if (gpio_device == NULL) {
+    return;
+  }
   switch (pad_group) {
     case GPIO_AD_B0:
       /** @brief: Set MUXmode, ALT5 = GPIO1_IOx x: [0,15] (ctrl_postion + 1) */
@@ -156,7 +159,45 @@ init_gpio(gpiodev_s *      gpio_device,
       break;
     default: break;
   }
+
+  gpio_device->base_mux_device->ctrl_pos = ctrl_pos;
   set_gpr_gdir(gpio_device);
+}
+
+/**
+ * @brief: Set all MUX bits in the correct General Purpose Register (GPR)
+ **/
+void
+set_gpr_gdir(gpiodev_s * gpio_device)
+{
+  uint8_t     LOW_HIGH = 0x0; // 0001 low, 0000 high
+  vuint32_t * gdir_addr = ((vuint32_t *)0);
+  switch (gpio_device->pin) {
+      // GPR26 [GPIO1,GPIO6]
+    case 0x1:
+    case 0x6:
+      //  Set all MUX bits to either GPIO1 or GPIO6
+      IOMUXC_GPR_GPR26 = 0xffffffff * (gpio_device->pin == 0x6);
+      break;
+      // GPR27 [GPIO2,GPIO7]
+    case 0x2:
+    case 0x7:
+      // Set all MUX bits to either GPIO2 or GPIO7
+      IOMUXC_GPR_GPR27 = 0xffffffff * (gpio_device->pin == 0x7);
+      break;
+      // GPR28 [GPIO3,GPIO8]
+    case 0x3:
+    case 0x8:
+      // Set all MUX bits to either GPIO3 or GPIO8
+      IOMUXC_GPR_GPR28 = 0xffffffff * (gpio_device->pin == 0x8);
+      break;
+      // GPR29 [GPIO4,GPIO9]
+    case 0x4:
+    case 0x9:
+      // Set all MUX bits to either GPIO4 or GPIO9
+      IOMUXC_GPR_GPR29 = 0xffffffff * (gpio_device->pin == 0x9);
+      break;
+  }
 
   // Setting gpio direction for either output or input
   vuint32_t * redirector = &GPIO1_DIRR;
@@ -171,172 +212,13 @@ init_gpio(gpiodev_s *      gpio_device,
     case 0x8: redirector = &GPIO8_DIRR; break;
     case 0x9: redirector = &GPIO9_DIRR; break;
   }
-  (*redirector) |= ((0x1 * gpio_device->io_type) << ctrl_pos);
-  uint_fast8_t dir = 0x3;
-};
-
-/**
- * @brief: Set all MUX bits in the correct General Purpose Register (GPR)
- **/
-void
-set_gpr_gdir(gpiodev_s * gpio_device)
-{
-  uint8_t     LOW_HIGH = 0x0; // 0001 low, 0000 high
-  vuint32_t * gdir_addr = ((vuint32_t *)0);
-  switch (gpio_device->pin) {
-      // GPR26 [GPIO1,GPIO6]
-    case 0x1: LOW_HIGH |= 0x1;
-    case 0x6:
-      //  Set all MUX bits to either GPIO1 or GPIO6
-      IOMUXC_GPR_GPR26 = 0xffffffff * (gpio_device->pin == 0x6);
-      if (LOW_HIGH == 0x1) {
-        gdir_addr = &GPIO1_DIRR;
-      } else {
-        gdir_addr = &GPIO6_DIRR;
-      }
-      set_gpio_gdir(gdir_addr,
-                    gpio_device->io_type,
-                    gpio_device->base_mux_device->ctrl_pos);
-      break;
-      // GPR27 [GPIO2,GPIO7]
-    case 0x2: LOW_HIGH |= 0x1;
-    case 0x7:
-      // Set all MUX bits to either GPIO2 or GPIO7
-      IOMUXC_GPR_GPR27 = 0xffffffff * (gpio_device->pin == 0x7);
-      if (LOW_HIGH == 0x1) {
-        gdir_addr = &GPIO2_DIRR;
-      } else {
-        gdir_addr = &GPIO7_DIRR;
-      }
-      set_gpio_gdir(gdir_addr,
-                    gpio_device->io_type,
-                    gpio_device->base_mux_device->ctrl_pos);
-      break;
-      // GPR28 [GPIO3,GPIO8]
-    case 0x3: LOW_HIGH |= 0x1;
-    case 0x8:
-      // Set all MUX bits to either GPIO3 or GPIO8
-      IOMUXC_GPR_GPR28 = 0xffffffff * (gpio_device->pin == 0x8);
-      if (LOW_HIGH == 0x1) {
-        gdir_addr = &GPIO3_DIRR;
-      } else {
-        gdir_addr = &GPIO8_DIRR;
-      }
-      set_gpio_gdir(gdir_addr,
-                    gpio_device->io_type,
-                    gpio_device->base_mux_device->ctrl_pos);
-      break;
-      // GPR29 [GPIO4,GPIO9]
-    case 0x4: LOW_HIGH |= 0x1;
-    case 0x9:
-      // Set all MUX bits to either GPIO4 or GPIO9
-      IOMUXC_GPR_GPR29 = 0xffffffff * (gpio_device->pin == 0x9);
-      if (LOW_HIGH == 0x1) {
-        gdir_addr = &GPIO4_DIRR;
-      } else {
-        gdir_addr = &GPIO9_DIRR;
-      }
-      set_gpio_gdir(gdir_addr,
-                    gpio_device->io_type,
-                    gpio_device->base_mux_device->ctrl_pos);
-      break;
-  }
-}
-
-void
-set_gpio_gdir(vuint32_t * gpio_gdir_addr,
-              gpio_io_e   io_type,
-              uint8_t     direction_bit)
-{
-  *gpio_gdir_addr |= ((0x1 * io_type) << direction_bit);
-};
-
-uint8_t
-handle_gpio(gpiodev_s * gpio_device, gpio_registers_e gpio_register)
-{
-  vuint32_t * gpio_ptr = (gpio_device->base_addr + gpio_register);
-  switch (gpio_register) {
-
-    case GDIR_DIR_REG:
-      *gpio_ptr |= (0x1 << gpio_device->bit_id); // Set as OUTPUT
-      return 0;
-    case PSR_PAD_STATUS_REG:
-      return 0x3 | ((*gpio_ptr) >> gpio_device->bit_id); // Read Only
-    case DR_SET:                                         // WO
-    case DR_CLEAR:                                       // WO
-    case DR_TOGGLE:                                      // WO
-      *gpio_ptr = (0x1 << gpio_device->bit_id);
-      return 0;
-    case ICR1_INTERRUPT_CONF_REG1: // regards GPIO [0,15]
-      *gpio_ptr = (0x1 << gpio_device->bit_id);
-      return 0;
-    case ICR2_INTERRUPT_CONF_REG2: // regards GPIO [16,31]
-      *gpio_ptr = (0x1 << gpio_device->bit_id);
-      return 0;
-    case IMR_INTERRUPT_MASK_REG: return 0;
-    case ISR_INTERRUPT_STAT_REG: return 0;
-    default: return 0;
-  }
-  return 0;
-};
-
-void
-set_icr1(gpiodev_s * gpio_device, gpio_icr_e setting)
-{
-  *(gpio_device->base_addr + ICR1_INTERRUPT_CONF_REG1) = setting;
-};
-
-void
-set_icr2(gpiodev_s * gpio_device, gpio_icr_e setting)
-{
-  *(gpio_device->base_addr + ICR2_INTERRUPT_CONF_REG2) = setting;
-};
-
-// gpio_icr_e
-
-uint32_t
-read_gpio(vuint32_t * gpio_base_ptr, gpio_registers_e gpio_register)
-{
-  return *((uint32_t *)(((uint8_t *)gpio_base_ptr) + gpio_register));
-};
-
-void
-set_gpio_register(vuint32_t * gpio_reg_addr, uint_fast8_t direction_bit)
-{
-  *gpio_reg_addr = (0x1 << direction_bit);
-}
-
-void
-set_iomuxc_byte(vuint32_t * addr, uint_fast8_t byte)
-{
-  *addr = byte;
-}
-void
-set_iomuxc_word(vuint32_t * addr, uint_fast16_t word)
-{
-  *addr = word;
-}
-void
-set_iomuxc_dword(vuint32_t * addr, uint_fast32_t dword)
-{
-  *addr = dword;
-}
-
-void
-flip_selected_gpr(vuint32_t * gpr_iomuxc_gpr)
-{
-  *gpr_iomuxc_gpr = !(*gpr_iomuxc_gpr);
-}
-
-void
-set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, state_e set_state)
-{
-  (*gpr_iomuxc_gpr) = (vuint32_t)(0xffffffff * (set_state));
+  SET_GPIO_GDIR(
+      redirector, gpio_device->io_type, gpio_device->base_mux_device->ctrl_pos);
 }
 
 /**
  * @brief Callback to toggle LED at pin13
- * @note Callback should produce two instructions, meaning it will offset
+ * @note Callback should produce instruction count > 1, meaning it will offset
  * accuracy by atleast one core-cycle each callback */
 void
 callback_toggle_led()
@@ -346,29 +228,32 @@ callback_toggle_led()
   asm volatile("dsb");
 }
 
-void
+gpiodev_s *
 init_onboard_led()
 {
-  IOMUXC_MUX_PAD_GPIO_B0_CR03 = 0x5;
-  IOMUXC_PAD_PAD_GPIO_B0_CR03 = IOMUXC_PAD_DSE(0x7);
+  // inits mux with alt5, and sets pad at DSE 0x7, in padgroup B0 at control
+  // register position 3, then sets GPR27 to control, due to pin being 0x7, and
+  // will set it to input based on the io_type member
+  gpiodev_s * heap_gpio_device = (gpiodev_s *)malloc_(sizeof(gpiodev_s));
+  heap_gpio_device->pin = 0x7;
+  heap_gpio_device->io_type = GDIR_OUT;
+  init_gpio(heap_gpio_device, GDIR_DIR_REG, GPIO_B0, PAD_DSE_R07, 0x3);
 
-  // GPR27, Set it to Control
-  IOMUXC_GPR_GPR27 = 0xffffffff;
-  const uint_fast8_t dir = 0x3;
-  set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
+  return heap_gpio_device;
 }
 
 /**
  * @brief   Blinky LED Example
  *          Configure GPIO B0_03 (PIN 13) for output, ALT 5 according to p.511
  *
- * @note    PIT timer is working and deceremetning as expected,
+ * @note    PIT timer is working and decrementing as expected,
  *          calling the interrupt vector causes a major crash though.
+ * @todo    Find cause of irq causing a hard-fault, re-read docs regarding NVIC
  **/
 void
 blinky_led_example_PIT(uint32_t seconds, timer_manager_t * pit_mgr)
 {
-  init_onboard_led();
+  gpiodev_s * led_gpio_device = init_onboard_led();
 
   timer_manager_cb blinker_callback = callback_toggle_led;
   timer_s          timer_container;
@@ -398,11 +283,6 @@ blinky_led_example_PIT(uint32_t seconds, timer_manager_t * pit_mgr)
   */
 }
 
-// void *
-// timer_callback()
-// {
-// }
-
 /**
  * @brief: Blinky LED Example abstraction (WIP)
  * @TODO: Replace loops with timers. Well, first create some rudimentary timer
@@ -427,7 +307,7 @@ blinky_led_abstracted_example()
     volatile unsigned int j = 0x0;
 
     // Set PIN 13 LOW
-    set_gpio_register(&GPIO7_DR_CLEAR, dir);
+    SET_GPIO_REGISTER(GPIO7_DR_CLEAR, dir);
 
     // Poor man's delay
     while (i < 0x1ffffff) {
@@ -440,7 +320,7 @@ blinky_led_abstracted_example()
     j = i = 0;
 
     // Set PIN 13 HIGH,
-    set_gpio_register(&GPIO7_DR_SET, dir);
+    SET_GPIO_REGISTER(GPIO7_DR_SET, dir);
 
     // Poor man's delay
     while (i < 0x1ffffff) {
@@ -463,7 +343,7 @@ blinky_led_original_example()
   // GPR27, Set it to Control
   IOMUXC_GPR_GPR27 = 0xffffffff;
   const uint_fast8_t dir = 0x3;
-  set_gpio_gdir(&GPIO7_DIRR, GDIR_OUT, dir);
+  SET_GPIO_GDIR(&GPIO7_DIRR, GDIR_OUT, dir);
 
   void * test = malloc_(0x10); // "malloc"
   if (test == NULL) {          // MAKESHIFT DEBUG; BLINK LED TO INDICATE STUFF
@@ -472,7 +352,7 @@ blinky_led_original_example()
       volatile unsigned int j = 0x0;
 
       // Set PIN 13 LOW
-      // set_gpio_register(&GPIO7_DR_CLEAR, dir);
+      // SET_GPIO_REGISTER(&GPIO7_DR_CLEAR, dir);
       SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, dir);
 
       // Poor man's delay
@@ -486,7 +366,7 @@ blinky_led_original_example()
       j = i = 0;
 
       // Set PIN 13 HIGH,
-      // set_gpio_register(&GPIO7_DR_SET, dir);
+      // SET_GPIO_REGISTER(&GPIO7_DR_SET, dir);
       SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, dir);
 
       // Poor man's delay

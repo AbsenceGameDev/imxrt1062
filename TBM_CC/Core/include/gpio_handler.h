@@ -89,7 +89,7 @@ typedef struct {
   uint8_t          bit_id;
   uint8_t          value;
   vuint32_t *      base_addr;
-  const uint8_t    pin;
+  uint8_t          pin;
   gpio_registers_e offsets;
   gpio_io_e        io_type;
   muxdev_s *       base_mux_device;
@@ -114,6 +114,35 @@ extern gpiodev_s         current_gpio_devices[9];
 #define SET_GPIO_REGISTER(gpio_reg_addr, direction_bit)                        \
   gpio_reg_addr = (0x1 << direction_bit)
 
+/**
+ * @param addr vuint32_t *
+ * @param byte uint_fast8_t
+ */
+#define set_iomuxc_byte(addr, byte) *addr = byte;
+
+/**
+ * @param addr (vuint32_t *)
+ * @param word (uint_fast16_t)
+ */
+#define set_iomuxc_word(addr, word) *addr = word;
+/**
+ * @param addr  (vuint32_t *)
+ * @param dword (uint_fast32_t)
+ */
+#define set_iomuxc_dword(addr, dword) *addr = dword;
+
+/**
+ * @param gpr_iomuxc_gpr (vuint32_t *)
+ */
+#define flip_selected_gpr(gpr_iomuxc_gpr) *gpr_iomuxc_gpr = !(*gpr_iomuxc_gpr);
+
+/**
+ * @param gpr_iomuxc_gpr (vuint32_t *)
+ * @param set_state       (state_e)
+ */
+#define set_iomuxc_gpr(gpr_iomuxc_gpr, set_state)                              \
+  (*gpr_iomuxc_gpr) = (vuint32_t)(0xffffffff * (set_state));
+
 // FUNCTION DECLARATIONS
 /**
  * @brief pointer to be able to source pin addresses to the interface
@@ -136,38 +165,7 @@ init_gpio(gpiodev_s *      gpio_device,
 void
 set_gpr_gdir(gpiodev_s * gpio_device);
 
-uint8_t
-handle_gpio(gpiodev_s * gpio_device, gpio_registers_e gpio_register);
-
-void
-set_icr1(gpiodev_s * gpio_device, gpio_icr_e setting);
-
-void
-set_icr2(gpiodev_s * gpio_device, gpio_icr_e setting);
-
-uint32_t
-read_gpio(vuint32_t * gpio_base_ptr, gpio_registers_e gpio_register);
-
-void
-set_gpio_gdir(vuint32_t * gpio_gdir_addr,
-              gpio_io_e   io_type,
-              uint8_t     direction_bit);
-void
-set_gpio_register(vuint32_t * gpio_reg_addr, uint_fast8_t direction_bit);
-
-void
-set_iomuxc_byte(vuint32_t * addr, uint_fast8_t byte);
-void
-set_iomuxc_word(vuint32_t * addr, uint_fast16_t word);
-void
-set_iomuxc_dword(vuint32_t * addr, uint_fast32_t dword);
-
-void
-flip_selected_gpr(vuint32_t * gpr_iomuxc_gpr);
-void
-set_iomuxc_gpr(vuint32_t * gpr_iomuxc_gpr, state_e set_state);
-
-void
+gpiodev_s *
 init_onboard_led();
 
 void

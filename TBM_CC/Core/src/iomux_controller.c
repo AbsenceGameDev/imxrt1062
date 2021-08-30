@@ -18,15 +18,17 @@ init_device_muxmode(muxdev_s *   mux_device,
                     uint8_t      ctrl_pos,
                     muxmode_e    mux_mode)
 {
+  mux_device = (muxdev_s *)malloc_(sizeof(muxdev_s));
   if (mux_device == NULL) {
-    mux_device = (muxdev_s *)malloc_(MUXDEVICE_BYTESIZE);
-    if (mux_device == NULL) {
-      return;
-    }
+    return;
   }
+
   /** @brief: Set MUXmode */
   *((mux_device->mux_pad_context.mux_pad_addr = sw_mux) +
     (mux_device->ctrl_pos = ctrl_pos)) = (mux_device->mux_mode = mux_mode);
+
+  // if (ctrl_pos == 0x3) {
+  // }
 
   /** @brief: Set DSE field (Drive Strength Field) */
   *((mux_device->mux_pad_context.pad_pad_addr = sw_pad) + ctrl_pos) =

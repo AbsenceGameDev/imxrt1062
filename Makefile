@@ -17,8 +17,14 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
+INITOPTS = -Wl,--gc-sections,--print-gc-sections,--print-memory-usage -nostdlib -nostartfiles
+EXTMEMOPTS = -Wl,--defsym=__heap_start=0x20200000,--defsym=__heap_end=0x2027ffff
+LDSCRIPT_PATH = -TTBM_CC/teensy/imxrt1062.ld
+
 CFLAGS = -O3 -Wall -Werror -Wno-error=unused-variable -mcpu=cortex-m7 -mthumb $(INC_FLAGS)
-LDFLAGS = -Wl,--gc-sections,--print-gc-sections,--print-memory-usage -nostdlib -nostartfiles -TTBM_CC/teensy/imxrt1062.ld
+LDFLAGS = $(INITOPTS)
+LDFLAGS += $(EXTMEMOPTS) 
+LDFLAGS += $(LDSCRIPT_PATH)
 
 $(BUILD_DIR)/$(OUTFILE).hex: $(BUILD_DIR)/$(OUTFILE).elf
 	@$(OBJCOPY) -O ihex -R .eeprom build/$(OUTFILE).elf build/$(OUTFILE).hex

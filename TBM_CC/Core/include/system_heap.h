@@ -34,8 +34,8 @@
   (heap_block *)(((vuint8_t *)(heapg)) + HB_HEADER_SIZE)
 
 // OCRAM FLEXRAM (FLEXIBLE MEMORY ARRAY, will use for heap space)
-#define MEM_START SYSMEM_OCRAM_FLEX_S
-#define MEM_END   SYSMEM_OCRAM_FLEX_E
+#define MEM_START SYSMEM_OCRAM_FLEX_S // // replaced: 0x20200000
+#define MEM_END   SYSMEM_OCRAM_FLEX_E // // replaced: 0x2027ffff
 extern volatile void * free_heap_ptr;
 #define MEM_OFFS(x) (MEM_START + (x))
 

@@ -11,24 +11,47 @@
 
 #include "system_heap.h"
 
+extern char     __heap_start;
+extern char     __heap_end;
+volatile char * __malloc_heap_start = &__heap_start;
+volatile char * __malloc_heap_end = &__heap_end;
+
+// #ifdef MEM_START
+//   #undef MEM_START
+//   #define MEM_START &__heap_start
+// #endif // MEM_START
+//
+// #ifdef MEM_END
+//   #undef MEM_END
+//   #define MEM_END &__heap_end
+// #endif // MEM_END
+
 uint16_t        g_free_blocks[0x10];
 uint16_t        g_used_blocks[0x10];
 vheap_group *   heapg_head = ((vheap_group *)0);
+vheap_group *   heapg_tail = ((vheap_group *)0);
 vheap_group *   heapg_current = ((vheap_group *)0);
 vheap_block *   heapb_current = ((vheap_block *)0);
 volatile void * free_heap_ptr = (volatile void *)MEM_START;
 heap_region     designated_heap;
 
-/** TODO:
+/**
+ * @brief   lightweight memory allocation, uses OCFlexRAM for simplicity
+ *
+ * @param   obj_size
+ * @return  void*  The allocated memory or NULL
+ *
+ * @todo
  * 1. Use list of unavailable memory blocks while also keeping
  *    track of the current largest available memory block.
- *
  * 2. Possibly use a list of available memory blocks aswell
- *
  * 3. Look into faster memory mapping, maybe with a partial free list solution?
  *    https://en.wikipedia.org/wiki/Free_list
  *
- * */
+ * @bug Semantic bug somewhere in this function which needs to be pinpointed.
+ * The bug has the effect of not being able to allocate memory the second
+ * allocation. First allocation done works as intended
+ */
 void *
 malloc_(uint16_t obj_size)
 {
@@ -90,7 +113,7 @@ __gen_single_heapg__(uint32_t start_addr_heap, uint8_t idx)
   vheap_group * temp = ((vheap_group *)0);
   if (heapg_current == ((vheap_group *)0)) {
     heapg_head = (vheap_group *)(start_addr_heap);
-    temp = heapg_current = heapg_head;
+    temp = heapg_current = heapg_tail = heapg_head;
   } else {
     temp = (heapg_current->next = (vheap_group *)(start_addr_heap));
     temp->prev = heapg_current;
@@ -110,13 +133,13 @@ __gen_single_heapg__(uint32_t start_addr_heap, uint8_t idx)
 void
 __init_ram_heap__()
 {
-  uint8_t  idx = 0;
-  uint32_t current_addr = MEM_START;
+  uint8_t idx = 0;
   for (; idx < 16; idx++) {
     if ((IOMUXC_GPR_GPR17 >> (2 * idx) & 0x3) == 0x2) {
       __gen_single_heapg__(MEM_START + (idx * 0x8000), idx);
     }
   }
+  heapg_current = heapg_tail;
 }
 
 /**
