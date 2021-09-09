@@ -67,36 +67,36 @@
       0xffffffff * (timetype == NANOS_E && intime >= 0xffffffff)
 
 #define TRANSLATE_TIMECLAMP_50MHz(intime, timetype)                            \
-  1U * (ttype == MINUTES_E && intime > 1U) +                                   \
-      85U * (ttype == SECONDS_E && intime > 85U) +                             \
-      85899U * (ttype == MILLIS_E && intime > 85899U) +                        \
-      85899345U * (ttype == MICROS_E && intime > 85899345U) +                  \
-      858993459U * (ttype == ZETTOS_E && intime > 858993459U) +                \
-      0xffffffff * (ttype == YOTTOS_E && intime >= 0xffffffff) +               \
-      0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff)
+  1U * (timetype == MINUTES_E && intime > 1U) +                                \
+      85U * (timetype == SECONDS_E && intime > 85U) +                          \
+      85899U * (timetype == MILLIS_E && intime > 85899U) +                     \
+      85899345U * (timetype == MICROS_E && intime > 85899345U) +               \
+      858993459U * (timetype == ZETTOS_E && intime > 858993459U) +             \
+      0xffffffff * (timetype == YOTTOS_E && intime >= 0xffffffff) +            \
+      0xffffffff * (timetype == NANOS_E && intime >= 0xffffffff)
 
 #define TRANSLATE_TIMECLAMP_100MHz(intime, timetype)                           \
-  42U * (ttype == SECONDS_E && intime > 42U) +                                 \
-      42949U * (ttype == MILLIS_E && intime > 42949U) +                        \
-      42949672U * (ttype == MICROS_E && intime > 42949672U) +                  \
-      429496729U * (ttype == ZETTOS_E && intime > 429496729U) +                \
-      0xffffffff * (ttype == YOTTOS_E && intime >= 0xffffffff) +               \
-      0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff)
+  42U * (timetype == SECONDS_E && intime > 42U) +                              \
+      42949U * (timetype == MILLIS_E && intime > 42949U) +                     \
+      42949672U * (timetype == MICROS_E && intime > 42949672U) +               \
+      429496729U * (timetype == ZETTOS_E && intime > 429496729U) +             \
+      0xffffffff * (timetype == YOTTOS_E && intime >= 0xffffffff) +            \
+      0xffffffff * (timetype == NANOS_E && intime >= 0xffffffff)
 
 #define TRANSLATE_TIMECLAMP_150MHz(intime, timetype)                           \
-  28U * (ttype == SECONDS_E && intime > 28U) +                                 \
-      28633U * (ttype == MILLIS_E && intime > 28633U) +                        \
-      28633115U * (ttype == MICROS_E && intime > 28633115U) +                  \
-      286331153U * (ttype == ZETTOS_E && intime > 286331153U) +                \
-      2863311530U * (ttype == YOTTOS_E && intime >= 2863311530U) +             \
-      0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff)
+  28U * (timetype == SECONDS_E && intime > 28U) +                              \
+      28633U * (timetype == MILLIS_E && intime > 28633U) +                     \
+      28633115U * (timetype == MICROS_E && intime > 28633115U) +               \
+      286331153U * (timetype == ZETTOS_E && intime > 286331153U) +             \
+      2863311530U * (timetype == YOTTOS_E && intime >= 2863311530U) +          \
+      0xffffffff * (timetype == NANOS_E && intime >= 0xffffffff)
 
 #define TRANSLATE_TIMECLAMP_200MHz(intime, timetype)                           \
-  21U * (ttype == SECONDS_E && intime > 21U) +                                 \
-      21474U * (ttype == MILLIS_E && intime > 21474U) +                        \
-      21474836U * (ttype == MICROS_E && intime > 21474836U) +                  \
-      214748364U * (ttype == ZETTOS_E && intime > 214748364UL) +               \
-      2147483647U * (ttype == YOTTOS_E && intime >= 2147483647U) +             \
-      0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff)
+  21U * (timetype == SECONDS_E && intime > 21U) +                              \
+      21474U * (timetype == MILLIS_E && intime > 21474U) +                     \
+      21474836U * (timetype == MICROS_E && intime > 21474836U) +               \
+      214748364U * (timetype == ZETTOS_E && intime > 214748364UL) +            \
+      2147483647U * (timetype == YOTTOS_E && intime >= 2147483647U) +          \
+      0xffffffff * (timetype == NANOS_E && intime >= 0xffffffff)
 
 #endif // MTIMER_MGR_H
