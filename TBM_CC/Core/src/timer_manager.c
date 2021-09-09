@@ -13,6 +13,7 @@
 #include "timer_manager.h"
 
 #include "iomux_controller.h"
+#include "macros/mtimer_mgr.h"
 
 // Globals
 timer_manager_t glob_gptman[6];
@@ -20,14 +21,14 @@ vuint32_t *     glob_gpt_ptrs[6] = {
     &GPT1_OCR1, &GPT1_OCR2, &GPT1_OCR3, &GPT2_OCR1, &GPT2_OCR2, &GPT2_OCR3};
 
 void
-init_gptman(timer_manager_t * gptman,
-            gptx_e            gpt_x,
-            gpt_ocr_e         ocr_ch,
-            clk_src_e         gpt_clk,
-            timetype_e        time_type,
-            timer_s           time_container,
-            uint32_t          compval,
-            timer_manager_cb  callback)
+init_gptman(timer_manager_t * restrict gptman,
+            gptx_e           gpt_x,
+            gpt_ocr_e        ocr_ch,
+            clk_src_e        gpt_clk,
+            timetype_e       time_type,
+            timer_s          time_container,
+            uint32_t         compval,
+            timer_manager_cb callback)
 {
   void * context = gptman->timer_ctx->context;
   CONTEXT_TO_GPT(context)->gpt_x = gpt_x;
@@ -40,14 +41,14 @@ init_gptman(timer_manager_t * gptman,
 }
 
 void
-init_pitman(timer_manager_t * pitman,
-            pit_speed_e       speedfield,
-            pit_ch_e          pit_ch,
-            clk_src_e         pit_clk,
-            timetype_e        time_type,
-            timer_s           time_container,
-            uint32_t          ldval,
-            timer_manager_cb  callback)
+init_pitman(timer_manager_t * restrict pitman,
+            pit_speed_e      speedfield,
+            pit_ch_e         pit_ch,
+            clk_src_e        pit_clk,
+            timetype_e       time_type,
+            timer_s          time_container,
+            uint32_t         ldval,
+            timer_manager_cb callback)
 {
   void * context = pitman->timer_ctx->context;
   CONTEXT_TO_PIT(context)->pit_ch = pit_ch;
@@ -77,7 +78,7 @@ init_pitman(timer_manager_t * pitman,
 }
 
 void
-setupPITx(timer_manager_t * pit_mgr)
+setupPITx(timer_manager_t * restrict pit_mgr)
 {
   // According to the ref manual, on the front page of chapter 53 (PIT)
   // CCM -> PMU -> IOMUXC
@@ -201,16 +202,9 @@ __set_callback_gpt__(timer_manager_t * timer, timer_manager_cb callback)
  *          max_cycles_for_unit = max_register_value / cycle_rate_per_unit
  **/
 uint32_t
-__time_clamp_24MHz__(uint32_t intime, timetype_e ttype)
+__time_clamp_24MHz__(uint32_t intime, timetype_e timetype)
 {
-  uint32_t clamped_val = 0;
-  clamped_val = 2U * (ttype == MINUTES_E && intime > 2U) +
-                178U * (ttype == SECONDS_E && intime > 178U) +
-                178956U * (ttype == MILLIS_E && intime > 178956U) +
-                178956970U * (ttype == MICROS_E && intime > 178956970U) +
-                1789569706U * (ttype == ZETTOS_E && intime > 1789569706U) +
-                0xffffffff * (ttype == YOTTOS_E && intime >= 0xffffffff) +
-                0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff);
+  uint32_t clamped_val = TRANSLATE_TIMECLAMP_24MHz(intime, timetype);
   return (intime * (clamped_val == 0)) + clamped_val;
 };
 
@@ -226,16 +220,9 @@ __time_clamp_24MHz__(uint32_t intime, timetype_e ttype)
  *          max_cycles_for_unit = max_register_value / cycle_rate_per_unit
  **/
 uint32_t
-__time_clamp_50MHz__(uint32_t intime, timetype_e ttype)
+__time_clamp_50MHz__(uint32_t intime, timetype_e timetype)
 {
-  uint32_t clamped_val = 0;
-  clamped_val = 1U * (ttype == MINUTES_E && intime > 1U) +
-                85U * (ttype == SECONDS_E && intime > 85U) +
-                85899U * (ttype == MILLIS_E && intime > 85899U) +
-                85899345U * (ttype == MICROS_E && intime > 85899345U) +
-                858993459U * (ttype == ZETTOS_E && intime > 858993459U) +
-                0xffffffff * (ttype == YOTTOS_E && intime >= 0xffffffff) +
-                0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff);
+  uint32_t clamped_val = TRANSLATE_TIMECLAMP_50MHz(intime, timetype);
   return (intime * (clamped_val == 0)) + clamped_val;
 };
 
@@ -251,18 +238,12 @@ __time_clamp_50MHz__(uint32_t intime, timetype_e ttype)
  *          max_cycles_for_unit = max_register_value / cycle_rate_per_unit
  **/
 uint32_t
-__time_clamp_100MHz__(uint32_t intime, timetype_e ttype)
+__time_clamp_100MHz__(uint32_t intime, timetype_e timetype)
 {
-  if (ttype == MINUTES_E || ttype == HOURS_E || ttype == DAYS_E) {
+  if (timetype == MINUTES_E || timetype == HOURS_E || timetype == DAYS_E) {
     return 0x0;
   }
-  uint32_t clamped_val = 0;
-  clamped_val = 42U * (ttype == SECONDS_E && intime > 42U) +
-                42949U * (ttype == MILLIS_E && intime > 42949U) +
-                42949672U * (ttype == MICROS_E && intime > 42949672U) +
-                429496729U * (ttype == ZETTOS_E && intime > 429496729U) +
-                0xffffffff * (ttype == YOTTOS_E && intime >= 0xffffffff) +
-                0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff);
+  uint32_t clamped_val = TRANSLATE_TIMECLAMP_100MHz(intime, timetype);
   return (intime * (clamped_val == 0)) + clamped_val;
 };
 
@@ -278,18 +259,12 @@ __time_clamp_100MHz__(uint32_t intime, timetype_e ttype)
  *          max_cycles_for_unit = max_register_value / cycle_rate_per_unit
  **/
 uint32_t
-__time_clamp_150MHz__(uint32_t intime, timetype_e ttype)
+__time_clamp_150MHz__(uint32_t intime, timetype_e timetype)
 {
-  if (ttype == MINUTES_E || ttype == HOURS_E || ttype == DAYS_E) {
+  if (timetype == MINUTES_E || timetype == HOURS_E || timetype == DAYS_E) {
     return 0x0;
   }
-  uint32_t clamped_val = 0;
-  clamped_val = 28U * (ttype == SECONDS_E && intime > 28U) +
-                28633U * (ttype == MILLIS_E && intime > 28633U) +
-                28633115U * (ttype == MICROS_E && intime > 28633115U) +
-                286331153U * (ttype == ZETTOS_E && intime > 286331153U) +
-                2863311530U * (ttype == YOTTOS_E && intime >= 2863311530U) +
-                0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff);
+  uint32_t clamped_val = TRANSLATE_TIMECLAMP_150MHz(intime, timetype);
   return (intime * (clamped_val == 0)) + clamped_val;
 };
 
@@ -305,18 +280,12 @@ __time_clamp_150MHz__(uint32_t intime, timetype_e ttype)
  *          max_cycles_for_unit = max_register_value / cycle_rate_per_unit
  **/
 uint32_t
-__time_clamp_200MHz__(uint32_t intime, timetype_e ttype)
+__time_clamp_200MHz__(uint32_t intime, timetype_e timetype)
 {
-  if (ttype == MINUTES_E || ttype == HOURS_E || ttype == DAYS_E) {
+  if (timetype == MINUTES_E || timetype == HOURS_E || timetype == DAYS_E) {
     return 0x0;
   }
-  uint32_t clamped_val = 0;
-  clamped_val = 21U * (ttype == SECONDS_E && intime > 21U) +
-                21474U * (ttype == MILLIS_E && intime > 21474U) +
-                21474836U * (ttype == MICROS_E && intime > 21474836U) +
-                214748364U * (ttype == ZETTOS_E && intime > 214748364UL) +
-                2147483647U * (ttype == YOTTOS_E && intime >= 2147483647U) +
-                0xffffffff * (ttype == NANOS_E && intime >= 0xffffffff);
+  uint32_t clamped_val = TRANSLATE_TIMECLAMP_200MHz(intime, timetype);
   return (intime * (clamped_val == 0)) + clamped_val;
 };
 
@@ -337,19 +306,20 @@ __resolve_time_24MHz__(timer_manager_t * gptimer_mgr)
   timetype_e timetype = gptimer_mgr->time_type;
   // ensuring safety
   uint32_t time_og_unit =
-      __time_clamp_24MHz__(gptimer_mgr->targetval, gptimer_mgr->time_type);
-  if (time_og_unit == 0) {
-    return 0x0;
-  }
+      __time_clamp_24MHz__(gptimer_mgr->targetval, timetype);
 
   // 24MHz = 41nanoseconds periods
-  return (time_og_unit * 1440000000U) * (timetype == MINUTES_E) +
-         (time_og_unit * 24000000U) * (timetype == SECONDS_E) +
-         (time_og_unit * 24000U) * (timetype == MILLIS_E) +
-         (time_og_unit * 24U) * (timetype == MICROS_E) +
-         ((time_og_unit * 24U) / 10U) * (timetype == ZETTOS_E) +
-         ((time_og_unit * 24U) / 100U) * (timetype == YOTTOS_E) +
-         ((time_og_unit * 24U) / 1000U) * (timetype == NANOS_E);
+  return TRANSLATE_TIME_24MHz(time_og_unit, timetype);
+}
+
+uint32_t
+__value_resolve_time_24MHz__(uint32_t targetval, timetype_e timetype)
+{
+  // ensuring safety
+  uint32_t time_og_unit = __time_clamp_24MHz__(targetval, timetype);
+
+  // 24MHz = 41nanoseconds periods
+  return TRANSLATE_TIME_24MHz(time_og_unit, timetype);
 }
 
 /**
@@ -364,23 +334,24 @@ __resolve_time_24MHz__(timer_manager_t * gptimer_mgr)
  * @todo    Find and fix the calculation mistake(s)
  */
 uint32_t
-__resolve_time_50MHz__(timer_manager_t * timer_mgr)
+__resolve_time_50MHz__(timer_manager_t * restrict timer_mgr)
 {
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
-  uint32_t time_og_unit =
-      __time_clamp_50MHz__(timer_mgr->targetval, timer_mgr->time_type);
-  if (time_og_unit == 0) {
-    return 0x0;
-  }
+  uint32_t time_og_unit = __time_clamp_50MHz__(timer_mgr->targetval, timetype);
+
   // 50MHz = 20nanoseconds periods
-  return (time_og_unit * 3000000000U) * (timetype == MINUTES_E) +
-         (time_og_unit * 25000000U) * (timetype == SECONDS_E) +
-         (time_og_unit * 6250U) * (timetype == MILLIS_E) +
-         ((time_og_unit * 6250U) / 80U) * (timetype == MICROS_E) +
-         ((time_og_unit * 6250U) / 80U) * (timetype == ZETTOS_E) +
-         ((time_og_unit * 50U) / 100U) * (timetype == YOTTOS_E) +
-         ((time_og_unit * 50U) / 1000U) * (timetype == NANOS_E);
+  return TRANSLATE_TIME_50MHz(time_og_unit, timetype);
+}
+
+uint32_t
+__value_resolve_time_50MHz__(uint32_t targetval, timetype_e timetype)
+{
+  // ensuring safety
+  uint32_t time_og_unit = __time_clamp_50MHz__(targetval, timetype);
+
+  // 50MHz = 20nanoseconds periods
+  return TRANSLATE_TIME_50MHz(time_og_unit, timetype);
 }
 
 /**
@@ -395,23 +366,14 @@ __resolve_time_50MHz__(timer_manager_t * timer_mgr)
  * @todo    Find and fix the calculation mistake(s)
  */
 uint32_t
-__resolve_time_100MHz__(timer_manager_t * timer_mgr)
+__resolve_time_100MHz__(timer_manager_t * restrict timer_mgr)
 {
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
-  uint32_t time_og_unit =
-      __time_clamp_100MHz__(timer_mgr->targetval, timer_mgr->time_type);
-  if (time_og_unit == 0) {
-    return 0x0;
-  }
+  uint32_t time_og_unit = __time_clamp_100MHz__(timer_mgr->targetval, timetype);
 
   // 100MHz = 10 nanoseconds periods
-  return (time_og_unit * 100000000U) * (timetype == SECONDS_E) +
-         (time_og_unit * 100000U) * (timetype == MILLIS_E) +
-         (time_og_unit * 100U) * (timetype == MICROS_E) +
-         (time_og_unit * 10U) * (timetype == ZETTOS_E) +
-         (time_og_unit * 1U) * (timetype == YOTTOS_E) +
-         ((time_og_unit * 1U) / 10U) * (timetype == NANOS_E);
+  return TRANSLATE_TIME_100MHz(time_og_unit, timetype);
 }
 
 /**
@@ -426,23 +388,14 @@ __resolve_time_100MHz__(timer_manager_t * timer_mgr)
  * @todo    Find and fix the calculation mistake(s)
  */
 uint32_t
-__resolve_time_150MHz__(timer_manager_t * timer_mgr)
+__resolve_time_150MHz__(timer_manager_t * restrict timer_mgr)
 {
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
-  uint32_t time_og_unit =
-      __time_clamp_150MHz__(timer_mgr->targetval, timer_mgr->time_type);
-  if (time_og_unit == 0) {
-    return 0x0;
-  }
+  uint32_t time_og_unit = __time_clamp_150MHz__(timer_mgr->targetval, timetype);
 
   // 150Hz = 6.67 nanoseconds periods
-  return (time_og_unit * 150000000U) * (timetype == SECONDS_E) +
-         (time_og_unit * 150000U) * (timetype == MILLIS_E) +
-         (time_og_unit * 150U) * (timetype == MICROS_E) +
-         (time_og_unit * 15U) * (timetype == ZETTOS_E) +
-         ((time_og_unit * 15U) / 10U) * (timetype == YOTTOS_E) +
-         ((time_og_unit * 15U) / 100U) * (timetype == NANOS_E);
+  return TRANSLATE_TIME_150MHz(time_og_unit, timetype);
 }
 
 /**
@@ -457,27 +410,18 @@ __resolve_time_150MHz__(timer_manager_t * timer_mgr)
  * @todo    Find and fix the calculation mistake(s)
  */
 uint32_t
-__resolve_time_200MHz__(timer_manager_t * timer_mgr)
+__resolve_time_200MHz__(timer_manager_t * restrict timer_mgr)
 {
   timetype_e timetype = timer_mgr->time_type;
   // ensuring safety
-  uint32_t time_og_unit =
-      __time_clamp_200MHz__(timer_mgr->targetval, timer_mgr->time_type);
-  if (time_og_unit == 0) {
-    return 0x0;
-  }
+  uint32_t time_og_unit = __time_clamp_200MHz__(timer_mgr->targetval, timetype);
 
   // 200MHz = 5 nanoseconds periods
-  return (time_og_unit * 200000000U) * (timetype == SECONDS_E) +
-         (time_og_unit * 200000U) * (timetype == MILLIS_E) +
-         (time_og_unit * 200U) * (timetype == MICROS_E) +
-         (time_og_unit * 20U) * (timetype == ZETTOS_E) +
-         (time_og_unit * 2U) * (timetype == YOTTOS_E) +
-         ((time_og_unit * 2U) / 10U) * (timetype == NANOS_E);
+  return TRANSLATE_TIME_200MHz(time_og_unit, timetype);
 }
 
 void
-__set_comparator_gpt__(timer_manager_t * timer)
+__set_comparator_gpt__(timer_manager_t * restrict timer)
 {
   void * context = timer->timer_ctx->context;
   switch (CONTEXT_TO_GPT(context)->gpt_x) {
@@ -557,7 +501,9 @@ __set_comparator_gpt__(timer_manager_t * timer)
  * hour or day time_types are used.
  */
 void
-set_time(timer_manager_t * timer, timetype_e time_type, gpt_ocr_t compareval)
+set_time(timer_manager_t * restrict timer,
+         timetype_e time_type,
+         gpt_ocr_t  compareval)
 {
   timer->targetval = compareval;
   timer->time_type = time_type;
@@ -593,19 +539,19 @@ __setup_gpt2__()
 }
 
 void
-setup_pit_timer(timer_manager_t * pit_mgr, pit_timer_e pit_timerx)
+setup_pit_timer(timer_manager_t * restrict pit_mgr, pit_timer_e pit_timerx)
 {
   add_to_irq_v(IRQ_PIT, pit_mgr->callback);
   reset_pit(pit_mgr, pit_timerx);
 }
 
 void
-reset_pit(timer_manager_t * pit_mgr, pit_timer_e pit_timerx)
+reset_pit(timer_manager_t * restrict pit_mgr, pit_timer_e pit_timerx)
 {
   // turn on PIT
   PIT_MCR_SET(MCR_RESET);
   // Push callback to interrupt vector
-  pit_context_t * pitctx = CONTEXT_TO_PIT(pit_mgr->timer_ctx->context);
+  pit_context_t * restrict pitctx = CONTEXT_TO_PIT(pit_mgr->timer_ctx->context);
   if (pitctx->speedfield == PIT_SPEED_50MHz) {
     PIT_LOADVAL0_SET(__resolve_time_50MHz__(pit_mgr));
   }
