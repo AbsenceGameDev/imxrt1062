@@ -1,7 +1,6 @@
 #include <stdint.h>
 
-extern void
-startup(void);
+extern void startup(void);
 
 extern unsigned long _estack;
 extern unsigned long _flashimagelen;

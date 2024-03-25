@@ -1,12 +1,6 @@
 /**
- * @file      simple_glyphs.h
- * @author    Ario@Permadev
- * @brief
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
 #ifndef SIMPLE_GLYPHS_H
@@ -14,12 +8,14 @@
 
 #include <stdint.h>
 
-struct fourfour {
+struct fourfour 
+{
   uint8_t r0;
   uint8_t r1;
 };
 
-struct sevensix {
+struct sevensix 
+{
   uint8_t r0;
   uint8_t r1;
   uint8_t r2;
@@ -29,7 +25,8 @@ struct sevensix {
   uint8_t r6;
 };
 
-struct eighteight {
+struct eighteight 
+{
   uint8_t r0;
   uint8_t r1;
   uint8_t r2;
@@ -312,13 +309,13 @@ extern const _8x8_ _Z_8x8;
 extern char const h2a_const[];
 #define hex2ascii(hexd) (h2a_const[hexd])
 
-const _4x4_ *
+const _4x4_*
 get_glyph_4x4(char * inchar);
 
-const _7x6_ *
+const _7x6_*
 get_glyph_7x6(char * inchar);
 
-const _8x8_ *
+const _8x8_*
 get_glyph_8x8(char * inchar);
 
 #endif // SIMPLE_GLYPHS_H

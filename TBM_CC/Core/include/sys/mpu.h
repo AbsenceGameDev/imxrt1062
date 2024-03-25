@@ -1,17 +1,11 @@
 /**
- * @file      mpu.h
- * @author    Ario@Permadev
- * @brief
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
 #ifndef MPU_H
 #define MPU_H
-#include "system_memory_map.h"
+#include "sys/memory_map.h"
 
 /**
  * @brief Configure MPU (Memory Protection Unit) based on armv7m docs
@@ -26,7 +20,8 @@
  * MPU_RASR registers must be programmed as either enabled or disabled, before
  * enabling the MPU using the MPU_CTRL register.
  **/
-typedef struct {
+typedef struct 
+{
   vuint32_t TYPE;    // RO
   vuint32_t CTRL;    // RW
   vuint32_t RNR;     // RW
@@ -92,7 +87,7 @@ typedef struct {
 #define MPU_TYPE_SEP_EN (MPU_TYPE |= 0x1)
 
 /** @brief Disable SEP */
-#define MPU_TYPE_SEP_DIS MPU_TYPE &= ~(0x1);
+#define MPU_TYPE_SEP_DIS MPU_TYPE &= ~(0x1)
 
 /**
  * ==========================================================================
@@ -295,7 +290,7 @@ typedef struct {
  *          supported region size is 32 bytes.
  **/
 #define MPU_RASR_REGION_SIZE ((MPU_RASR >> 0x1) & 0x1f) // 0x1
-#define MPU_RASR_SET_REGION_SIZE(power)                                        \
+#define MPU_RASR_SET_REGION_SIZE(power) \
   (MPU_RASR = (MPU_RASR & ~(0b111110)) | (((power)&0b11111) << 0x1)) // 0x0
 
 /**
@@ -366,7 +361,8 @@ typedef enum
   FULL_RO = 0x6,
   FULL_RO_2 = 0x7
 } access_enc_e;
-#define MPU_RASR_SET_AP(acc_perm_enc)                                          \
+
+#define MPU_RASR_SET_AP(acc_perm_enc) \
   (MPU_RASR = (MPU_RASR & ~(0x7 << 0x18)) | (((acc_perm_enc)&0x7) << 0x18))
 #define MPU_RASR_AP_NO_RW      (MPU_RASR &= ~(0x7 << 0x18))
 #define MPU_RASR_AP_PRIVL_RW   MPU_RASR_SET_AP(0x1)
@@ -447,7 +443,7 @@ typedef enum
 } tex_enc_e;
 
 /** @brief Input should be of above type */
-#define MPU_RASR_SET_ATTR_TEX(texenc)                                          \
+#define MPU_RASR_SET_ATTR_TEX(texenc) \
   (MPU_RASR = (MPU_RASR & ~(0x7 << 0x13)) | (((texenc)&0x7) << 0x13))
 #define MPU_RASR_READ_ATTR_TEX ((MPU_RASR >> 0x13) & 0x7)
 
@@ -473,7 +469,7 @@ typedef enum
 } cbit_enc_e;
 
 /** @brief Input should be of above type */
-#define MPU_RASR_SET_ATTR_C(cenc)                                              \
+#define MPU_RASR_SET_ATTR_C(cenc) \
   (MPU_RASR = (MPU_RASR & ~(0x1 << 0x11)) | (((cenc)&0x1) << 0x11))
 #define MPU_RASR_READ_ATTR_C ((MPU_RASR >> 0x11) & 0x7)
 
@@ -499,7 +495,7 @@ typedef enum
 } bbit_enc_e;
 
 /** @brief Input should be of above type */
-#define MPU_RASR_SET_ATTR_B(benc)                                              \
+#define MPU_RASR_SET_ATTR_B(benc) \
   (MPU_RASR = (MPU_RASR & ~(0x1 << 0x10)) | (((benc)&0x1) << 0x10))
 #define MPU_RASR_READ_ATTR_B ((MPU_RASR >> 0x10) & 0x7)
 

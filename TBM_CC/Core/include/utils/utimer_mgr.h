@@ -1,12 +1,6 @@
 /**
- * @file      utimer_mgr.h
- * @author    Ario@Permadev
- * @brief     Timer Utility header
- * @version   0.1
- * @date      2021-09-09
- *
- * @copyright Copyright (c) 2021
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
 #ifndef UTIMER_MGR_H
@@ -91,70 +85,70 @@ __time_clamp_200MHz__(uint32_t intime, timetype_e timetype);
  * @brief   Resolve time for 24MHz clocks
  * @details Resolve time the proper ldvalue based on the
  *          time-type of the timer manager.
- *
- * @param   gptimer_mgr -General Timer Manager
- * @return  uint32_t    -Resolved time (to:24MHz)
- *
- * @note    magic numbers calculated by incorrectly by hand
- * @todo    Find and fix the calculation mistake(s)
+ * 
+ * @param   targetval     Value to resolve
+ * @param   timetype      Selector that informs us 
+ * @param   conversiondir To time from tick, or to ticks from time 
+ * @return  uint32_t      Resolved time (to:24MHz)
+ * 
  */
 uint32_t
-__resolve_time_24MHz__(uint32_t targetval, timetype_e timetype);
+__resolve_time_24MHz__(uint32_t targetval, timetype_e timetype, ttconversiondir_e conversiondir);
 
 /**
  * @brief   Resolve time for 50MHz clocks
  * @details Resolve time the proper ldvalue based on the
  *          time-type of the timer manager.
- *
- * @param   gptimer_mgr -General Timer Manager
- * @return  uint32_t    -Resolved time (to:50MHz)
- *
- * @note    magic numbers calculated by incorrectly by hand
- * @todo    Find and fix the calculation mistake(s)
+ * 
+ * @param   targetval     Value to resolve
+ * @param   timetype      Selector that informs us 
+ * @param   conversiondir To time from tick, or to ticks from time 
+ * @return  uint32_t      Resolved time (to:50MHz)
+ * 
  */
 uint32_t
-__resolve_time_50MHz__(uint32_t targetval, timetype_e timetype);
+__resolve_time_50MHz__(uint32_t targetval, timetype_e timetype, ttconversiondir_e conversiondir);
 
 /**
  * @brief   Resolve time for 100MHz clocks
  * @details Resolve time the proper ldvalue based on the
  *          time-type of the timer manager.
- *
- * @param   gptimer_mgr -General Timer Manager
- * @return  uint32_t    -Resolved time (to:100MHz)
- *
- * @note    magic numbers calculated by incorrectly by hand
- * @todo    Find and fix the calculation mistake(s)
+ * 
+ * @param   targetval     Value to resolve
+ * @param   timetype      Selector that informs us 
+ * @param   conversiondir To time from tick, or to ticks from time 
+ * @return  uint32_t      Resolved time (to:100MHz)
+ * 
  */
 uint32_t
-__resolve_time_100MHz__(uint32_t targetval, timetype_e timetype);
+__resolve_time_100MHz__(uint32_t targetval, timetype_e timetype, ttconversiondir_e conversiondir);
 
 /**
  * @brief   Resolve time for 150MHz clocks
  * @details Resolve time the proper ldvalue based on the
  *          time-type of the timer manager.
- *
- * @param   gptimer_mgr -General Timer Manager
- * @return  uint32_t    -Resolved time (to:150MHz)
- *
- * @note    magic numbers calculated by incorrectly by hand
- * @todo    Find and fix the calculation mistake(s)
+ * 
+ * @param   targetval     Value to resolve
+ * @param   timetype      Selector that informs us 
+ * @param   conversiondir To time from tick, or to ticks from time 
+ * @return  uint32_t      Resolved time (to:150MHz)
+ * 
  */
 uint32_t
-__resolve_time_150MHz__(uint32_t targetval, timetype_e timetype);
+__resolve_time_150MHz__(uint32_t targetval, timetype_e timetype, ttconversiondir_e conversiondir);
 
 /**
  * @brief   Resolve time for 200MHz clocks
  * @details Resolve time the proper ldvalue based on the
  *          time-type of the timer manager.
- *
- * @param   gptimer_mgr -General Timer Manager
- * @return  uint32_t    -Resolved time (to:200MHz)
- *
- * @note    magic numbers calculated by incorrectly by hand
- * @todo    Find and fix the calculation mistake(s)
+ * 
+ * @param   targetval     Value to resolve
+ * @param   timetype      Selector that informs us 
+ * @param   conversiondir To time from tick, or to ticks from time 
+ * @return  uint32_t      Resolved time (to:200MHz)
+ * 
  */
 uint32_t
-__resolve_time_200MHz__(uint32_t targetval, timetype_e timetype);
+__resolve_time_200MHz__(uint32_t targetval, timetype_e timetype, ttconversiondir_e conversiondir);
 
 #endif // UTIMER_MGR_H

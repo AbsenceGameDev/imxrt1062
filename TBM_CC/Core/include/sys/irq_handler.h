@@ -1,12 +1,6 @@
 /**
- * @file      irq_handler.h
- * @author    Ario@Permadev
- * @brief
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
 #ifndef IRQ_HANDLER_H
@@ -237,5 +231,25 @@ remove_from_irq_v(irq_num_e irq)
   __vectors_ram__[irq + 0x10] = ((void_func)0);
   asm volatile("" : : : "memory");
 }
+
+#define __disable_irq() __asm__ volatile("CPSID i" ::: "memory")
+#define __enable_irq()  __asm__ volatile("CPSIE i" ::: "memory")
+
+// According to arm m7 architecture ref manual,
+// interrupt set enable and interrupt set clear are laid out in this manner:
+// [31,0] + 32*n, where n is [15,0].
+// When n == 15, bits [31,16] are reserved
+//
+// implement by dividing input irq by 16 to get group, modulo 16 to get position
+#define NVIC_ENABLE_IRQ(irqnum)                                                \
+  *((vuint32_t*)0xe000e100 + ((irqnum) >> 0x5)) = (0x1 << ((irqnum)&0x1f))
+#define NVIC_DISABLE_IRQ(irqnum)                                               \
+  *((vuint32_t*)0xe000e180 + ((irqnum) >> 0x5)) = (0x1 << ((irqnum)&0x1f))
+
+// 0 = highest priority
+// Cortex-M7: 0,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240
+#define NVIC_SET_PRIORITY(irqnum, priority)                                    \
+  (*((volatile uint8_t*)0xe000e400 + ((irqnum) + 0x10)) = (uint8_t)(priority))
+#define NVIC_GET_PRIORITY(irqnum) (*((uint8_t*)0xe000e400 + ((irqnum) + 0x10)))
 
 #endif // IRQ_HANDLER_H

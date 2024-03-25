@@ -1,31 +1,39 @@
 /**
- * @file      clk_control.h
- * @author    Ario@Permadev
- * @brief
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
 #ifndef CLK_CONTROL_H
 #define CLK_CONTROL_H
 
-#include "system_memory_map.h"
+#include "sys/memory_map.h"
 
 typedef enum
 {
   IPG_ROOT = 0x0,
   OSC_ROOT = 0x1
 } perclk_src_e;
+
+typedef enum
+{
+  PC_DIV1  = 0x0,
+  PC_DIV2  = 0x1,
+  PC_DIV3  = 0x2,
+  PC_DIV4  = 0x3,
+  PC_DIV5  = 0x4,
+  PC_DIV6  = 0x5,
+  PC_DIV7  = 0x6,
+  PC_DIV64 = 0x3f
+} perclk_div_e;
+
 #define CCM_SCMUX1_SET(x) CCM_C_SCMR1 = (x)
 #define CCM_SCMUX1_DIV(x) (x & 0b111111)
-#define CCM_SCMUX1_DIV_SET(x)                                                  \
-  CCM_C_SCMR1 = ((CCM_C_SCMR1 & ~0b111111) | CCM_SCMUX1_DIV(x))
+#define CCM_SCMUX1_DIV_SET(x) \
+  CCM_C_SCMR1 &= (~0b111111 | CCM_SCMUX1_DIV(x))
 #define CCM_PERCLK_SRC(x) ((x & 0x1) << 0x6)
-#define CCM_SLCT_PERCLK_SRC(x)                                                 \
-  CCM_C_SCMR1 = ((CCM_C_SCMR1 & ~(0x1 << 0x6)) | CCM_PERCLK_SRC(x))
+#define CCM_SLCT_PERCLK_SRC(x) \
+  CCM_C_SCMR1 &= (~(0x1 << 0x6) | CCM_PERCLK_SRC(x))
+
 
 #define CCM_C_CGR1_GPT1(n) ((uint32_t)(((n)&0x03) << 20))
 

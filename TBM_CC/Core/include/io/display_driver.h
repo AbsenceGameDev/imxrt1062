@@ -1,18 +1,12 @@
 /**
- * @file      display_driver.h
- * @author    Ario@Permadev
- * @brief
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
 #ifndef DISPLAY_DRIVER_H
 #define DISPLAY_DRIVER_H
 
-#include "system_memory_map.h"
+#include "sys/memory_map.h"
 
 /**
  * @brief 128x32 MINIOLED
@@ -116,7 +110,7 @@
  *       PAGE_7 = CO07-COM00
  *
  * Regarding Powering On/Off -
- *  Read chapter 8.9 (p.27) MINIOLED_SSD1206.pdf
+ *  Read chapter 8.9 (p.27) MINIOLED_SSD1306.pdf
  *  Power ON -
  *  1. Power ON VDD
  *  2. After VDD become stable, set RES# pin LOW (logic low) for at least 3us
@@ -197,6 +191,7 @@
  *
  **/
 
+// Addressing Mode
 typedef enum
 {
   PAGE_ADDRESSING = 0x2,
@@ -205,6 +200,7 @@ typedef enum
   INVALID = 0x3
 } ssd1603_addr_mode_e;
 
+// Command Table 
 typedef enum
 {
   // 1. Fundemental Command Table
@@ -256,9 +252,9 @@ typedef enum
 //#define ATMETGA32
 //#define ...
 
-#define SSD1306_I2C_SET_LOW_COL_STARTADDR_PAM(x)                               \
+#define SSD1306_I2C_SET_LOW_COL_STARTADDR_PAM(x) \
   (E_SET_LOWER_COL_STARTADDR_PAM + (x))
-#define SSD1306_I2C_SET_HIGHER_COL_STARTADDR_PAM(x)                            \
+#define SSD1306_I2C_SET_HIGHER_COL_STARTADDR_PAM(x) \
   (E_SET_HIGHER_COL_STARTADDR_PAM + (x))
 #define SSD1306_I2C_SET_PAGE_STARTADDR_PAM(x) (E_SET_PAGE_STARTADDR_PAM + (x))
 #define SSD1306_I2C_SET_DISPLAY_START_LINE(x) (E_SET_DISPLAY_START_LINE + (x))
@@ -286,11 +282,12 @@ typedef void (*send_fp_t)(unsigned char data);
  * @brief Sends bytes to SSD1306 device;
  * @param buf byte buffer; @param size # of bytes;
  */
-typedef void (*sendbuf_fp_t)(const unsigned char * buf,
+typedef void (*sendbuf_fp_t)(const unsigned char*  buf,
                              unsigned short        size,
                              trigger_gpio_fp_t     trigger_gpio);
 
-typedef struct {
+typedef struct 
+{
   start_fp_t   start_fp;
   stop_fp_t    stop_fp;
   send_fp_t    send_fp;
@@ -301,7 +298,7 @@ typedef struct {
 static void
 ssd1306_phy_send_byte(unsigned char data, trigger_gpio_fp_t trigger_gpio);
 static void
-ssd1306_phy_send_bytes(const unsigned char * buf,
+ssd1306_phy_send_bytes(const unsigned char*  buf,
                        unsigned short        size,
                        trigger_gpio_fp_t     trigger_gpio);
 static void
@@ -314,7 +311,7 @@ void
 ssd1306_phy_init(char scl, char sda, char sa);
 
 // abstracted layer
-ssd1306_intf *
+ssd1306_intf*
 ssd1306_create_interface();
 
 void

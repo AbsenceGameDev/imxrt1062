@@ -1,18 +1,12 @@
 /**
- * @file      timer_manager.h
- * @author    Ario@Permadev
- * @brief
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
+#include "sys/irq_handler.h"
+#include "sys/heap.h"
+#include "sys/memory_map.h"
 #include "clk_control.h"
-#include "irq_handler.h"
-#include "system_heap.h"
-#include "system_memory_map.h"
 
 /* Utils@Permadev */
 #include "utils/utimer_mgr.h"
@@ -20,34 +14,6 @@
 // General Purpose Timers
 #ifndef GP_TIMER_H
   #define GP_TIMER_H
-
-/**
- * 52.6.1  Selecting the Clock Source
- * The CLKSRC field in the GPT_CR register selects the clock source.
- * The CLKSRC field value should be changed only after disabling the GPT
- * (EN=0).
- * The software sequence to be followed while changing clock source is:
- *  ... Read the 52.6.1 sub-chapter in the ref manual
- *
- *  NOTE: An IP bus write access to the GPT Control Register (GPT_CR) and the
- *        GPT Output Compare Register1 (GPT_OCR1) results in one cycle of wait
- *        state, while other valid IP-bus accesses incur 0 wait states.
- *
- **/
-
-typedef enum
-{
-  FREERUNMODE_E = 0b00,
-  RESTARTMODE_E = 0b01
-} gpt_run_mode_e;
-
-typedef enum
-{
-  PIT_SPEED_50MHz = 0x0,
-  PIT_SPEED_100MHz = 0x1,
-  PIT_SPEED_150MHz = 0x2,
-  PIT_SPEED_200MHz = 0x3
-} pit_speed_e; // Speed Field
 
   // General
   #define GPT_IR_SET_EN(IR, x)    (IR & ~0x1f) | ((x)&0x1f)
@@ -62,7 +28,7 @@ typedef enum
   #define GPT_CR_SWR(CR, x)       (CR & ~(0x1 << 0xf)) | (((x)&0x1) << 0xf)
   #define GPT_CR_SET_ENMOD(CR, x) (CR & ~(0x1 << 0x1)) | (((x)&0x1) << 0x1)
   #define GPT_SR_CLR              ~0x1f
-  #define GPT_CR_MODE(gpt_run_mode)                                            \
+  #define GPT_CR_MODE(gpt_run_mode) \
     ~(0x1 << 0x9) | ((gpt_run_mode & 0x1) << 0x9)
 
   // GPT1 macros
@@ -89,30 +55,14 @@ typedef enum
   #define GPT2_CR_SET_ENMOD(x) GPT2_CR = GPT_CR_SET_ENMOD(GPT2_CR, x)
   #define GPT2_SR_CLR          GPT2_SR &= GPT_SR_CLR
 
-/**
- * @brief Clock Gating Register enum
- *
- * CGR value | Clock Activity Description
- * @enum CLK_OFF__ALL_MODES Clock is off during all modes.
- *                           Stop enter hardware handshake is disabled.
- * @param CLK_ON__RUN Clock is on in run mode, but off in WAIT and STOP modes
- * @param CLK_ON__NO_STOP Clock is on during all modes, except STOP mode.
- **/
-typedef enum
-{
-  CLK_OFF__ALL_MODES = 0b00,
-  CLK_ON__RUN = 0b01,
-  CLK_ON__NO_STOP = 0b11
-} clk_gate_reg_e;
-
-  // // Some defines to set enable GPTx at the Clock Controlelr Module (CCM)
+  // // Some defines to set enable GPTx at the Clock Controller Module (CCM)
   /** @brief Set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
   #define GPT2_SET_BUS(x) (uint32_t)(((x)&0b11) << 24)
 
   /** @brief set gpt2 bus clock field in CCM Clock gating register 0, p.1085 */
   #define GPT2_SET_SERIAL(x) (uint32_t)(((x)&0b11) << 26)
-  #define CCM_C_GPT2_EN                                                        \
-    CCM_C_CGR0 |=                                                              \
+  #define CCM_C_GPT2_EN \
+    CCM_C_CGR0 |=       \
         GPT2_SET_BUS(CLK_ON__NO_STOP) | GPT2_SET_SERIAL(CLK_ON__NO_STOP)
 
   /** @brief Set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
@@ -120,66 +70,45 @@ typedef enum
 
   /** @brief set gpt1 bus clock field in CCM Clock gating register 1, p.1085 */
   #define GPT1_SET_SERIAL(x) (uint32_t)(((x)&0b11) << 22)
-  #define CCM_C_GPT1_EN                                                        \
-    CCM_C_CGR1 |=                                                              \
+  #define CCM_C_GPT1_EN \
+    CCM_C_CGR1 |=       \
         GPT1_SET_BUS(CLK_ON__NO_STOP) | GPT1_SET_SERIAL(CLK_ON__NO_STOP)
 
-typedef enum
-{
-  GPT1_E,
-  GPT2_E
-} gptx_e;
-
-typedef enum
-{
-  OCR_CH1,
-  OCR_CH2,
-  OCR_CH3
-} gpt_ocr_e;
-typedef uint32_t gpt_ocr_t;
-
   /**
-   * @todo Turn specific members into void* context memmbers,
+   * @todo Turn specific members into void* context members,
    * and cast to appropriate context when needed
    **/
-  #define CONTEXT_TO_GPT(x) ((gpt_context_t *)(x))
-typedef struct {
-  gptx_e      gpt_x;
-  gpt_ocr_e   ocr_ch;
-  clk_src_e   gpt_clk;
-  pit_speed_e speedfield;
-} gpt_context_t;
+  #define CONTEXT_TO_GPT(x) ((gpt_context_s*)(x))
 
-extern timer_manager_t
+extern timer_manager_s
     glob_gptman[6]; /** idx [0,2] == gpt1_OCRidx, idx [3,5] == gpt2_OCRidx, */
 
-extern vuint32_t *
+extern vuint32_t*
     glob_gpt_ptrs[6]; /** idx [0,2] == gpt1_OCRidx, idx [3,5] == gpt2_OCRidx */
 
 void
-init_gptman(timer_manager_t * restrict gptman,
+init_gptman(timer_manager_s* restrict gptman,
             gptx_e           gpt_x,
             gpt_ocr_e        ocr_ch,
             clk_src_e        gpt_clk,
             timetype_e       time_type,
-            timer_s          time_container,
             uint32_t         compval,
-            timer_manager_cb callback);
+            timer_manager_cb interrupt_callback);
 
 void
-__slct_clksrc_gpt__(timer_manager_t * restrict gptman);
+__slct_clksrc_gpt__(timer_manager_s* restrict gptman);
 
 void
-__set_callback_gpt__(timer_manager_t * restrict gptman,
-                     timer_manager_cb callback);
+__set_callback_gpt__(timer_manager_s* restrict gptman,
+                     timer_manager_cb interrupt_callback);
 
 void
-__set_comparator_gpt__(timer_manager_t * restrict gptman);
+__set_comparator_gpt__(timer_manager_s* restrict gptman);
 
 void
-set_time(timer_manager_t * restrict gptman,
+set_time(timer_manager_s* restrict gptman,
          timetype_e time_type,
-         gpt_ocr_t  compareval);
+         gpt_ocr_t  compval);
 
 void
 __setup_gpt2__();
@@ -198,18 +127,6 @@ __setup_gpt2__();
  **/
 
 // PIT Module Control Register (MCR)
-typedef enum
-{
-  PIT_RUN_IN_DEBUG = 0x0,
-  PIT_STOP_IN_DEBUG = 0x1
-} pit_freeze_e;
-
-// PIT Module Control Register (MCR)
-typedef enum
-{
-  MCR_RESET = 0x0
-} pit_mcr_e;
-
   #define PIT_EN(x)      ~(0x1 << 0x1) | ((x & 0x1) << 0x1)
   #define PIT_FREEZE(x)  ~0x1 | (x & 0x1)
   #define PIT_MDIS_OFF   0b10
@@ -248,39 +165,7 @@ typedef enum
   #define PIT_CURVAL2_READ PIT_CVAL2
   #define PIT_CURVAL3_READ PIT_CVAL3
 
-typedef enum
-{
-  PIT_NOT_CHAINED = 0x0,
-  PIT_CHAINED = 0x1
-} pit_chainmode_e;
-
-typedef enum
-{
-  PIT_TIMER_N_IRQ_DISABLED = 0x0,
-  PIT_IRQ_ON_TIF = 0x1
-} pit_irq_enable_e;
-
-typedef enum
-{
-  PIT_TIMER_00 = 0x0,
-  PIT_TIMER_01 = 0x1,
-  PIT_TIMER_02 = 0x2,
-  PIT_TIMER_03 = 0x3,
-} pit_timer_e;
-
-typedef enum
-{
-  PIT_CH1,
-  PIT_CH2,
-  PIT_CH3,
-  PIT_CH4
-} pit_ch_e;
-
-  #define CONTEXT_TO_PIT(x) ((pit_context_t *)(x))
-typedef struct {
-  pit_ch_e    pit_ch;
-  pit_speed_e speedfield;
-} pit_context_t;
+#define CONTEXT_TO_PIT(x) ((pit_context_s*)(x))
 
   /**
    * @brief   Chain Mode
@@ -293,7 +178,7 @@ typedef struct {
    *          For example, for channel 2, if this field is set:
    *          Timer 2 is chained to Timer 1
    **/
-  #define PIT_TCTRL_CHAIN(x, MPIT_CTRL)                                        \
+  #define PIT_TCTRL_CHAIN(x, MPIT_CTRL) \
     (MPIT_CTRL & ~(0x1 << 0x2)) | ((x & 0x1) << 0x2)
 
   /**
@@ -305,7 +190,7 @@ typedef struct {
    *first. 0b - Interrupt requests from Timer n are disabled. 1b - Interrupt is
    *requested whenever TIF is set.
    **/
-  #define PIT_TCTRL_IRQ(x, MPIT_CTRL)                                          \
+  #define PIT_TCTRL_IRQ(x, MPIT_CTRL) \
     (MPIT_CTRL & ~(0x1 << 0x1)) | ((x & 0x1) << 0x1)
 
   /**
@@ -358,81 +243,86 @@ typedef struct {
   #define PIT_TFLG3_CLR PIT_TFLG3 &= PIT_TFLG(0x1)
 
 /**
- * @brief   in-scope construct of timer_manager-t
- * @details Construct timer manager in place on the stack
- **/
-inline static timer_manager_t
-construct_timer_manager_stack(gptx_e           gpt_x,
-                              gpt_ocr_e        ocr_ch,
-                              timetype_e       time_type,
-                              timer_s          time_container,
-                              clk_src_e        gpt_clk,
-                              uint32_t         compval,
-                              pit_speed_e      speedfield,
-                              timer_manager_cb callback)
-{
-  /** @todo timer stack construct */
-  return (timer_manager_t){.time_type = 0};
-}
-
-/**
  * @brief   user-managed construct of timer_manager-t
  * @details Construct timer manager in place on the heap
- * @return  timer_manager_t constructed on the heap
- * @note    It is user responsibiliy to free it afterwards.
+ * @return  timer_manager_s constructed on the heap
+ * @note    It is user responsibility to free it afterwards.
  **/
-inline static timer_manager_t *
+inline static timer_manager_s*
 construct_timer_manager_heap(gptx_e           gpt_x,
                              gpt_ocr_e        ocr_ch,
                              timetype_e       time_type,
-                             timer_s          time_container,
                              clk_src_e        gpt_clk,
                              uint32_t         compval,
-                             pit_speed_e      speedfield,
-                             timer_manager_cb callback)
+                             pit_speed_e      freq,
+                             timer_manager_cb interrupt_callback)
 {
   /** @todo timer heap construct */
-  timer_manager_t * tobj = (timer_manager_t *)malloc_(sizeof(timer_manager_t));
+  timer_manager_s* tobj = (timer_manager_s*)malloc_(sizeof(timer_manager_s));
   return tobj;
 }
 
 /**
  * @brief   Sets values to a (pit) timer manager
  * @details Sets up a pit time based on the inputted pit_mgr
- * @param   pit_mgr Type: timer_manager_t
+ * @param   pit_mgr Type: timer_manager_s
  * @note    Will need to set the appropriate members of pit_mgr
  *          before calling this function
  **/
 void
-init_pitman(timer_manager_t * restrict pitman,
-            pit_speed_e      speedfield,
-            pit_ch_e         pit_ch,
-            clk_src_e        pit_clk,
-            timetype_e       time_type,
-            timer_s          time_container,
-            uint32_t         ldval,
-            timer_manager_cb callback);
+init_pitman(timer_manager_s* restrict pitman,
+            timer_datum_s* restrict   timerdatum,
+            pit_ch_e              pit_ch,
+            timer_manager_cb      interrupt_callback,
+            timer_manager_sick_cb tick_callback);
 
 /**
  * @brief   Sets appropriate PIT timer registers
  * @details
- * @param   pit_mgr  See @timer_manager_t
+ * @param   pit_mgr  See @timer_manager_s
  *
  * @note    Do not use with uninit. pit_mgr, will cause a crash, no safety checks
  */
 void
-setupPITx(timer_manager_t * restrict pitman);
+setup_PITx(timer_manager_s* restrict pitman, vuint32_t* Flags, vuint32_t DirectionBit);
+
+
+/**
+ * @brief   Resolves the ticks from the given value and time type
+ * @details
+ */
+uint32_t resolve_time(pit_speed_e freq, timetype_e time_type, uint32_t targetval, ttconversiondir_e conversiondir);
+
+/**
+ * @brief   Generates a struct compatible with the timer abstraction.  
+ * @details Clamps the timeval in the returning 'timer_datum_s' to a range valid for the selected frequency for the selected time_type.
+ */
+timer_datum_s generate_time_struct(pit_speed_e freq, timetype_e type, uint32_t timeval);
 
 /**
  * @brief   Setup a Pit Timer
  * @details Sets up a pit time based on the inputted pit_mgr
- * @param   pit_mgr Type: timer_manager_t
- * @note    Will need to set the appropriate members of pit_mgr
- *          before calling this function
+ * @param   pitman     Timer manager
+ * @param   pit_timerx Timer selector 
+ * @note    Must set the appropriate members of pitman before calling this function
  **/
 void
-setup_pit_timer(timer_manager_t * restrict pitman, pit_timer_e pit_timerx);
+setup_pit_irq(timer_manager_s* restrict pitman, pit_timer_e pit_timerx);
+
+/**
+ * @brief   Reset a Pit Timer
+ * @details Clears and reenables a pit timer
+ * @param   pitman     Timer manager
+ * @param   pit_timerx Timer selector 
+ * @note    Must set the appropriate members of pitman before calling this function
+ **/
 void
-reset_pit(timer_manager_t * restrict pitman, pit_timer_e pit_timerx);
+reset_pit(timer_manager_s* restrict pitman, pit_timer_e pit_timerx);
+
+/** @brief  Hardware trigger tick, used for IRQs */
+void hwtick();
+
+/** @brief  Software polling timer tick, used for polling purposes when accuracy is a lesser concern */ 
+void polltick(const float delta_time);
 
 #endif // PIT_TIMER_H

@@ -1,7 +1,6 @@
-// #include "irq_handler.h"
-// #include "mpu.h"
-#include "system_heap.h"
-#include "system_memory_map.h"
+#include "sys/mpu.h"
+#include "sys/heap.h"
+#include "sys/memory_map.h"
 
 extern unsigned long _stextload;
 extern unsigned long _stext;
@@ -21,14 +20,13 @@ extern unsigned long _estack;
 typedef void (*void_func)(void);
 
 static void
-memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * dest_end);
+memory_copy(uint32_t* dest, const uint32_t* src, uint32_t* dest_end);
 static void
-memory_clear(uint32_t * dest, uint32_t * dest_end);
+memory_clear(uint32_t* dest, uint32_t* dest_end);
 
-void
-main();
+// Main execution function
+int  execute();
 
-/**/
 __attribute__((/* section(".vectors"),*/ used, aligned(0x400)))
 /**
  * @brief IRQ Function vector
@@ -51,8 +49,8 @@ startup()
 {
   // FlexRAM bank configuration
   IOMUXC_GPR_GPR17 = (uint32_t)&_flexram_bank_config;
-  IOMUXC_GPR_GPR16 = 0x00000007;
-  IOMUXC_GPR_GPR14 = 0x00AA0000;
+  IOMUXC_GPR_GPR16 = 0x00000007; // use FLEXRAM_BANK_CFG, DTCM Enabled, ITCM Enabled
+  IOMUXC_GPR_GPR14 = 0x00AA0000; //// 512KB DTCM Size, 512KB ITCM Size
   __asm__ volatile("mov sp, %0" : : "r"((uint32_t)&_estack) :);
 
   // Initialize memory
@@ -61,7 +59,12 @@ startup()
   memory_clear(&_sbss, &_ebss);
 
   // enable FPU
-  // SCB_CPACR = 0x00F00000;
+  __asm__ (
+    "LDR r0, =0xE000ED88\n"
+    "LDR r1, [R0]\n"             // ; Read CPACR
+    "ORR r1, R1, (0xF << 20)\n"  // ; Set bits 20-23 to enable CP10 and CP11 coprocessors
+    "STR r1, [R0]");           // ; Write back the modified value to the CPACRDSBISB) ;
+    
   __asm__ volatile("CPSIE i" ::: "memory"); // enable irqs
 
   // Need to read MPU section of ARM refman again to learn why the current
@@ -69,8 +72,8 @@ startup()
   // configure_mpu();
   __init_ram_heap__();
 
-  // Call the `main()` function defined in `main.c`.
-  main();
+  // Call the `execute()` function defined in `execute.c`.
+  execute();
 }
 
 /**/
@@ -87,11 +90,8 @@ __attribute__((section(".startup"),
 static void
 memory_copy(uint32_t * dest, const uint32_t * src, uint32_t * dest_end)
 {
-  if (dest == src)
-    return;
-  while (dest < dest_end) {
-    *dest++ = *src++;
-  }
+  if (dest == src) { return; }
+  while (dest < dest_end) { *dest++ = *src++; }
 }
 
 /**/
@@ -107,9 +107,7 @@ __attribute__((section(".startup"),
 static void
 memory_clear(uint32_t * dest, uint32_t * dest_end)
 {
-  while (dest < dest_end) {
-    *dest++ = 0;
-  }
+  while (dest < dest_end) { *dest++ = 0; }
 }
 
 /**/

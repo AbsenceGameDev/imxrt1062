@@ -1,15 +1,9 @@
 /**
- * @file      display_driver.c
- * @author    Ario@Permadev
- * @brief
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
-#include "display_driver.h"
+#include "io/display_driver.h"
 
 // Abstracted layer
 ssd1306_intf *

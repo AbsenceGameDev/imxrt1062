@@ -1,15 +1,9 @@
 /**
- * @file      mpu.c
- * @author    Ario@Permadev
- * @brief     Memory Protection Unit impl.
- * @version   0.1
- * @date      2021-08-29
- *
- * @copyright Copyright (c) 2021, MIT-License included in project toplevel dir
- *
+ * @authors   Ario Amin @ Permadev, 
+ * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
  */
 
-#include "mpu.h"
+#include "sys/mpu.h"
 
 /**
  * @note The values of the MPU_RASR registers from reset are UNKNOWN. All
@@ -21,10 +15,13 @@ configure_mpu()
 {
   // This is not the actual body I am looking to create
   // But it will show order of execution needed when doing these things
-  uint8_t placeholder_region = 0x1;
+  uint8_t placeholder_region = 0x0;
   uint8_t power = 0x4;
+
+
   // Preamble
   MPU_RNR_REQ_REGIONS(placeholder_region); // request sepcific region
+return; // @TODO FIX @BUG: Call to 'MPU_RNR_REQ_REGIONS' hard faults the teensy and requires it to restart
 
   MPU_RBAR_VALID_W_0; // Apply base addr. to RBAR from RNR
   // MPU_RBAR_REGION_W(region); // Sets RBAR region directly
