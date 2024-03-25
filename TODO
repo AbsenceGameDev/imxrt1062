@@ -15,6 +15,7 @@ It will be updated regularly from the point of upload to github.
 ☐ Set up a glopal pin array, will be used by the pin manager to notify which pins are already in use. Will need to keep track using arrays of pin_IDs @started(21-03-04 22:55)
 ☐ Call to 'MPU_RNR_REQ_REGIONS' hard faults the teensy and requires it to restart @started(24-03-25 23:25)
 
+
 // HEAP
 ☐ Regarding heap; why is READ_HEAP_FREEBLOCKS() reading 0 free blocks? INVESTIGATE, URGENT! @started(21-02-11 00:02)
 ☐ Need to take into account partially free blocks when allocating memory @started(24-03-25 23:26)
