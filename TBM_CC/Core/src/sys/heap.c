@@ -64,7 +64,7 @@ malloc_(uint16_t obj_size)
 }
 
 void
-free(void * ptr)
+free_(void * ptr)
 {
   __remove_block__((vheap_block *)(((vuint8_t *)(ptr)) - HB_HEADER_SIZE));
   ptr = NULL;
