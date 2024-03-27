@@ -15,6 +15,13 @@ It will be updated regularly from the point of upload to github.
 ☐ Set up a glopal pin array, will be used by the pin manager to notify which pins are already in use. Will need to keep track using arrays of pin_IDs @started(21-03-04 22:55)
 ☐ Call to 'MPU_RNR_REQ_REGIONS' hard faults the teensy and requires it to restart @started(24-03-25 23:25)
 
+// CONTAINERS
+☐ Implement a generic list container @started(24-03-27 06:55)
+    ✔ Write relevant code for list container @started(24-03-27 06:26) @done(24-03-27 06:57) @lasted(31m10s)
+    ☐ Write a realloc function as we need it when resizing the container
+✔ Implement a red-black tree @started(24-03-27 04:57) @done(24-03-27 06:58) @lasted(2h1m1s)
+☐ Associate generic data to the rb-tree nodes to mimick map functionality @started(24-03-27 07:00)
+
 
 // HEAP
 ☐ Regarding heap; why is READ_HEAP_FREEBLOCKS() reading 0 free blocks? INVESTIGATE, URGENT! @started(21-02-11 00:02)
@@ -24,7 +31,7 @@ It will be updated regularly from the point of upload to github.
 ✔ Fixed semantic bug in conditional statement in heap.c when finding free memory, which prevented it from stepping through all free memory blocks @started(24-03-24 23:30) @done(24-03-25 23:31) @lasted(1d1m6s)
 ✔ Made a number of changes in heap.c, most notably in '__find_mem__()' to fix some incorrect behaviours related to iterating memory blocks. @started(24-03-24 23:30) @done(24-03-25 23:31) @lasted(1d1m53s)
 ☐ Note in __find_mem__ to Accumulate all free partials of partial blocks and put into a special heap group or compact memory when it gets too fragmented @started(24-03-25 23:44)
-
+☐ Implement realloc_ (starting on 28th March 2024, tomorrow)
 
 // TIMERS
 ✔ Create a struct for managing timers @started(unknown) @done(unknown) @lasted()
