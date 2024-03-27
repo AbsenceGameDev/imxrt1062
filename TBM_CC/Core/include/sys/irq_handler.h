@@ -220,7 +220,7 @@ static inline void
 add_to_irq_v(irq_num_e irq, void_func funcptr)
 {
   __vectors_ram__[irq + 0x10] = funcptr;
-  asm volatile("" : : : "memory");
+  __asm__ volatile("" : : : "memory");
 }
 
 static inline void
@@ -229,7 +229,7 @@ static inline void
 remove_from_irq_v(irq_num_e irq)
 {
   __vectors_ram__[irq + 0x10] = ((void_func)0);
-  asm volatile("" : : : "memory");
+  __asm__ volatile("" : : : "memory");
 }
 
 #define __disable_irq() __asm__ volatile("CPSID i" ::: "memory")

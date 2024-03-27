@@ -8,9 +8,11 @@ OBJDUMP = arm-none-eabi-objdump
 SIZE = arm-none-eabi-size
 LOADER = teensy_loader_cli
 
+# Language standard
+STD=-std=c99
+
 # Cheap way to pass in arbitrary flags
 V=
-export V
 
 OUTFILE = firmware
 
@@ -34,7 +36,7 @@ INITOPTS = -Wl,--gc-sections,--print-gc-sections,--print-memory-usage -nostdlib 
 EXTMEMOPTS = -Wl,--defsym=__heap_start=0x20200000,--defsym=__heap_end=0x2027ffff
 LDSCRIPT_PATH = -TTBM_CC/teensy/imxrt1062.ld
 
-CFLAGS = $(VERB) -O3 -Wall -Wa,-Iinc -Werror -Wno-error=unused-variable -mcpu=cortex-m7 $(FPU_FLAGS) -mthumb $(INC_FLAGS)
+CFLAGS = $(V) -O3 -Wall -Wa,-Iinc -Werror -Wno-error=unused-variable -mcpu=cortex-m7 -std=c99 $(FPU_FLAGS) -mthumb $(INC_FLAGS)
 LDFLAGS = $(INITOPTS)
 LDFLAGS += $(EXTMEMOPTS) 
 LDFLAGS += $(LDSCRIPT_PATH)

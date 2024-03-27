@@ -196,7 +196,7 @@ callback_toggle_led()
 {
   SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, 0x3);
   PIT_TFLG0_CLR;
-  asm volatile("dsb");
+  __asm__ volatile("dsb");
 }
 
 gpiodev_s*

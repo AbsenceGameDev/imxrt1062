@@ -61,7 +61,7 @@ void hwtick()
   PIT_TCTRL0 = 3; 
   PIT_TFLG0_CLR;
   NVIC_ENABLE_IRQ(IRQ_PIT);
-  asm volatile("dsb");
+  __asm__ volatile("dsb");
 }
 
 void polltick(const float delta_time)
