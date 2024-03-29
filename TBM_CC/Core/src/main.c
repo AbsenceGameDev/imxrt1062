@@ -7,6 +7,8 @@
 #include "sys/memory_map.h"
 #include "timer_manager.h"
 
+#include "containers/trb_tree.h"
+
 extern inline timer_manager_s*
 start_PITx(
   timer_datum_s*        timerdatum,

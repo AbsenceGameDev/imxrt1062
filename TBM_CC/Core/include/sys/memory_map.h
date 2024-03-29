@@ -15,6 +15,11 @@
   #define NULL ((void *)0)
 #endif
 
+typedef _Bool bool;
+#define false 0
+#define true  !false
+
+
 #define HAB_API_VTABLE 0x00200300 // HAB API vector table addresses
 
 // RESERVED ADDRESS-SPACE

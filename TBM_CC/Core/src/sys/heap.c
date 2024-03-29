@@ -129,7 +129,7 @@ __find_mem__(vheap_group * heap_g, uint16_t requested_size)
 
   for (; (current_block != (vheap_block *)NULL) && current_block != end_block; current_block = current_block->next) 
   { 
-    if (READ_BLOCK_FREE(current_block) == 0x0) { continue; } 
+    if (READ_BLOCK_FREE(current_block) == false) { continue; } 
 
     uint16_t current_offset = current_block->max_data_size - current_block->curr_data_size;
     vuint16_t* curr_size_ptr = &(current_block->curr_data_size);
@@ -189,7 +189,7 @@ __compactation__(vheap_group * heap_g)
   for (; (BLOCK_END_FULL(hb_cptr)) != hb_eptr ;) 
   {
     /**If Free, swap it forward.  */
-    if (READ_BLOCK_FREE(hb_cptr)) 
+    if (READ_BLOCK_FREE(hb_cptr) == true) 
     {
       /** @note This only handles full blocks that are flaggeds as free, not partial ones that might be flagged as non free **/
       /** @todo Handle partially free blocks **/
@@ -229,12 +229,12 @@ __remove_block__(vheap_block * heap_b)
 void
 __coalesce__(vheap_block * heap_b)
 {
-  if (READ_BLOCK_FREE(heap_b->next)) 
+  if (READ_BLOCK_FREE(heap_b->next) == true) 
   {
     __coalesce_neighbour_front__(heap_b);
   }
 
-  if (READ_BLOCK_FREE(heap_b->prev)) 
+  if (READ_BLOCK_FREE(heap_b->prev) == true) 
   {
     heap_b = __coalesce_neighbour_back__(heap_b);
   }
@@ -254,7 +254,7 @@ __coalesce_neighbour_front__(vheap_block * heap_b)
     return;
   }
 
-  if (READ_BLOCK_FREE(heap_b->next)) 
+  if (READ_BLOCK_FREE(heap_b->next) == true) 
   {
     __coalesce_neighbour_front__(heap_b->next); // Recursively coalesce, must start with the furthest block.
     heap_b->curr_data_size += heap_b->next->curr_data_size;
@@ -282,7 +282,7 @@ __coalesce_neighbour_back__(vheap_block * heap_b)
   }
   vheap_block * prev_cpy = heap_b;  
 
-  if (READ_BLOCK_FREE(heap_b->prev)) 
+  if (READ_BLOCK_FREE(heap_b->prev) == true) 
   {
     heap_b->prev->curr_data_size += heap_b->curr_data_size; // Coalesce data sizes
     heap_b->curr_data_size = 0x0;                           // Clear current data size

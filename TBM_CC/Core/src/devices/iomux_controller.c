@@ -13,7 +13,8 @@ init_device_muxmode(muxdev_s *   mux_device,
                     muxmode_e    mux_mode)
 {
   mux_device = (muxdev_s *)malloc_(sizeof(muxdev_s));
-  if (mux_device == NULL) {
+  if (mux_device == NULL) 
+  {
     return;
   }
 
