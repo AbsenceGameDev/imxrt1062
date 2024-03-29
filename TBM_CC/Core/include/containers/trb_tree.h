@@ -26,8 +26,7 @@ typedef struct typename##_keyval \
   keydatatype   _key : 31; \
   valuedatatype _data; \
 } typename##_keyval_s;
-/* typename##_keyval_m = {._key = ENDKEY}; special endkey to mark the end of the map, so the vararg iteration doesn't produce UB */ 
-// typedef struct typename##_keyval typename##_keyval_s; 
+/* typename##_keyval_s = {._key = ENDKEY}; special endkey to mark the end of the map, so the vararg iteration doesn't produce UB */ 
 
 
 #define DEFINE_MAP_NODE(typename, keydatatype, valuedatatype) \
