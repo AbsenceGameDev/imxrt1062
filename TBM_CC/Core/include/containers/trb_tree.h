@@ -6,6 +6,8 @@
 #ifndef TRB_TREE_H
 #define TRB_TREE_H
 
+#pragma once
+
 #include "sys/heap.h"
 #include <stdarg.h>
 #include <stdint.h>
@@ -21,13 +23,14 @@ typedef enum {EGRANDPARENT, EPARENT, EUNCLE, ESIBLING} dataorder_e;
 typedef enum { BLACK, RED } colourbit_e;
 
 #define DEFINE_KEY_VALUE_PAIR(typename, keydatatype, valuedatatype) \
-struct typename##_keyval \
+typedef struct typename##_keyval \
 { \
   keydatatype   _key : 31; \
   valuedatatype _data; \
-} typename##_keyval = {._key = ENDKEY}; \
-/* special globals to mark the end of the map, so the vararg iteration doesn't produce UB */ \
-typedef struct typename##_keyval typename##_keyval_s; 
+} typename##_keyval_s;
+/* typename##_keyval_m = {._key = ENDKEY}; special endkey to mark the end of the map, so the vararg iteration doesn't produce UB */ 
+// typedef struct typename##_keyval typename##_keyval_s; 
+
 
 #define DEFINE_MAP_NODE(typename, keydatatype, valuedatatype) \
 DEFINE_KEY_VALUE_PAIR(typename, keydatatype, valuedatatype) \
@@ -38,14 +41,15 @@ typedef struct typename##_node \
   colourbit_e   _color : 1; \
 } typename##_node_s; 
 
+
 #define DEFINE_MAP_BOILERPLATE(typename, keydatatype, valuedatatype) \
 /* Traverse arbitrary binary tree, LNR, LeftChain->Node->RightChain */\
-void typename##_traverse_LNR(typename##_node_s* node, void (*typename##_inlinefunc)(keydatatype key));\
-void typename##___insert(typename##_node_s** root, typename##_node_s* node);\
-void typename##_insert_record(typename##_node_s* node); \
-void typename##_delete(typename##_node_s** root, typename##_node_s* node); \
-void typename##_delete_record(typename##_node_s* node); \
-void typename##_nested_ptr_swap(typename##_node_s**, typename##_node_s**);\
+static void typename##_traverse_LNR(typename##_node_s* node, void (*typename##_inlinefunc)(keydatatype key));\
+static void typename##___insert(typename##_node_s** root, typename##_node_s* node);\
+static void typename##_insert_record(typename##_node_s* node); \
+static void typename##_delete(typename##_node_s** root, typename##_node_s* node); \
+static void typename##_delete_record(typename##_node_s* node); \
+static void typename##_nested_ptr_swap(typename##_node_s**, typename##_node_s**);\
 \
 \
 inline keydatatype typename##_get_key(const typename##_node_s* this) { return this->_pair._key; } \
@@ -55,7 +59,7 @@ inline void typename##_set_value(typename##_node_s* this, valuedatatype data) { 
 inline void typename##_set_keyvalpair(typename##_node_s* this, typename##_keyval_s pair) { this->_pair = pair; } \
 \
 \
-void typename##_insert(typename##_node_s** root, typename##_keyval_s first_keyval_pair) \
+static inline void typename##_insert(typename##_node_s** root, typename##_keyval_s first_keyval_pair) \
 {\
     typename##_node_s* newnode = (typename##_node_s*)malloc_(sizeof(typename##_node_s)); /* Allocate memory for the node */ \
     typename##_set_keyvalpair(newnode, first_keyval_pair); \
@@ -152,7 +156,7 @@ static void typename##_swap_node(typename##_node_s* lhs, typename##_node_s* rhs)
 \
 \
 /* This function swaps two addresses */\
-void typename##_nested_ptr_swap(typename##_node_s** lhs, typename##_node_s** rhs)\
+static inline void typename##_nested_ptr_swap(typename##_node_s** lhs, typename##_node_s** rhs)\
 {\
   void* temp = *rhs;\
   *rhs       = *lhs;\
@@ -219,7 +223,7 @@ static void typename##_rotate_left(typename##_node_s* node) \
 }\
 \
 \
-inline void  typename##_traverse_LNR(typename##_node_s* node, void (*typename##_inlinefunc)(keydatatype data)) \
+static inline void typename##_traverse_LNR(typename##_node_s* node, void (*typename##_inlinefunc)(keydatatype data)) \
 {\
   if (node == NULLT(typename##_node_s)) { return; } \
 \
@@ -229,7 +233,7 @@ inline void  typename##_traverse_LNR(typename##_node_s* node, void (*typename##_
 }\
 \
 \
-typename##_node_s* typename##_best_fit(const typename##_node_s* node, keydatatype query)\
+inline typename##_node_s* typename##_best_fit(const typename##_node_s* node, keydatatype query)\
 {\
   if (node == NULLT(typename##_node_s))           { return NULLT(typename##_node_s); } \
   if (typename##_get_key(node) == query) { return (typename##_node_s*)node; } \
@@ -242,7 +246,7 @@ typename##_node_s* typename##_best_fit(const typename##_node_s* node, keydatatyp
 }\
 \
 \
-typename##_node_s* typename##_find(const typename##_node_s* node, keydatatype query)\
+inline typename##_node_s* typename##_find(const typename##_node_s* node, keydatatype query)\
 {\
   if (node == NULLT(typename##_node_s))            { return NULLT(typename##_node_s); }\
   if (typename##_get_key(node) == query)  { return (typename##_node_s*)node; }\
@@ -250,7 +254,7 @@ typename##_node_s* typename##_find(const typename##_node_s* node, keydatatype qu
 }\
 \
 \
-void typename##___insert(typename##_node_s** root, typename##_node_s* node) \
+static inline void typename##___insert(typename##_node_s** root, typename##_node_s* node) \
 {\
   /* If root is NULLT(typename##_node_s), set n as root and return */ \
   if (*root == NULLT(typename##_node_s)) \
@@ -292,7 +296,7 @@ void typename##___insert(typename##_node_s** root, typename##_node_s* node) \
 } \
 \
 \
-void typename##_insert_record(typename##_node_s* node) \
+static inline void typename##_insert_record(typename##_node_s* node) \
 { \
   typename##_node_s* parent = typename##_get_node(node, EPARENT); \
 \
@@ -353,7 +357,7 @@ void typename##_insert_record(typename##_node_s* node) \
 \
 \
 /* Removal */ \
-void typename##_delete_record(typename##_node_s* node) \
+static void typename##_delete_record(typename##_node_s* node) \
 {\
   typename##_node_s* parent  = typename##_get_node(node,EPARENT);\
   typename##_node_s* sibling = typename##_get_node(node,ESIBLING);\
@@ -444,7 +448,7 @@ void typename##_delete_record(typename##_node_s* node) \
 }\
 \
 \
-void typename##_delete(typename##_node_s** root, typename##_node_s* node)\
+static inline void typename##_delete(typename##_node_s** root, typename##_node_s* node)\
 {\
   if (node == NULLT(typename##_node_s)) { return; }\
   if (node->parent == NULLT(typename##_node_s) && node->left == NULLT(typename##_node_s) && node->right == NULLT(typename##_node_s)) \
@@ -482,7 +486,7 @@ void typename##_delete(typename##_node_s** root, typename##_node_s* node)\
   while ((*root)->parent != NULLT(typename##_node_s)) { *root = (*root)->parent;}  \
 } \
 \
-inline typename##_map_s* typename##_new_map(typename##_keyval_s first_keyval_pair, ... /* {2nd keyval_pair, 3rd keyval_pair, etc.. } */) \
+static inline typename##_map_s* typename##_new_map(typename##_keyval_s first_keyval_pair, ... /* {2nd keyval_pair, 3rd keyval_pair, etc.. } */) \
 { \
   typename##_map_s* retmap = (typename##_map_s*)malloc_(sizeof(typename##_map_s)); \
 \
@@ -513,20 +517,22 @@ inline typename##_map_s* typename##_new_map(typename##_keyval_s first_keyval_pai
     typename##_insert(&root, current_keyval_pair);\
   }\
   va_end(ap); \
+  retmap->root = root; \
   return retmap; \
 }
 
 #define DEFINE_MAP_TYPE_WIHTOUTNEW(typename, keydatatype, valuedatatype) \
 DEFINE_MAP_NODE(typename, keydatatype, valuedatatype); \
-struct typename##_map \
+typedef struct typename##_map \
 { \
   void*  _alloc;         /* Allocated memory */ \
   int32_t allocatedsize; /* Allocation size of the tree */ \
   int32_t element_count; /* Number of elements in the tree */ \
   int32_t max_capacity;  /* Max capacity */ \
   typename##_node_s* root; \
-} typename##_map = { ._alloc = NULLT(void), .allocatedsize = 0x0, .element_count = 0, .max_capacity = MAP_MAX_SIZE, .root = NULLT(typename##_node_s)}; \
-typedef struct typename##_map typename##_map_s;
+} typename##_map_s; 
+/* = { ._alloc = NULLT(void), .allocatedsize = 0x0, .element_count = 0, .max_capacity = MAP_MAX_SIZE, .root = NULLT(typename##_node_s)};*/ 
+
 
 #define DEFINE_MAP_TYPE(typename, keydatatype, valuedatatype) \
 DEFINE_MAP_TYPE_WIHTOUTNEW(typename, keydatatype, valuedatatype) \
@@ -537,6 +543,34 @@ typedef uint32_t dataregister_t; // Base integer key value
 DEFINE_MAP_TYPE(dri, dataregister_t, int32_t); // defines 
 DEFINE_MAP_TYPE(drf, dataregister_t, float);
 DEFINE_MAP_TYPE(drd, dataregister_t, double);
+
+
+// Some rudimentary testing
+typedef struct 
+{
+  int a;
+  float b;
+  double c;
+} mock_struct1;
+
+typedef struct 
+{
+  char d;
+  short e;
+  mock_struct1 f;
+} mock_struct2;
+
+typedef struct 
+{
+  long g;
+  mock_struct2 h;
+} mock_struct3;
+
+
+DEFINE_MAP_TYPE(mocktest1, dataregister_t, mock_struct1);
+DEFINE_MAP_TYPE(mocktest2, dataregister_t, mock_struct2);
+DEFINE_MAP_TYPE(mocktest3, dataregister_t, mock_struct3);
+
 
 void test_trb_tree();
 

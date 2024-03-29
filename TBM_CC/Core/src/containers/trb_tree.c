@@ -7,11 +7,28 @@
 
 #include "trb_tree.h"
 
+
+#define TESTCASE(typename, key, val, key2, val2) \
+  typename##_keyval_s typename##keypair1 = {._key = key, ._data = val};  \
+  typename##_keyval_s typename##keypair2 = {._key = key2, ._data = val2};  \
+  typename##_keyval_s typename##end_keypair;  \
+  typename##_map_s* typename##global_map_testcompile = typename##_new_map(typename##keypair1, typename##keypair2, typename##end_keypair); \
+  typename##_node_s* typename##root = NULLT(typename##_node_s); \
+  typename##_delete(&typename##root, typename##global_map_testcompile->root); \
+
 void test_trb_tree()
 {
-  // @todo tomorrow: Fix the below code failing to compile due to failing to recognize dri_new_map as an actual function
-  dri_keyval_s key1 = {._key = 0x0, ._data = 0x0};
-  dri_keyval_s key2 = {._key = 0x1, ._data = 0x2}; 
-  dri_keyval_s key3 = {._key = 0x2, ._data = 0x4};
-  dri_map_s* global_map_testcompile = dri_new_map(key1, key2, key3);
+  TESTCASE(dri, 0, 0, 1, 1);
+  TESTCASE(drf, 0, 0.0f, 1, 1.0f);  
+  TESTCASE(drd, 0, 0.0, 1, 1.0);
+
+
+  mock_struct1 mtest1 = {.a = 0, .b = 0.0f,  .c = 2.0};
+  mock_struct2 mtest2 = {.d = '0', .e = 0x8, .f = mtest1};
+  mock_struct3 mtest3 = {.g = 0x120120,      .h = mtest2};
+
+  TESTCASE(mocktest1, 0, mtest1, 1, mtest1);
+  TESTCASE(mocktest2, 0, mtest2, 1, mtest2);
+  TESTCASE(mocktest3, 0, mtest3, 1, mtest3);
+
 }
