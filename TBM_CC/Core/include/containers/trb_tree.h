@@ -6,8 +6,6 @@
 #ifndef TRB_TREE_H
 #define TRB_TREE_H
 
-#pragma once
-
 #include "sys/heap.h"
 #include <stdarg.h>
 #include <stdint.h>
