@@ -8,6 +8,8 @@
 #include "timer_manager.h"
 
 #include "containers/trb_tree.h"
+#include "mocktests_trb_tree.h"
+
 
 extern inline timer_manager_s*
 start_PITx(
@@ -23,7 +25,7 @@ struct { float dummy; } timerschedule_s;
 
 int execute()
 {
-  test_trb_tree(); // Test that allocating some trees / maps does not crash the teensy
+  test_simplecreation_trb_tree(); // Test that allocating some trees / maps does not crash the teensy
 
 
   timer_datum_s     timerdatum = generate_time_struct(PIT_SPEED_50MHz, SECONDS_E, 1);

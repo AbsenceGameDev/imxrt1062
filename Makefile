@@ -17,17 +17,19 @@ V=
 OUTFILE = firmware
 
 BUILD_DIR = ./build
-SRC_DIRS ?= ./TBM_CC/Core/src ./TBM_CC/teensy ./TBM_CC/Core/include
+SRC_DIRS ?= ./TBM_CC/Core/src ./TBM_CC/teensy ./TBM_CC/Core/include ./TBM_CC/Core/tests
 
 # Breaking up the shell find command makes so it can compile on both Windows and Linux
 SRCS := $(shell find "./TBM_CC/Core/src" -name *.c -or -name *.s)
 SRCS += $(shell find "./TBM_CC/teensy" -name *.c -or -name *.s)
 SRCS += $(shell find "./TBM_CC/Core/include" -name *.c -or -name *.s)
+SRCS += $(shell find "./TBM_CC/Core/tests" -name *.c -or -name *.s)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
 INC_DIRS  := $(shell find "./TBM_CC/Core/src" -type d)
 INC_DIRS  += $(shell find "./TBM_CC/teensy" -type d)
 INC_DIRS  += $(shell find "./TBM_CC/Core/include" -type d)
+INC_DIRS  += $(shell find "./TBM_CC/Core/tests" -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 FPU_FLAGS : -mfloat-abi=hard -mfpu=fpv5-d16 ## Does not work?

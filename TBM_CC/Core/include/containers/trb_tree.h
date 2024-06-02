@@ -542,33 +542,4 @@ DEFINE_MAP_TYPE(drf, dataregister_t, float);
 DEFINE_MAP_TYPE(drd, dataregister_t, double);
 
 
-// Some rudimentary testing
-typedef struct 
-{
-  int a;
-  float b;
-  double c;
-} mock_struct1;
-
-typedef struct 
-{
-  char d;
-  short e;
-  mock_struct1 f;
-} mock_struct2;
-
-typedef struct 
-{
-  long g;
-  mock_struct2 h;
-} mock_struct3;
-
-
-DEFINE_MAP_TYPE(mocktest1, dataregister_t, mock_struct1);
-DEFINE_MAP_TYPE(mocktest2, dataregister_t, mock_struct2);
-DEFINE_MAP_TYPE(mocktest3, dataregister_t, mock_struct3);
-
-
-void test_trb_tree();
-
 #endif // TRB_TREE_H
