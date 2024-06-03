@@ -534,12 +534,48 @@ typedef struct typename##_map \
 #define DEFINE_MAP_TYPE(typename, keydatatype, valuedatatype) \
 DEFINE_MAP_TYPE_WIHTOUTNEW(typename, keydatatype, valuedatatype) \
 DEFINE_MAP_BOILERPLATE(typename, keydatatype, valuedatatype)
-// DEFINE_MAP_FUNCTIONS(typename, keydatatype, valuedatatype)
 
 typedef uint32_t dataregister_t; // Base integer key value
-DEFINE_MAP_TYPE(dri, dataregister_t, int32_t); // defines 
+DEFINE_MAP_TYPE(dri_8, dataregister_t, int8_t);
+DEFINE_MAP_TYPE(dri_16, dataregister_t, int16_t);
+DEFINE_MAP_TYPE(dri_32, dataregister_t, int32_t); 
+DEFINE_MAP_TYPE(dri_64, dataregister_t, int64_t);
+DEFINE_MAP_TYPE(drui_8, dataregister_t, uint8_t);
+DEFINE_MAP_TYPE(drui_16, dataregister_t, uint16_t);
+DEFINE_MAP_TYPE(drui_32, dataregister_t, uint32_t); 
+DEFINE_MAP_TYPE(drui_64, dataregister_t, uint64_t); 
 DEFINE_MAP_TYPE(drf, dataregister_t, float);
 DEFINE_MAP_TYPE(drd, dataregister_t, double);
 
+// in progress
+#define make_hasher(typename, member_to_hash_type, member_to_hash_inner)\
+size_t hasher_t(typename hash_type, ...)\
+{\
+  size_t res = 17; \
+  va_list ap; \
+  member_to_hash_type member_to_hash; \
+\
+  va_start(ap, hash_type); \
+\
+\
+  bool valid_data = true; \
+  int64_t current_step = 0x0; \
+  while (valid_data) \
+  { \
+    member_to_hash = va_arg(ap, member_to_hash_type);   /* Pop out the element from the list. */ \
+    if (current_step >= 10) \
+    { \
+      /* skip if EOM or past max size */ \
+      valid_data = false; \
+      continue; \
+    }\
+\
+    /* Compute individual hash values for each component of the type we want to hash */ \
+    res = (res * 31) + member_to_hash.member_to_hash_inner; \
+\
+  }\
+  va_end(ap); \
+  return res; \
+}
 
 #endif // TRB_TREE_H
