@@ -15,6 +15,7 @@ It will be updated regularly from the point of upload to github.
 ☐ Set up a glopal pin array, will be used by the pin manager to notify which pins are already in use. Will need to keep track using arrays of pin_IDs @started(21-03-04 22:55)
 ☐ Call to 'MPU_RNR_REQ_REGIONS' hard faults the teensy and requires it to restart @started(24-03-25 23:25)
 
+
 // CONTAINERS
 ☐ Implement a generic list container @started(24-03-27 06:55)
     ✔ Write relevant code for list container @started(24-03-27 06:26) @done(24-03-27 06:57) @lasted(31m10s)
@@ -22,10 +23,12 @@ It will be updated regularly from the point of upload to github.
 ✔ Implement a red-black tree @started(24-03-27 04:57) @done(24-03-27 06:58) @lasted(2h1m1s)
     ✔ Associate generic value data to the rb-tree nodes to mimick map functionality @started(24-03-27 07:00) @done(24-03-28) @lasted(N/A)
         ^ Had forgotten to push any changes and this should have been finished the same day as the rb-tree, but for good measure I'm putting the 'done' date a day after the 'start' date
+    ☐ Test of allocating trees with non POD data: CRASH. Think it is an alignment issue @started(26-02-11 03:19)
     ☐ Write support for generic key types @started(24-06-03 05:40)
         ✔ Wrote an inital macro to hash a generic key-type, @started(24-06-03 05:40) @done(24-06-03 05:53) @lasted(13m12s)
             ☐ it's define is a bit janky, will re-evaluate tomorrow
         ☐ Ensure hashed generic keys are sorted same as my integral key-typed red-black trees
+
 
     ☐ Copy my redblack tree type into a new project, compile it for a PC using clang and/or msvc, and see if I still get crashes upon the bugs found when running the test cases in 'mocktests_trb_tree.c' 
        ^ if yes then there is an inherent problem with the design of my red-black tree, 
@@ -56,6 +59,7 @@ It will be updated regularly from the point of upload to github.
 
     Ok so bitoperations have been fixed, and everything I have done seems to be in the correct order but it might be a power gating issue putting the clocks in inactive/disabled mode?
 ☐ PIT Timers: The timers only fire once then it stops firing. Need to investigate why @started(24-03-25 23:48)
+    - NOTE: PITCVAL not resetting! 
 
 // GLYPHS 4x4
 ✔ Glyphs 4x4 digits @started(21-02-17 01:32) @done(21-02-17 01:47) @lasted(15m46s)
