@@ -1,6 +1,6 @@
 /**
  * @authors   Ario Amin @ Permadev, 
- * @copyright Copyright (c) 2021-2024, MIT-License included in project toplevel dir
+ * @copyright Copyright (c) 2021-2026, MIT-License included in project toplevel dir
  */
 
 #ifndef SYSTEM_MEMORY_MAP_H
