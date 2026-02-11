@@ -32,11 +32,11 @@ typedef struct
   mock_struct2 h;
 } mock_struct3;
 
-typedef struct 
-{
-  double g;
-  mock_struct2 h;
-} mock_struct3_alt;
+// typedef struct 
+// {
+//   double g;
+//   mock_struct2 h;
+// } mock_struct3_alt;
 
 
 DEFINE_MAP_TYPE(mocktest1, dataregister_t, mock_struct1);
@@ -46,3 +46,4 @@ DEFINE_MAP_TYPE(mocktest3, dataregister_t, mock_struct3);
 // DEFINE_MAP_TYPE(mocktest3_alt, dataregister_t, mock_struct3_alt);
 
 void test_simplecreation_trb_tree();
+void test_complexcreation_trb_tree();

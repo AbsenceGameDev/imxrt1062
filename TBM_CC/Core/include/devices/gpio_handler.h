@@ -102,6 +102,9 @@ extern gpiodev_s         current_gpio_devices[9];
 #define SET_GPIO_REGISTER(gpio_reg_addr, direction_bit)           \
   gpio_reg_addr = (0x1 << direction_bit)
 
+#define CLEAR_GPIO_REGISTER(gpio_reg_addr)           \
+  gpio_reg_addr = 0x0  
+
 /**
  * @param addr vuint32_t *
  * @param byte uint_fast8_t
@@ -171,30 +174,17 @@ start_PITx(
   timer_datum_s*        timerdatum,
   timer_manager_cb      interrupt_callback,
   timer_manager_sick_cb tick_callback)
-  {
-    timer_manager_s* pit_timer = (timer_manager_s*)malloc_(sizeof(timer_manager_s));
-    pit_timer->timer_ctx = generate_led_device_context();
-    
-    init_pitman(pit_timer, timerdatum, PIT_CH1, interrupt_callback, tick_callback);  
-    setup_PITx(pit_timer, &GPIO7_DR_TOGGLE, 0x3); // start enabled, on-board led 
-   
-    return pit_timer;
-  }
+{
+  timer_manager_s* pit_timer = (timer_manager_s*)malloc_(sizeof(timer_manager_s));
+  pit_timer->timer_ctx = generate_led_device_context();
 
-/** 
- * @brief Initializes the PIT timer and the stock LED device on an already existing timer manager 
- * 
- * @param pit_timer A pointer to an already existing timer manager. 
- * @param timerdatum Object which holds essential the timer data needed for interpreting values 
- * @param interrupt_callback The callback for an potential interrupt-based tick function, fp has no parameter requirements 
- * @param tick_callback The callback for an potential polling-based tick function, fp requires deltatime
- */
-void 
-start_PIT_tick(
-  timer_manager_s*      pit_timer,
-  timer_datum_s*        timerdatum,
-  timer_manager_cb      interrupt_callback,
-  timer_manager_sick_cb tick_callback);  
+  init_pitman(pit_timer, timerdatum, PIT_CH1, interrupt_callback, tick_callback);
+  setup_PITx(pit_timer); // start pit timer
+
+  SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, 0x3); // Enable the given bit in the supplied flags/register
+ 
+  return pit_timer;
+} 
 
 void 
 timer_poll(

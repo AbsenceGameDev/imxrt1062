@@ -2,6 +2,8 @@ a.out
 desktop.ini
 imxrt1062.code-workspace
 Creating
+build/
+CLMessages/
 build/firmware.dis
 build/firmware.elf
 build/firmware.hex

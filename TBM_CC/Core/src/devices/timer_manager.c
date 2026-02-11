@@ -236,7 +236,6 @@ init_pitman(timer_manager_s* restrict pitman,
   CONTEXT_TO_PIT(context)->pit_ch = pit_ch;
   CONTEXT_TO_PIT(context)->freq = timerdatum->freq;
 
-  pitman->targetval          = timerdatum->val;
   pitman->clk_src            = pit_clk;
   pitman->time_type          = timerdatum->type;
   pitman->interrupt_callback = interrupt_callback;
@@ -277,6 +276,28 @@ uint32_t resolve_time(pit_speed_e freq, timetype_e time_type, uint32_t targetval
   return targetval;
 }
 
+float resolve_time_as_float(pit_speed_e freq, timetype_e time_resolution, uint32_t targetval, ttconversiondir_e conversiondir)
+{
+    float fDeltaTime = resolve_time(freq, time_resolution, targetval, conversiondir);
+    punned_float_u punned_float = {.AsInt32 = fDeltaTime};
+
+    float fDivisor = 1.0;
+    switch (time_resolution)
+    {
+    case DAYS_E: fDivisor = 1.f / 86400.f; break;
+    case HOURS_E: fDivisor = 1.f / 3600.f; break;
+    case MINUTES_E: fDivisor = 1.f / 60.f; break;
+    case MILLIS_E: fDivisor = 1000.f; break; // milli-seconds, 10E-3
+    case MICROS_E: fDivisor = 1000000.f; break; // micro-seconds, 10E-6
+    case ZETTOS_E: fDivisor = 10000000.f; break; // zetto-seconds, 10E-7
+    case YOTTOS_E: fDivisor = 100000000.f; break; // yotto-seconds, 10E-8
+    case NANOS_E: fDivisor = 1000000000.f; break;  // nano-seconds,  10E-9
+    default: break;
+    }
+
+    return punned_float.AsFloat / fDivisor; // convert from milliseconds to seconds  
+}
+
 
 timer_datum_s generate_time_struct(pit_speed_e freq, timetype_e type, uint32_t timeval)
 {
@@ -287,7 +308,7 @@ timer_datum_s generate_time_struct(pit_speed_e freq, timetype_e type, uint32_t t
 
 timer_manager_cb*       GCachedInterruptCallbackPIT;
 void dummy_tick(float dummy){ return; };
-void setup_PITx(timer_manager_s* restrict pitman, vuint32_t* Flags, vuint32_t DirectionBit)
+void setup_PITx(timer_manager_s* restrict pitman)
 {
   //
   // Resolve the previously stored timer context
@@ -354,12 +375,6 @@ void setup_PITx(timer_manager_s* restrict pitman, vuint32_t* Flags, vuint32_t Di
   // Set the PIT load value and enable the timer
   PIT_LDVAL0 = PIT_LDVAL1 = PIT_LDVAL2 = PIT_LDVAL3 = pitman->targetval;
   PIT_TCTRL0 = 3; PIT_TCTRL1 = PIT_TCTRL2 = PIT_TCTRL3 = 2; // Only enable Timer 1, figure out proper abstractions later
-
-  // Enable the given bit in the supplied flags/register
-  if (Flags != NULL)
-  {
-    *Flags = (0x1 << DirectionBit);
-  }
 }
 
 void

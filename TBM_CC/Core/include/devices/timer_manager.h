@@ -284,7 +284,7 @@ init_pitman(timer_manager_s* restrict pitman,
  * @note    Do not use with uninit. pit_mgr, will cause a crash, no safety checks
  */
 void
-setup_PITx(timer_manager_s* restrict pitman, vuint32_t* Flags, vuint32_t DirectionBit);
+setup_PITx(timer_manager_s* restrict pitman);
 
 
 /**
@@ -292,6 +292,13 @@ setup_PITx(timer_manager_s* restrict pitman, vuint32_t* Flags, vuint32_t Directi
  * @details
  */
 uint32_t resolve_time(pit_speed_e freq, timetype_e time_type, uint32_t targetval, ttconversiondir_e conversiondir);
+
+/**
+ * @brief   Resolves the ticks from the given value and time type
+ * @details
+ */
+float resolve_time_as_float(pit_speed_e freq, timetype_e time_resolution, uint32_t targetval, ttconversiondir_e conversiondir);
+
 
 /**
  * @brief   Generates a struct compatible with the timer abstraction.  
@@ -324,5 +331,8 @@ void hwtick();
 
 /** @brief  Software polling timer tick, used for polling purposes when accuracy is a lesser concern */ 
 void polltick(const float delta_time);
+
+/** @brief  Led toggle (used in software polling sanity checking) */ 
+void led_toggle(const float delta_time, vuint32_t ctrl_pos); // sanity checking test
 
 #endif // PIT_TIMER_H

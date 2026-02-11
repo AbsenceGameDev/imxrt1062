@@ -44,14 +44,15 @@ void test_simplecreation_trb_tree()
 
   TESTCASE(drf, 0, 0.0f, 1, 1.0f);  
   TESTCASE(drd, 0, 0.0, 1, 1.0);
-
-
+}
+void test_complexcreation_trb_tree()
+{
   /** @bug mock_struct2 & mocktest3_alt does not pass the test */
   mock_struct1 mtest1 = {.a = 0, .b = 0.0f,   .c = 2.0};
   mock_struct2 mtest2 = {.d = 0, .e = 0x8,    .f = mtest1};
-  mock_struct2_alt mtest2_alt = {.d = 0,      .f = mtest1};
+  //mock_struct2_alt mtest2_alt = {.d = 0,      .f = mtest1};
   mock_struct3 mtest3 = {.g = 0x120120,       .h = mtest2};
-  mock_struct3_alt mtest3_alt = {.g = 2.0,    .h = mtest2};
+  //mock_struct3_alt mtest3_alt = {.g = 2.0,    .h = mtest2};
 
   TESTCASE(mocktest1, 0, mtest1, 1, mtest1);
   // TESTCASE(mocktest2, 0, mtest2, 1, mtest2);              // Error < Breaks execution

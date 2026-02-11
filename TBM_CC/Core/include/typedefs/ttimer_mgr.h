@@ -244,5 +244,10 @@ typedef struct
   pit_speed_e freq;
 } pit_context_s;
 
+typedef union
+{
+  int32_t AsInt32;
+  float AsFloat;
+} punned_float_u;
 
 #endif // T_TIMER_MGR_H

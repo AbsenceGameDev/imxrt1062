@@ -12,7 +12,7 @@ LOADER = teensy_loader_cli
 STD=-std=c99
 
 # Cheap way to pass in arbitrary flags
-V=
+##V:=$(filter-out $@,$(MAKECMDGOALS))
 
 OUTFILE = firmware
 
@@ -32,89 +32,132 @@ INC_DIRS  += $(shell find "./TBM_CC/Core/include" -type d)
 INC_DIRS  += $(shell find "./TBM_CC/Core/tests" -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-FPU_FLAGS : -mfloat-abi=hard -mfpu=fpv5-d16 ## Does not work?
+FPU_FLAGS=-mfloat-abi=hard -mfpu=fpv5-d16
+ARM_FLAGS=-mcpu=cortex-m7 ${FPU_FLAGS} -mthumb
+ERR_FLAGS=-Werror -Wno-error=unused-variable -Wno-format##-Wnull-dereference
+BASERULE_FLAGS=-Wall -std=c99 $(ARM_FLAGS) $(ERR_FLAGS)##-flto Link-time optimization is removing some code it seems and is causing things to break
+
+DATA_FLAGS=-fdata-sections -ffunction-sections -fallow-store-data-races -fno-common
+EXTRA_COMPILE_FLAGS=$(DATA_FLAGS) -fstack-usage -ffast-math
+#CFLAGS=$(V) -O3 $(BASERULE_FLAGS) $(EXTRA_COMPILE_FLAGS) -Wa,-Iinc $(INC_FLAGS)
+CFLAGS=-O3 $(BASERULE_FLAGS) $(EXTRA_COMPILE_FLAGS) -Wa,-Iinc $(INC_FLAGS)
+
 
 INITOPTS = -Wl,--gc-sections,--print-gc-sections,--print-memory-usage -nostdlib -nostartfiles
 EXTMEMOPTS = -Wl,--defsym=__heap_start=0x20200000,--defsym=__heap_end=0x2027ffff
 LDSCRIPT_PATH = -TTBM_CC/teensy/imxrt1062.ld
+LDFLAGS = $(INITOPTS) $(EXTMEMOPTS) $(LDSCRIPT_PATH)
 
-CFLAGS = $(V) -O3 -Wall -Wa,-Iinc -Werror -Wno-error=unused-variable -mcpu=cortex-m7 -std=c99 $(FPU_FLAGS) -mthumb $(INC_FLAGS)
-LDFLAGS = $(INITOPTS)
-LDFLAGS += $(EXTMEMOPTS) 
-LDFLAGS += $(LDSCRIPT_PATH)
+
+## Formatting/Colouring - START
+GRN=\e[32m
+YLW=\e[33m
+BLU=\e[34m
+CYN=\e[36m
+LGR=\e[92m
+
+BG0=\e[100m
+BG1=\e[104m
+BGX=\e[40m
+END=\e[0m
+
+define CMsg0
+	@echo -e "${1}${2} \>\> $3 ${END}"
+endef
+define CMsg1
+	@echo -e "${1}${2} \>\> $3 $4 ${END}"
+endef
+define CMsg2
+	@echo -e "${1}${2} \>\> ${END}${3}${2}$4${END}${1}${2}$5${END}"
+endef
+## Formatting/Colouring - END
 
 $(BUILD_DIR)/$(OUTFILE).hex: $(BUILD_DIR)/$(OUTFILE).elf
-	@echo \>\> Creating .hex
+	$(call CMsg1, ${BLU}, ${BG1},Creating .hex - EXECUTE EABI-OBJ-COPY, (1/4))
 	@$(OBJCOPY) -O ihex -R .eeprom build/$(OUTFILE).elf build/$(OUTFILE).hex
+	
+	$(call CMsg1, ${BLU}, ${BG1},Creating .hex - EXECUTE EABI-OBJ-DUMP to '.dis', (2/4))
 	@$(OBJDUMP) -d -x build/$(OUTFILE).elf > build/$(OUTFILE).dis
+
+	$(call CMsg1, ${BLU}, ${BG1},Creating .hex - EXECUTE EABI-OBJ-DUMP to '.lst', (3/4))
 	@$(OBJDUMP) -d -S -C build/$(OUTFILE).elf > build/$(OUTFILE).lst
+	
+	$(call CMsg1, ${BLU}, ${BG1},Creating .hex - EXECUTE EABI-SIZE, (4/4))
 	@$(SIZE) build/$(OUTFILE).elf
 
 $(BUILD_DIR)/$(OUTFILE).elf: $(OBJS)
-	@echo \>\> Creating .elf
+	$(call CMsg1, ${BLU}, ${BG1},Creating .elf - Compling .ELF with linker map with LDFLAGS, (1/1))
+
 	@$(CC) $(CFLAGS) -Xlinker -Map=build/$(OUTFILE).map $(LDFLAGS) -o $@ $^
 
 $(BUILD_DIR)/%.s.o: %.s
-	@echo \>\> Creating .s.o
+	$(call CMsg0, ${BLU}, ${BG1},Creating .s.o)
 	@$(MKDIR_P) $(dir $@)
 	@$(AS) $(ASFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.c.o: %.c
-	@echo \>\> Creating .c.o
+	$(call CMsg0, ${BLU},${BG1},Compiling Object (Generate a .c.o file in $(dir $@)))
+
 	@$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+
+	${CC} ${CFLAGS} -c $< -o $@
 
 .PHONY: flashnew
 flashnew: 
-	@echo \>\>
-	@echo \>\> Removing /build dir..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Removing /build dir.. )
+
 	@$(RM) -f -r $(BUILD_DIR)
 
-	@echo \>\>
-	@echo \>\> Beginning building..!
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Beginning building..! )
+
 	make
 
-	@echo \>\>
-	@echo \>\> Beginning flashing process..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Beginning flashing process.. )
+
 	$(LOADER) --mcu=TEENSY41 -w -s -v $(BUILD_DIR)/$(OUTFILE).hex
-	@echo \>\> Device has been flashed!
+	$(call CMsg0, ${LGR},${BG0},Device has been flashed! )
 
 .PHONY: flash
 flash: 
-	@echo \>\>
-	@echo \>\> Beginning building..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Beginning building..! )
+
 	make
 
-	@echo \>\>
-	@echo \>\> Beginning flashing process..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Beginning flashing process.. )
 	
-	@echo \>\>
+	$(call CMsg0, ${CYN})
 	$(LOADER) --mcu=TEENSY41 -w -s -v $(BUILD_DIR)/$(OUTFILE).hex
-	@echo "Device has been flashed!"
+	$(call CMsg0, ${LGR},${BG0},Device has been flashed! )
 
 .PHONY: flashonly
 flashonly:
-	@echo \>\>
-	@echo \>\> Beginning flashing process..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Beginning flashing process.. )
 	
-	@echo \>\>
+	$(call CMsg0, ${CYN})
 	$(LOADER) --mcu=TEENSY41 -w -s -v $(BUILD_DIR)/$(OUTFILE).hex
-	@echo \>\> Device has been flashed!
+	$(call CMsg0, ${LGR},${BG0},Device has been flashed! )
 
 .PHONY: delete
 delete:
-	@echo \>\>
-	@echo \>\> Deleting /build dir..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Removing /build dir.. )
+
 	@$(RM) -f -r $(BUILD_DIR)
 
 .PHONY: clean
 clean:
-	@echo \>\>
-	@echo \>\> Deleting /build dir..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Removing /build dir.. )
 	@$(RM) -f -r $(BUILD_DIR)
 	
-	@echo \>\>
-	@echo \>\> Beginning building..
+	$(call CMsg0, ${CYN})
+	$(call CMsg0, ${YLW},${BG0},Beginning building..! )
 	make
 
 MKDIR_P ?= mkdir -p

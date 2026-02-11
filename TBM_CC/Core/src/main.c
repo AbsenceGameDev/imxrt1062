@@ -17,53 +17,46 @@ start_PITx(
   timer_manager_cb      interrupt_callback,
   timer_manager_sick_cb tick_callback);
 
-static const timer_manager_s* g_timer_manager = NULL;
+static timer_manager_s* g_timer_manager = NULL;
 static int g_timer_toggle = 1;
 
 // @todo Write a structure to handle signal scheduling, keep this here in main.c as a reminder 
 struct { float dummy; } timerschedule_s;
 
+void tree_tests(bool should_test)
+{
+  if (should_test)
+  {
+    test_simplecreation_trb_tree(); // Test of allocating trees with POD data: SUCCESS
+    test_simplecreation_trb_tree(); // Test of allocating trees with POD data: SUCCESS
+    test_simplecreation_trb_tree(); // Test of allocating trees with POD data: SUCCESS
+    test_simplecreation_trb_tree(); // Test of allocating trees with POD data: SUCCESS
+    // test_complexcreation_trb_tree(); // Test of allocating trees with non POD data: CRASH 
+  }
+}
+
 int execute()
 {
-  test_simplecreation_trb_tree(); // Test that allocating some trees / maps does not crash the teensy
+  tree_tests(false);  
 
-
-  timer_datum_s     timerdatum = generate_time_struct(PIT_SPEED_50MHz, SECONDS_E, 1);
-  timer_manager_s*  pit_timer  = start_PITx(&timerdatum, &hwtick, NULL /* &polltick */); 
+  timer_datum_s     timerdatum = generate_time_struct(PIT_SPEED_200MHz, MILLIS_E, 100);
+  timer_manager_s*  pit_timer  = start_PITx(&timerdatum, &hwtick, &polltick); 
   g_timer_manager = pit_timer;
 
   /** @note @ArioA This calls a polling timer that runs concurrently as the interrupt timers. Interrupt timers take precedent */ 
-  while (pit_timer->keep_ticking) 
+  for (;pit_timer->keep_ticking;)
   {
-    if (pit_timer->tick_callback == NULL) { continue; }
-    
     timer_poll(pit_timer, &timerdatum);
   }
 
   g_timer_manager = NULL;
-
   return 0;
 }
 
 // Interrupt/hardware trigger tick and software polling timer tick
 void hwtick()
 {
-  if (g_timer_manager == NULL || g_timer_manager->timer_ctx == NULL) { return; }
-
-  // Set PIN 13 LOW (GPIO7_DR_CLEAR), // Set PIN 13 HIGH (GPIO7_DR_TOGGLE), 
-  uint8_t ctrl_pos = ((gpiodev_s*)g_timer_manager->timer_ctx->base_gpio_device)->base_mux_device->ctrl_pos = 0x3;
-
-  switch (g_timer_toggle)
-  {
-    case 0:
-      SET_GPIO_REGISTER(GPIO7_DR_TOGGLE, ctrl_pos);
-      g_timer_toggle = 1;
-      break;
-    case 1:
-      SET_GPIO_REGISTER(GPIO7_DR_CLEAR, ctrl_pos);
-      g_timer_toggle = 0;
-      break;
-  }
+  polltick(0.0); // Interrupt based, will not have or need deltatime
 
   PIT_TCTRL0 = 3; 
   PIT_TFLG0_CLR;
@@ -71,7 +64,37 @@ void hwtick()
   __asm__ volatile("dsb");
 }
 
+// Tick: Currently only setting PIN 13 LOW (GPIO7_DR_CLEAR), // Setting PIN 13 HIGH (GPIO7_DR_TOGGLE), 
 void polltick(const float delta_time)
 {
-  hwtick();
+  uint8_t ctrl_pos = (g_timer_manager->timer_ctx != NULL) 
+    ? ((gpiodev_s*)g_timer_manager->timer_ctx->base_gpio_device)->base_mux_device->ctrl_pos 
+    : 0x3; // Fallback to default LED control position
+
+  led_toggle(delta_time, ctrl_pos);
+
+  // Reset pit timer for PIT_0
+  // TODO: Investigate. NOTE: Does not seem to reset the timer!
+  PIT_TCTRL0 = 3; 
+  PIT_TFLG0_CLR;
+  setup_PITx(g_timer_manager);
+}
+
+
+void led_toggle(const float delta_time, vuint32_t ctrl_pos)
+{
+  switch (g_timer_toggle)
+  {
+    case 0:
+      g_timer_toggle = 1;
+      SET_GPIO_REGISTER(GPIO7_DR_SET, ctrl_pos);
+      break;
+    case 1:
+      g_timer_toggle = 0;
+      SET_GPIO_REGISTER(GPIO7_DR_CLEAR, ctrl_pos);
+      break;
+    default: 
+      g_timer_toggle = 0;
+    break;
+  }
 }

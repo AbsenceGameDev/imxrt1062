@@ -214,12 +214,6 @@ init_onboard_led()
   return heap_gpio_device;
 }
 
-union punned_float_u
-{
-  int32_t AsInt32;
-  float AsFloat;
-};
-
 // @todo
 // void SetPrescaler(clkroot) 
 // {
@@ -236,35 +230,13 @@ timer_context_s* generate_led_device_context()
   return timer_context;
 }
 
-void start_PIT_tick(
-  timer_manager_s*      pit_timer,
-  timer_datum_s*        timerdatum,
-  timer_manager_cb      interrupt_callback,
-  timer_manager_sick_cb tick_callback)
-{
-  init_pitman(pit_timer,
-              timerdatum,
-              PIT_CH1,
-              interrupt_callback, 
-              tick_callback);  
-
-  setup_PITx(pit_timer, &GPIO7_DR_TOGGLE, 0x3); // start enabled, on-board led
-
-  return;
-}
-
 // Polling callback
 void timer_poll(timer_manager_s* pit_mgr, timer_datum_s* timerdatum)
 {
-  // Our range is between 0 to 10 remaining polings for a triggering the tick callback   
-  if (PIT_CVAL0 < 0xa) 
+  // Our range is between 0 to 100 remaining pollings for a triggering the tick callback   
+  if (PIT_CVAL0 < 100) 
   {
-    // // FPU not enabled? :: undefined reference to `__aeabi_fdiv', need to figure this out after I've wrapped up the timer manager
-    // uint32_t iDeltaMillisecond = resolve_time(timerdatum->freq, MILLIS_E, timerdatum->val - PIT_CVAL0, FROMTICKS_E);
-    // union punned_float_u punned_float = {.AsInt32 = iDeltaMillisecond};
-    // float fDeltaSeconds = punned_float.AsFloat / 1000.0f; // convert from milliseconds to seconds
-    // pit_mgr->tick_callback(fDeltaSeconds);
-
-    pit_mgr->tick_callback(0.0f);
+    float fDeltaSeconds = resolve_time_as_float(timerdatum->freq, MILLIS_E, timerdatum->val - PIT_CVAL0, FROMTICKS_E);
+    pit_mgr->tick_callback(fDeltaSeconds);
   }
 }

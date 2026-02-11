@@ -124,7 +124,6 @@ void *
 __find_mem__(vheap_group * heap_g, uint16_t requested_size)
 {
   vheap_block * current_block = HG_HEAD_BLOCK(heap_g); // Point to first block
-  vheap_block * new_block = ((vheap_block *)0);
   vheap_block * end_block = HBHG_INCR_ADDR(heap_g, READ_HEAP_TOTAL(heap_g));
 
   for (; (current_block != (vheap_block *)NULL) && current_block != end_block; current_block = current_block->next) 
@@ -135,13 +134,14 @@ __find_mem__(vheap_group * heap_g, uint16_t requested_size)
     vuint16_t* curr_size_ptr = &(current_block->curr_data_size);
     uint16_t requested_size_delta = *curr_size_ptr - requested_size;
 
+    // Actaully set the new potential block immediatly after the current block
+    vheap_block * new_block = current_block + current_block->max_data_size;
+
     // Check if requested size is exactly what is left
     if (requested_size_delta == 0) 
     {
-      // decrement one in _blocks [free]
-      g_free_blocks[heap_g->group_id]--;
-      // Increment one in _blocks [used]
-      g_used_blocks[heap_g->group_id]++;
+      g_free_blocks[heap_g->group_id]--; // decrement one in _blocks [free]
+      g_used_blocks[heap_g->group_id]++; // Increment one in _blocks [used]
 
       new_block->prev = current_block;
       new_block->curr_data_size = 0x0;
